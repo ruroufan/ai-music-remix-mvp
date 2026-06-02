@@ -1,0 +1,7 @@
+node_modules
+dist
+.npm-cache
+server/uploads
+server/outputs
+*.tsbuildinfo
+.DS_Store
