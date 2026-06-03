@@ -13,7 +13,15 @@ const appliedFeatureLabels = (result: GenerationResult) => {
     labels.push(`裁剪 ${formatDuration(result.trim.startTime)} - ${formatDuration(result.trim.endTime)}`);
   }
   if (result.appliedFeatures?.includes('tempo')) labels.push(`节奏变速 ${result.tempo ?? result.settings.tempo}x`);
+  if (result.appliedFeatures?.includes('volume')) labels.push(`音量 ${result.volumeGain ?? result.settings.volumeGain}`);
+  if (result.appliedFeatures?.includes('fade')) {
+    const fadeIn = result.fade?.fadeInDuration ?? result.settings.fadeInDuration;
+    const fadeOut = result.fade?.fadeOutDuration ?? result.settings.fadeOutDuration;
+    labels.push(`淡入 ${fadeIn}秒 / 淡出 ${fadeOut}秒`);
+  }
+  if (result.appliedFeatures?.includes('normalize')) labels.push('标准化');
   if (result.appliedFeatures?.includes('format')) labels.push(`格式转换 ${result.format ?? result.settings.targetFormat}`);
+  if (result.resultType === 'real') labels.push(`输出 ${result.format ?? result.settings.targetFormat}`);
   return labels;
 };
 

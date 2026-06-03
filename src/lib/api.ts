@@ -33,6 +33,9 @@ export const processAudio = async (input: ApiJobInput): Promise<GenerationResult
   formData.append('startTime', String(input.settings.trimStartTime));
   formData.append('endTime', String(input.settings.trimEndTime));
   formData.append('tempo', input.settings.tempo);
+  formData.append('volumeGain', input.settings.volumeGain);
+  formData.append('fadeInDuration', String(input.settings.fadeInDuration));
+  formData.append('fadeOutDuration', String(input.settings.fadeOutDuration));
   formData.append('targetFormat', input.settings.targetFormat);
   formData.append('enabledFeatures', JSON.stringify(input.settings.enabledFeatures));
 
@@ -58,6 +61,9 @@ export const processAudio = async (input: ApiJobInput): Promise<GenerationResult
     appliedFeatures: payload.appliedFeatures,
     trim: payload.trim,
     tempo: payload.tempo,
+    volumeGain: payload.volumeGain,
+    fade: payload.fade,
+    normalize: payload.normalize,
     format: payload.format,
   };
 };

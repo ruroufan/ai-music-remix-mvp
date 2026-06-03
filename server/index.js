@@ -22,6 +22,8 @@ const app = express();
 const port = Number(process.env.PORT || process.env.API_PORT || 5174);
 const allowedTempos = new Set(['0.8', '1.0', '1.2', '1.5']);
 const allowedTargetFormats = new Set(['mp3', 'wav', 'm4a']);
+const allowedVolumeGains = new Set(['-6dB', '-3dB', '0dB', '+3dB', '+6dB']);
+const allowedFadeDurations = new Set(['0', '1', '3', '5']);
 const maxAudioSizeBytes = 20 * 1024 * 1024;
 const maxAudioDurationSeconds = 5 * 60;
 const outputMaxAgeMs = Number(process.env.OUTPUT_MAX_AGE_MS || 60 * 60 * 1000);
@@ -147,6 +149,9 @@ const runFfmpegTempo = ({ inputPath, outputPath, tempo }) =>
 const runFfmpegTrim = ({ inputPath, outputPath, startTime, endTime }) =>
   runFfmpeg(['-y', '-ss', String(startTime), '-to', String(endTime), '-i', inputPath, '-vn', '-codec:a', 'libmp3lame', '-q:a', '2', outputPath]);
 
+const runFfmpegFilter = ({ inputPath, outputPath, filter }) =>
+  runFfmpeg(['-y', '-i', inputPath, '-vn', '-filter:a', filter, '-codec:a', 'libmp3lame', '-q:a', '2', outputPath]);
+
 const formatArgs = {
   mp3: ['-codec:a', 'libmp3lame', '-q:a', '2'],
   wav: ['-codec:a', 'pcm_s16le'],
@@ -196,6 +201,9 @@ app.post('/api/process-audio', (request, response) => {
     const startTime = Number(request.body.startTime);
     const endTime = Number(request.body.endTime);
     const tempo = String(request.body.tempo || '1.0');
+    const volumeGain = String(request.body.volumeGain || '0dB');
+    const fadeInDuration = String(request.body.fadeInDuration ?? '0');
+    const fadeOutDuration = String(request.body.fadeOutDuration ?? '0');
     const targetFormat = String(request.body.targetFormat || 'mp3').toLowerCase();
 
     let enabledFeatures;
@@ -206,6 +214,9 @@ app.post('/api/process-audio', (request, response) => {
     }
 
     const useTempo = enabledFeatures.tempo === true;
+    const useVolume = enabledFeatures.volume === true;
+    const useFade = enabledFeatures.fade === true;
+    const useNormalize = enabledFeatures.normalize === true;
     const useFormat = enabledFeatures.format === true;
     const useTrim = enabledFeatures.trim === true;
 
@@ -214,7 +225,7 @@ app.post('/api/process-audio', (request, response) => {
       return;
     }
 
-    if (!useTrim && !useTempo && !useFormat) {
+    if (!useTrim && !useTempo && !useVolume && !useFade && !useNormalize && !useFormat) {
       fs.rmSync(file.path, { force: true });
       response.status(400).json({ error: 'Please enable at least one real processing feature.' });
       return;
@@ -229,6 +240,18 @@ app.post('/api/process-audio', (request, response) => {
     if (useFormat && !allowedTargetFormats.has(targetFormat)) {
       fs.rmSync(file.path, { force: true });
       response.status(400).json({ error: 'targetFormat must be mp3, wav, or m4a.' });
+      return;
+    }
+
+    if (useVolume && !allowedVolumeGains.has(volumeGain)) {
+      fs.rmSync(file.path, { force: true });
+      response.status(400).json({ error: 'volumeGain must be -6dB, -3dB, 0dB, +3dB, or +6dB.' });
+      return;
+    }
+
+    if (useFade && (!allowedFadeDurations.has(fadeInDuration) || !allowedFadeDurations.has(fadeOutDuration))) {
+      fs.rmSync(file.path, { force: true });
+      response.status(400).json({ error: 'fade durations must be 0, 1, 3, or 5 seconds.' });
       return;
     }
 
@@ -267,15 +290,49 @@ app.post('/api/process-audio', (request, response) => {
       }
 
       if (useTempo && tempo !== '1.0') {
-        const tempoOutputPath = useFormat ? path.join(outputDir, `${safeBaseName || 'audio'}-tempo-${id}.mp3`) : outputPath;
+        const tempoOutputPath =
+          useVolume || useFade || useNormalize || useFormat ? path.join(outputDir, `${safeBaseName || 'audio'}-tempo-${id}.mp3`) : outputPath;
         await runFfmpegTempo({ inputPath: currentPath, outputPath: tempoOutputPath, tempo });
         currentPath = tempoOutputPath;
-        if (useFormat) tempFiles.push(tempoOutputPath);
+        if (useVolume || useFade || useNormalize || useFormat) tempFiles.push(tempoOutputPath);
+      }
+
+      if (useVolume) {
+        const volumeOutputPath = useFade || useNormalize || useFormat ? path.join(outputDir, `${safeBaseName || 'audio'}-volume-${id}.mp3`) : outputPath;
+        await runFfmpegFilter({ inputPath: currentPath, outputPath: volumeOutputPath, filter: `volume=${volumeGain}` });
+        currentPath = volumeOutputPath;
+        if (useFade || useNormalize || useFormat) tempFiles.push(volumeOutputPath);
+      }
+
+      if (useFade) {
+        const fadeIn = Number(fadeInDuration);
+        const fadeOut = Number(fadeOutDuration);
+        const currentDuration = await getAudioDuration(currentPath);
+        const filters = [];
+        if (fadeIn > 0) filters.push(`afade=t=in:st=0:d=${Math.min(fadeIn, currentDuration)}`);
+        if (fadeOut > 0) filters.push(`afade=t=out:st=${Math.max(0, currentDuration - fadeOut)}:d=${Math.min(fadeOut, currentDuration)}`);
+
+        if (filters.length > 0) {
+          const fadeOutputPath = useNormalize || useFormat ? path.join(outputDir, `${safeBaseName || 'audio'}-fade-${id}.mp3`) : outputPath;
+          await runFfmpegFilter({ inputPath: currentPath, outputPath: fadeOutputPath, filter: filters.join(',') });
+          currentPath = fadeOutputPath;
+          if (useNormalize || useFormat) tempFiles.push(fadeOutputPath);
+        }
+      }
+
+      if (useNormalize) {
+        const normalizeOutputPath = useFormat ? path.join(outputDir, `${safeBaseName || 'audio'}-normalize-${id}.mp3`) : outputPath;
+        await runFfmpegFilter({ inputPath: currentPath, outputPath: normalizeOutputPath, filter: 'loudnorm=I=-16:TP=-1.5:LRA=11' });
+        currentPath = normalizeOutputPath;
+        if (useFormat) tempFiles.push(normalizeOutputPath);
       }
 
       if (useFormat) {
         await runFfmpegFormat({ inputPath: currentPath, outputPath, targetFormat });
-      } else if (!useTrim && (!useTempo || tempo === '1.0')) {
+      } else if (
+        (!useTrim && (!useTempo || tempo === '1.0') && !useVolume && !useFade && !useNormalize) ||
+        currentPath === file.path
+      ) {
         await runFfmpegFormat({ inputPath: currentPath, outputPath, targetFormat: finalFormat });
       }
 
@@ -285,6 +342,9 @@ app.post('/api/process-audio', (request, response) => {
       const appliedFeatures = [];
       if (useTrim) appliedFeatures.push('trim');
       if (useTempo) appliedFeatures.push('tempo');
+      if (useVolume) appliedFeatures.push('volume');
+      if (useFade) appliedFeatures.push('fade');
+      if (useNormalize) appliedFeatures.push('normalize');
       if (useFormat) appliedFeatures.push('format');
 
       response.json({
@@ -295,6 +355,9 @@ app.post('/api/process-audio', (request, response) => {
         appliedFeatures,
         trim: useTrim ? { startTime, endTime } : undefined,
         tempo: useTempo ? tempo : undefined,
+        volumeGain: useVolume ? volumeGain : undefined,
+        fade: useFade ? { fadeInDuration: Number(fadeInDuration), fadeOutDuration: Number(fadeOutDuration) } : undefined,
+        normalize: useNormalize || undefined,
         format: finalFormat,
       });
     } catch (error) {

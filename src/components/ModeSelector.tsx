@@ -1,4 +1,4 @@
-import { AudioLines, Disc3, FileAudio, Mic2, SlidersHorizontal, SplitSquareHorizontal, Timer, Wand2 } from './icons';
+import { AudioLines, Disc3, FileAudio, Gauge, Headphones, Mic2, SlidersHorizontal, SplitSquareHorizontal, Timer, Wand2 } from './icons';
 import type { EnabledFeatures } from '../types';
 
 const featureCards: Array<{
@@ -27,6 +27,33 @@ const featureCards: Array<{
     isReal: true,
     isToggleable: true,
     icon: SlidersHorizontal,
+  },
+  {
+    id: 'volume',
+    title: '音量调整',
+    description: '-6dB 到 +6dB',
+    badge: '真实处理',
+    isReal: true,
+    isToggleable: true,
+    icon: Gauge,
+  },
+  {
+    id: 'fade',
+    title: '淡入淡出',
+    description: '0 / 1 / 3 / 5 秒',
+    badge: '真实处理',
+    isReal: true,
+    isToggleable: true,
+    icon: AudioLines,
+  },
+  {
+    id: 'normalize',
+    title: '音量标准化',
+    description: 'loudnorm 均衡响度',
+    badge: '真实处理',
+    isReal: true,
+    isToggleable: true,
+    icon: Headphones,
   },
   {
     id: 'format',
@@ -77,7 +104,12 @@ export function ModeSelector({ enabledFeatures, disabled, onToggleFeature }: Mod
         {featureCards.map((feature) => {
           const Icon = feature.icon;
           const isEnabled =
-            feature.id === 'trim' || feature.id === 'tempo' || feature.id === 'format'
+            feature.id === 'trim' ||
+            feature.id === 'tempo' ||
+            feature.id === 'volume' ||
+            feature.id === 'fade' ||
+            feature.id === 'normalize' ||
+            feature.id === 'format'
               ? enabledFeatures[feature.id]
               : false;
 
@@ -105,7 +137,7 @@ export function ModeSelector({ enabledFeatures, disabled, onToggleFeature }: Mod
 
       <div className="inline-note">
         <AudioLines size={16} />
-        可同时开启多个真实功能；当前组合顺序为先节奏变速，再格式转换。
+        可同时开启多个真实功能；处理顺序为裁剪、变速、音量、淡入淡出、标准化、格式转换。
       </div>
     </section>
   );

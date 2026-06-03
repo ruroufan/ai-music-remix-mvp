@@ -10,6 +10,7 @@ import { ResultPlayer } from './components/ResultPlayer';
 import { TempoSelector } from './components/TempoSelector';
 import { TrimSelector } from './components/TrimSelector';
 import { UploadArea } from './components/UploadArea';
+import { FadeSelector, NormalizeSelector, VolumeSelector } from './components/EnhancementSelectors';
 import { processAudio } from './lib/api';
 import type { AppStatus, AudioFileInfo, EnabledFeatures, GenerationResult, GenerationSettings, TargetFormat } from './types';
 
@@ -20,10 +21,16 @@ const defaultSettings: GenerationSettings = {
   enabledFeatures: {
     trim: false,
     tempo: false,
+    volume: false,
+    fade: false,
+    normalize: false,
     format: false,
   },
   trimStartTime: 0,
   trimEndTime: 30,
+  volumeGain: '0dB',
+  fadeInDuration: 0,
+  fadeOutDuration: 0,
   style: 'City Pop',
   voice: '清透女声',
   tempo: '1.0',
@@ -33,7 +40,8 @@ const defaultSettings: GenerationSettings = {
   accompaniment: '保留原旋律',
 };
 
-const hasSelectedRealFeature = (features: EnabledFeatures) => features.trim || features.tempo || features.format;
+const hasSelectedRealFeature = (features: EnabledFeatures) =>
+  features.trim || features.tempo || features.volume || features.fade || features.normalize || features.format;
 
 function App() {
   const [status, setStatus] = useState<AppStatus>('idle');
@@ -216,6 +224,31 @@ function App() {
               value={settings.tempo}
             />
           )}
+
+          {settings.enabledFeatures.volume && (
+            <VolumeSelector
+              disabled={isProcessing}
+              onChange={(volumeGain) => {
+                setSettings((current) => ({ ...current, volumeGain }));
+                if (audio) setStatus('configuring');
+              }}
+              value={settings.volumeGain}
+            />
+          )}
+
+          {settings.enabledFeatures.fade && (
+            <FadeSelector
+              disabled={isProcessing}
+              fadeInDuration={settings.fadeInDuration}
+              fadeOutDuration={settings.fadeOutDuration}
+              onChange={(values) => {
+                setSettings((current) => ({ ...current, ...values }));
+                if (audio) setStatus('configuring');
+              }}
+            />
+          )}
+
+          {settings.enabledFeatures.normalize && <NormalizeSelector />}
 
           {settings.enabledFeatures.format && (
             <OptionSelector

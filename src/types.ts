@@ -9,6 +9,9 @@ export type TargetFormat = 'mp3' | 'wav' | 'm4a';
 export type EnabledFeatures = {
   trim: boolean;
   tempo: boolean;
+  volume: boolean;
+  fade: boolean;
+  normalize: boolean;
   format: boolean;
 };
 
@@ -26,6 +29,9 @@ export type GenerationSettings = {
   enabledFeatures: EnabledFeatures;
   trimStartTime: number;
   trimEndTime: number;
+  volumeGain: '-6dB' | '-3dB' | '0dB' | '+3dB' | '+6dB';
+  fadeInDuration: 0 | 1 | 3 | 5;
+  fadeOutDuration: 0 | 1 | 3 | 5;
   style: string;
   voice: string;
   tempo: TempoValue;
@@ -43,12 +49,18 @@ export type GenerationResult = {
   audioUrl: string;
   createdAt: string;
   resultType: 'real' | 'mock';
-  appliedFeatures?: Array<'trim' | 'tempo' | 'format'>;
+  appliedFeatures?: Array<'trim' | 'tempo' | 'volume' | 'fade' | 'normalize' | 'format'>;
   trim?: {
     startTime: number;
     endTime: number;
   };
   tempo?: TempoValue;
+  volumeGain?: GenerationSettings['volumeGain'];
+  fade?: {
+    fadeInDuration: number;
+    fadeOutDuration: number;
+  };
+  normalize?: boolean;
   format?: TargetFormat;
 };
 
