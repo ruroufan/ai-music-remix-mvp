@@ -6,11 +6,14 @@ type ResultPlayerProps = {
   onRegenerate: () => void;
 };
 
-const resultTags = (result: GenerationResult) => {
-  if (result.mode === 'format') return [`目标格式 ${result.settings.targetFormat.toUpperCase()}`, 'FFmpeg convert'];
-  if (result.mode === 'tempo') return [result.settings.tempo, 'FFmpeg tempo'];
-  return [result.settings.style, result.settings.voice, result.settings.tempo];
+const appliedFeatureLabels = (result: GenerationResult) => {
+  const labels = [];
+  if (result.appliedFeatures?.includes('tempo')) labels.push(`节奏变速 ${result.tempo ?? result.settings.tempo}x`);
+  if (result.appliedFeatures?.includes('format')) labels.push(`格式转换 ${result.format ?? result.settings.targetFormat}`);
+  return labels;
 };
+
+const downloadExtension = (result: GenerationResult) => result.format ?? result.settings.targetFormat ?? 'mp3';
 
 export function ResultPlayer({ result, onRegenerate }: ResultPlayerProps) {
   if (!result) {
@@ -22,6 +25,7 @@ export function ResultPlayer({ result, onRegenerate }: ResultPlayerProps) {
   }
 
   const isReal = result.resultType === 'real';
+  const labels = appliedFeatureLabels(result);
 
   return (
     <section className="panel result-panel is-ready">
@@ -42,15 +46,15 @@ export function ResultPlayer({ result, onRegenerate }: ResultPlayerProps) {
       </div>
 
       <div className="result-tags">
-        {resultTags(result).map((tag) => (
-          <span key={tag}>{tag}</span>
+        {(labels.length > 0 ? labels : ['Mock preview']).map((tag) => (
+          <span key={tag}>已应用：{tag}</span>
         ))}
       </div>
 
       <audio className="audio-control" controls src={result.audioUrl} />
 
       <div className="result-actions">
-        <a className="download-button" download={`${result.name}.${result.mode === 'format' ? result.settings.targetFormat : 'mp3'}`} href={result.audioUrl}>
+        <a className="download-button" download={`${result.name}.${downloadExtension(result)}`} href={result.audioUrl}>
           <Download size={18} />
           {isReal ? '下载处理后音频' : '下载模拟预览'}
         </a>

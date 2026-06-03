@@ -1,24 +1,42 @@
 import { AudioLines, Disc3, FileAudio, Mic2, SlidersHorizontal, SplitSquareHorizontal, Wand2 } from './icons';
-import type { RemixMode } from '../types';
+import type { EnabledFeatures } from '../types';
 
-const modes: Array<{
-  id: RemixMode;
+const featureCards: Array<{
+  id: keyof EnabledFeatures | 'style' | 'voice' | 'stems' | 'accompaniment';
   title: string;
   description: string;
   badge: string;
   isReal: boolean;
+  isToggleable: boolean;
   icon: typeof Wand2;
 }> = [
-  { id: 'style', title: '改风格', description: 'AI 音乐风格转换', badge: 'Mock preview', isReal: false, icon: Wand2 },
-  { id: 'voice', title: '换人声', description: 'RVC 声线占位', badge: '即将支持', isReal: false, icon: Mic2 },
-  { id: 'tempo', title: '改节奏', description: '0.8x / 1.2x / 1.5x', badge: '真实处理', isReal: true, icon: SlidersHorizontal },
-  { id: 'format', title: '转格式', description: 'mp3 / wav / m4a', badge: '真实处理', isReal: true, icon: FileAudio },
+  {
+    id: 'tempo',
+    title: '节奏变速',
+    description: '0.8x / 1.0x / 1.2x / 1.5x',
+    badge: '真实处理',
+    isReal: true,
+    isToggleable: true,
+    icon: SlidersHorizontal,
+  },
+  {
+    id: 'format',
+    title: '格式转换',
+    description: 'mp3 / wav / m4a',
+    badge: '真实处理',
+    isReal: true,
+    isToggleable: true,
+    icon: FileAudio,
+  },
+  { id: 'style', title: '改风格', description: 'AI 音乐风格转换', badge: 'Mock preview', isReal: false, isToggleable: false, icon: Wand2 },
+  { id: 'voice', title: '换人声', description: 'RVC 声线占位', badge: '即将支持', isReal: false, isToggleable: false, icon: Mic2 },
   {
     id: 'stems',
     title: '分离音轨',
     description: '人声 / 伴奏 / 鼓贝斯',
     badge: 'Mock preview',
     isReal: false,
+    isToggleable: false,
     icon: SplitSquareHorizontal,
   },
   {
@@ -27,41 +45,47 @@ const modes: Array<{
     description: '改编曲与氛围',
     badge: '即将支持',
     isReal: false,
+    isToggleable: false,
     icon: Disc3,
   },
 ];
 
 type ModeSelectorProps = {
-  value: RemixMode;
+  enabledFeatures: EnabledFeatures;
   disabled: boolean;
-  onChange: (mode: RemixMode) => void;
+  onToggleFeature: (feature: keyof EnabledFeatures) => void;
 };
 
-export function ModeSelector({ value, disabled, onChange }: ModeSelectorProps) {
+export function ModeSelector({ enabledFeatures, disabled, onToggleFeature }: ModeSelectorProps) {
   return (
     <section className="panel">
       <div className="panel-heading">
         <span className="eyebrow">Step 02</span>
-        <h2>选择处理方式</h2>
+        <h2>选择处理功能</h2>
       </div>
 
       <div className="mode-grid">
-        {modes.map((mode) => {
-          const Icon = mode.icon;
+        {featureCards.map((feature) => {
+          const Icon = feature.icon;
+          const isEnabled = feature.id === 'tempo' || feature.id === 'format' ? enabledFeatures[feature.id] : false;
+
           return (
             <button
-              className={`mode-card ${value === mode.id ? 'is-active' : ''}`}
-              disabled={disabled}
-              key={mode.id}
-              onClick={() => onChange(mode.id)}
+              aria-pressed={feature.isToggleable ? isEnabled : undefined}
+              className={`mode-card ${isEnabled ? 'is-active' : ''} ${!feature.isToggleable ? 'is-muted' : ''}`}
+              disabled={disabled || !feature.isToggleable}
+              key={feature.id}
+              onClick={() => feature.isToggleable && onToggleFeature(feature.id as keyof EnabledFeatures)}
               type="button"
             >
               <span>
                 <Icon size={22} />
               </span>
-              <strong>{mode.title}</strong>
-              <small>{mode.description}</small>
-              <em className={`status-pill ${mode.isReal ? 'is-real' : 'is-mock'}`}>{mode.badge}</em>
+              <strong>{feature.title}</strong>
+              <small>{feature.description}</small>
+              <em className={`status-pill ${feature.isReal ? 'is-real' : 'is-mock'}`}>
+                {feature.isToggleable && isEnabled ? '已开启' : feature.badge}
+              </em>
             </button>
           );
         })}
@@ -69,7 +93,7 @@ export function ModeSelector({ value, disabled, onChange }: ModeSelectorProps) {
 
       <div className="inline-note">
         <AudioLines size={16} />
-        节奏变速和格式转换已支持真实 FFmpeg 处理；其他模式当前保持 mock preview。
+        可同时开启多个真实功能；当前组合顺序为先节奏变速，再格式转换。
       </div>
     </section>
   );

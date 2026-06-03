@@ -1,54 +1,46 @@
 import { Gauge } from './icons';
+import type { TempoValue } from '../types';
 
-const tempoOptions = ['保持原速', '慢速 0.8x', '加速 1.2x', '加速 1.5x', '自定义 BPM', '更强鼓点', '更轻柔节奏'];
+const tempoOptions: Array<{ label: string; value: TempoValue }> = [
+  { label: '慢速 0.8x', value: '0.8' },
+  { label: '原速 1.0x', value: '1.0' },
+  { label: '加速 1.2x', value: '1.2' },
+  { label: '加速 1.5x', value: '1.5' },
+];
 
 type TempoSelectorProps = {
-  value: string;
-  customBpm: number;
+  value: TempoValue;
   disabled: boolean;
-  onTempoChange: (value: string) => void;
-  onBpmChange: (value: number) => void;
+  onTempoChange: (value: TempoValue) => void;
 };
 
-export function TempoSelector({ value, customBpm, disabled, onTempoChange, onBpmChange }: TempoSelectorProps) {
+export function TempoSelector({ value, disabled, onTempoChange }: TempoSelectorProps) {
   return (
     <section className="panel">
       <div className="panel-heading">
-        <span className="eyebrow">Step 03</span>
-        <h2>节奏调整</h2>
-        <p>速度、BPM 和鼓点强度会在后续由 FFmpeg 与 AI 服务处理。</p>
+        <span className="eyebrow">Tempo</span>
+        <h2>节奏变速</h2>
+        <p>选择本次组合处理中的播放速度。</p>
       </div>
 
       <div className="option-grid">
         {tempoOptions.map((option) => (
           <button
-            className={`option-chip ${value === option ? 'is-active' : ''}`}
+            className={`option-chip ${value === option.value ? 'is-active' : ''}`}
             disabled={disabled}
-            key={option}
-            onClick={() => onTempoChange(option)}
+            key={option.value}
+            onClick={() => onTempoChange(option.value)}
             type="button"
           >
-            {option}
+            {option.label}
           </button>
         ))}
       </div>
 
-      {value === '自定义 BPM' && (
-        <label className="bpm-control">
-          <span>
-            <Gauge size={18} />
-            BPM {customBpm}
-          </span>
-          <input
-            disabled={disabled}
-            max="180"
-            min="70"
-            onChange={(event) => onBpmChange(Number(event.target.value))}
-            type="range"
-            value={customBpm}
-          />
-        </label>
-      )}
+      <div className="inline-note">
+        <Gauge size={16} />
+        1.0x 会保持原速，仅用于和格式转换等功能组合。
+      </div>
     </section>
   );
 }

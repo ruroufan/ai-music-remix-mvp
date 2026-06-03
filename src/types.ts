@@ -1,6 +1,15 @@
 export type AppStatus = 'idle' | 'uploaded' | 'configuring' | 'processing' | 'completed' | 'error';
 
-export type RemixMode = 'style' | 'voice' | 'tempo' | 'format' | 'stems' | 'accompaniment';
+export type RemixMode = 'pipeline' | 'style' | 'voice' | 'tempo' | 'format' | 'stems' | 'accompaniment';
+
+export type TempoValue = '0.8' | '1.0' | '1.2' | '1.5';
+
+export type TargetFormat = 'mp3' | 'wav' | 'm4a';
+
+export type EnabledFeatures = {
+  tempo: boolean;
+  format: boolean;
+};
 
 export type AudioFileInfo = {
   file: File;
@@ -13,11 +22,12 @@ export type AudioFileInfo = {
 
 export type GenerationSettings = {
   mode: RemixMode;
+  enabledFeatures: EnabledFeatures;
   style: string;
   voice: string;
-  tempo: string;
+  tempo: TempoValue;
   customBpm: number;
-  targetFormat: 'mp3' | 'wav' | 'm4a';
+  targetFormat: TargetFormat;
   stem: string;
   accompaniment: string;
 };
@@ -30,6 +40,9 @@ export type GenerationResult = {
   audioUrl: string;
   createdAt: string;
   resultType: 'real' | 'mock';
+  appliedFeatures?: Array<'tempo' | 'format'>;
+  tempo?: TempoValue;
+  format?: TargetFormat;
 };
 
 export type ProcessingSnapshot = {

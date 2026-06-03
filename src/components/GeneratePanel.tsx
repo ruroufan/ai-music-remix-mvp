@@ -10,46 +10,33 @@ type GeneratePanelProps = {
   onGenerate: () => void;
 };
 
-const realTempoLabels = ['慢速 0.8x', '加速 1.2x', '加速 1.5x'];
+const selectedFeatureCount = (settings: GenerationSettings) =>
+  Number(settings.enabledFeatures.tempo) + Number(settings.enabledFeatures.format);
 
-const settingLabel = (settings: GenerationSettings) => {
-  if (settings.mode === 'voice') return settings.voice;
-  if (settings.mode === 'tempo') return settings.tempo === '自定义 BPM' ? `${settings.customBpm} BPM` : settings.tempo;
-  if (settings.mode === 'format') return settings.targetFormat.toUpperCase();
-  if (settings.mode === 'stems') return settings.stem;
-  if (settings.mode === 'accompaniment') return settings.accompaniment;
-  return settings.style;
+const selectedFeatureLabel = (settings: GenerationSettings) => {
+  const labels = [];
+  if (settings.enabledFeatures.tempo) labels.push(`节奏变速 ${settings.tempo}x`);
+  if (settings.enabledFeatures.format) labels.push(`格式转换 ${settings.targetFormat}`);
+  return labels.join('、') || '未选择真实处理功能';
 };
 
 export function GeneratePanel({ audio, status, settings, processing, onGenerate }: GeneratePanelProps) {
   const isProcessing = status === 'processing';
-  const canGenerate = Boolean(audio) && !isProcessing;
-  const isRealTempo = settings.mode === 'tempo' && realTempoLabels.includes(settings.tempo);
-  const isRealFormat = settings.mode === 'format';
-  const isRealProcessing = isRealTempo || isRealFormat;
-  const actionLabel = isRealFormat
-    ? '生成真实格式转换版本'
-    : isRealTempo
-      ? '生成真实变速版本'
-      : '生成模拟预览';
+  const hasRealFeatures = selectedFeatureCount(settings) > 0;
+  const canGenerate = Boolean(audio) && !isProcessing && hasRealFeatures;
+  const actionLabel = hasRealFeatures ? '生成真实组合处理版本' : '请选择至少一个真实处理功能';
 
   return (
     <section className="panel generate-panel">
       <div className="panel-heading">
         <span className="eyebrow">Step 04</span>
         <h2>生成新版本</h2>
-        <p>当前参数：{settingLabel(settings)}</p>
+        <p>已选择：{selectedFeatureLabel(settings)}</p>
       </div>
 
-      <div className={`processing-banner ${isRealProcessing ? 'is-real' : 'is-mock'}`}>
-        <strong>{isRealProcessing ? '当前功能已支持真实 FFmpeg 处理' : '当前功能为 mock preview'}</strong>
-        <span>
-          {isRealFormat
-            ? '后端将使用 FFmpeg 转换音频格式，并输出可下载的新文件。'
-            : isRealTempo
-              ? '后端将使用 FFmpeg 输出真实变速音频。处理期间请保持页面打开。'
-              : '会生成可试听的模拟结果，真实 AI 引擎稍后接入。'}
-        </span>
+      <div className={`processing-banner ${hasRealFeatures ? 'is-real' : 'is-mock'}`}>
+        <strong>{hasRealFeatures ? '将使用 FFmpeg 执行组合处理' : '请选择至少一个真实处理功能'}</strong>
+        <span>{hasRealFeatures ? '处理顺序：节奏变速 -> 格式转换。最终只输出一个音频文件。' : 'mock preview 功能暂不参与真实组合处理。'}</span>
       </div>
 
       <button className="primary-action" disabled={!canGenerate} onClick={onGenerate} type="button">

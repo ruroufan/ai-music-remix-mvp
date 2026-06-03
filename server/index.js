@@ -20,7 +20,7 @@ fs.mkdirSync(outputDir, { recursive: true });
 
 const app = express();
 const port = Number(process.env.PORT || process.env.API_PORT || 5174);
-const allowedTempos = new Set(['0.8', '1.2', '1.5']);
+const allowedTempos = new Set(['0.8', '1.0', '1.2', '1.5']);
 const allowedTargetFormats = new Set(['mp3', 'wav', 'm4a']);
 const maxAudioSizeBytes = 20 * 1024 * 1024;
 const maxAudioDurationSeconds = 5 * 60;
@@ -173,7 +173,102 @@ app.get('/api/health', (_request, response) => {
     ok: true,
     service: 'ai-music-remix-ffmpeg-api',
     ffmpeg: Boolean(ffmpegPath),
-    features: ['change-tempo', 'convert-format'],
+    features: ['process-audio', 'change-tempo', 'convert-format'],
+  });
+});
+
+app.post('/api/process-audio', (request, response) => {
+  upload.single('audio')(request, response, async (uploadError) => {
+    if (uploadError) {
+      handleUploadError(uploadError, response);
+      return;
+    }
+
+    const file = request.file;
+    const tempo = String(request.body.tempo || '1.0');
+    const targetFormat = String(request.body.targetFormat || 'mp3').toLowerCase();
+
+    let enabledFeatures;
+    try {
+      enabledFeatures = JSON.parse(String(request.body.enabledFeatures || '{}'));
+    } catch {
+      enabledFeatures = {};
+    }
+
+    const useTempo = enabledFeatures.tempo === true;
+    const useFormat = enabledFeatures.format === true;
+
+    if (!file) {
+      response.status(400).json({ error: 'Audio file is required.' });
+      return;
+    }
+
+    if (!useTempo && !useFormat) {
+      fs.rmSync(file.path, { force: true });
+      response.status(400).json({ error: 'Please enable at least one real processing feature.' });
+      return;
+    }
+
+    if (useTempo && !allowedTempos.has(tempo)) {
+      fs.rmSync(file.path, { force: true });
+      response.status(400).json({ error: 'Tempo must be 0.8, 1.0, 1.2, or 1.5.' });
+      return;
+    }
+
+    if (useFormat && !allowedTargetFormats.has(targetFormat)) {
+      fs.rmSync(file.path, { force: true });
+      response.status(400).json({ error: 'targetFormat must be mp3, wav, or m4a.' });
+      return;
+    }
+
+    const id = randomUUID();
+    const safeBaseName = path.basename(file.originalname, path.extname(file.originalname)).replace(/[^\w.-]+/g, '-');
+    const finalFormat = useFormat ? targetFormat : 'mp3';
+    const outputName = `${safeBaseName || 'audio'}-processed-${id}.${finalFormat}`;
+    const outputPath = path.join(outputDir, outputName);
+    const tempFiles = [];
+    let currentPath = file.path;
+
+    try {
+      await ensureValidDuration(file.path);
+
+      if (useTempo && tempo !== '1.0') {
+        const tempoOutputPath = useFormat ? path.join(outputDir, `${safeBaseName || 'audio'}-tempo-${id}.mp3`) : outputPath;
+        await runFfmpegTempo({ inputPath: currentPath, outputPath: tempoOutputPath, tempo });
+        currentPath = tempoOutputPath;
+        if (useFormat) tempFiles.push(tempoOutputPath);
+      }
+
+      if (useFormat) {
+        await runFfmpegFormat({ inputPath: currentPath, outputPath, targetFormat });
+      } else if (!useTempo || tempo === '1.0') {
+        await runFfmpegFormat({ inputPath: currentPath, outputPath, targetFormat: finalFormat });
+      }
+
+      fs.rmSync(file.path, { force: true });
+      tempFiles.forEach((tempFile) => fs.rmSync(tempFile, { force: true }));
+
+      const appliedFeatures = [];
+      if (useTempo) appliedFeatures.push('tempo');
+      if (useFormat) appliedFeatures.push('format');
+
+      response.json({
+        id,
+        name: `${safeBaseName || 'audio'} - FFmpeg Pipeline`,
+        url: `/outputs/${outputName}`,
+        resultType: 'real',
+        appliedFeatures,
+        tempo: useTempo ? tempo : undefined,
+        format: finalFormat,
+      });
+    } catch (error) {
+      fs.rmSync(file.path, { force: true });
+      fs.rmSync(outputPath, { force: true });
+      tempFiles.forEach((tempFile) => fs.rmSync(tempFile, { force: true }));
+      response.status(statusForProcessingError(error)).json({
+        error: error instanceof Error ? error.message : 'FFmpeg pipeline processing failed.',
+      });
+    }
   });
 });
 
@@ -194,7 +289,7 @@ app.post('/api/change-tempo', (request, response) => {
 
     if (!allowedTempos.has(tempo)) {
       fs.rmSync(file.path, { force: true });
-      response.status(400).json({ error: 'Tempo must be 0.8, 1.2, or 1.5.' });
+      response.status(400).json({ error: 'Tempo must be 0.8, 1.0, 1.2, or 1.5.' });
       return;
     }
 

@@ -20,31 +20,55 @@ export const convertVoice = (input: ApiJobInput) =>
 export const changeStyle = (input: ApiJobInput) =>
   reservedOnly<{ jobId: string }>('POST /api/change-style');
 
-const tempoValueByLabel: Record<string, string> = {
-  '慢速 0.8x': '0.8',
-  '加速 1.2x': '1.2',
-  '加速 1.5x': '1.5',
-};
-
-export const canUseRealTempo = (label: string) => label in tempoValueByLabel;
-
-export const changeTempo = async (input: ApiJobInput): Promise<GenerationResult> => {
-  const tempo = tempoValueByLabel[input.settings.tempo];
-
-  if (!tempo) {
-    throw new Error('当前真实后端仅支持 0.8x、1.2x、1.5x 变速。');
-  }
-
+const createAudioFormData = (input: ApiJobInput) => {
   const formData = new FormData();
   formData.append('audio', input.audio.file);
-  formData.append('tempo', tempo);
+  return formData;
+};
+
+const readPayload = async (response: Response) => response.json().catch(() => ({ error: '' }));
+
+export const processAudio = async (input: ApiJobInput): Promise<GenerationResult> => {
+  const formData = createAudioFormData(input);
+  formData.append('tempo', input.settings.tempo);
+  formData.append('targetFormat', input.settings.targetFormat);
+  formData.append('enabledFeatures', JSON.stringify(input.settings.enabledFeatures));
+
+  const response = await fetch('/api/process-audio', {
+    method: 'POST',
+    body: formData,
+  });
+
+  const payload = await readPayload(response);
+
+  if (!response.ok) {
+    throw new Error(payload.error || 'FFmpeg 组合处理失败，请换一个音频文件后重试。');
+  }
+
+  return {
+    id: payload.id,
+    name: payload.name,
+    mode: 'pipeline',
+    settings: input.settings,
+    audioUrl: payload.url,
+    createdAt: new Date().toISOString(),
+    resultType: 'real',
+    appliedFeatures: payload.appliedFeatures,
+    tempo: payload.tempo,
+    format: payload.format,
+  };
+};
+
+export const changeTempo = async (input: ApiJobInput): Promise<GenerationResult> => {
+  const formData = createAudioFormData(input);
+  formData.append('tempo', input.settings.tempo);
 
   const response = await fetch('/api/change-tempo', {
     method: 'POST',
     body: formData,
   });
 
-  const payload = await response.json().catch(() => ({ error: '' }));
+  const payload = await readPayload(response);
 
   if (!response.ok) {
     throw new Error(payload.error || 'FFmpeg 处理失败，请换一个音频文件后重试。');
@@ -58,12 +82,13 @@ export const changeTempo = async (input: ApiJobInput): Promise<GenerationResult>
     audioUrl: payload.url,
     createdAt: new Date().toISOString(),
     resultType: 'real',
+    appliedFeatures: ['tempo'],
+    tempo: input.settings.tempo,
   };
 };
 
 export const convertFormat = async (input: ApiJobInput): Promise<GenerationResult> => {
-  const formData = new FormData();
-  formData.append('audio', input.audio.file);
+  const formData = createAudioFormData(input);
   formData.append('targetFormat', input.settings.targetFormat);
 
   const response = await fetch('/api/convert-format', {
@@ -71,7 +96,7 @@ export const convertFormat = async (input: ApiJobInput): Promise<GenerationResul
     body: formData,
   });
 
-  const payload = await response.json().catch(() => ({ error: '' }));
+  const payload = await readPayload(response);
 
   if (!response.ok) {
     throw new Error(payload.error || 'FFmpeg 格式转换失败，请换一个音频文件后重试。');
@@ -85,6 +110,8 @@ export const convertFormat = async (input: ApiJobInput): Promise<GenerationResul
     audioUrl: payload.url,
     createdAt: new Date().toISOString(),
     resultType: 'real',
+    appliedFeatures: ['format'],
+    format: input.settings.targetFormat,
   };
 };
 
