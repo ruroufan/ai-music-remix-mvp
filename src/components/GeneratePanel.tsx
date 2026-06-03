@@ -15,6 +15,7 @@ const selectedFeatureCount = (settings: GenerationSettings) =>
 
 const selectedFeatureLabel = (settings: GenerationSettings) => {
   const labels = [];
+  if (settings.enabledFeatures.trim) labels.push(`音频裁剪 ${settings.trimStartTime}s-${settings.trimEndTime}s`);
   if (settings.enabledFeatures.tempo) labels.push(`节奏变速 ${settings.tempo}x`);
   if (settings.enabledFeatures.format) labels.push(`格式转换 ${settings.targetFormat}`);
   return labels.join('、') || '未选择真实处理功能';
@@ -36,7 +37,7 @@ export function GeneratePanel({ audio, status, settings, processing, onGenerate 
 
       <div className={`processing-banner ${hasRealFeatures ? 'is-real' : 'is-mock'}`}>
         <strong>{hasRealFeatures ? '将使用 FFmpeg 执行组合处理' : '请选择至少一个真实处理功能'}</strong>
-        <span>{hasRealFeatures ? '处理顺序：节奏变速 -> 格式转换。最终只输出一个音频文件。' : 'mock preview 功能暂不参与真实组合处理。'}</span>
+        <span>{hasRealFeatures ? '处理顺序：裁剪 -> 节奏变速 -> 格式转换。最终只输出一个音频文件。' : 'mock preview 功能暂不参与真实组合处理。'}</span>
       </div>
 
       <button className="primary-action" disabled={!canGenerate} onClick={onGenerate} type="button">

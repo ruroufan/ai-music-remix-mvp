@@ -8,6 +8,7 @@ import { ModeSelector } from './components/ModeSelector';
 import { OptionSelector } from './components/OptionSelector';
 import { ResultPlayer } from './components/ResultPlayer';
 import { TempoSelector } from './components/TempoSelector';
+import { TrimSelector } from './components/TrimSelector';
 import { UploadArea } from './components/UploadArea';
 import { processAudio } from './lib/api';
 import type { AppStatus, AudioFileInfo, EnabledFeatures, GenerationResult, GenerationSettings, TargetFormat } from './types';
@@ -17,9 +18,12 @@ const formatOptions: TargetFormat[] = ['mp3', 'wav', 'm4a'];
 const defaultSettings: GenerationSettings = {
   mode: 'pipeline',
   enabledFeatures: {
+    trim: false,
     tempo: false,
     format: false,
   },
+  trimStartTime: 0,
+  trimEndTime: 30,
   style: 'City Pop',
   voice: '清透女声',
   tempo: '1.0',
@@ -29,7 +33,7 @@ const defaultSettings: GenerationSettings = {
   accompaniment: '保留原旋律',
 };
 
-const hasSelectedRealFeature = (features: EnabledFeatures) => features.tempo || features.format;
+const hasSelectedRealFeature = (features: EnabledFeatures) => features.trim || features.tempo || features.format;
 
 function App() {
   const [status, setStatus] = useState<AppStatus>('idle');
@@ -58,6 +62,11 @@ function App() {
     setError('');
     setResult(null);
     setProcessing({ progress: 0, step: '等待生成' });
+    setSettings((current) => ({
+      ...current,
+      trimStartTime: 0,
+      trimEndTime: Math.min(30, Math.max(1, Math.floor(nextAudio.duration || 30))),
+    }));
   };
 
   const toggleFeature = (feature: keyof EnabledFeatures) => {
@@ -73,6 +82,26 @@ function App() {
 
   const startGeneration = async () => {
     if (!audio || isProcessing || !hasSelectedRealFeature(settings.enabledFeatures)) return;
+    if (settings.enabledFeatures.trim) {
+      if (settings.trimStartTime < 0) {
+        setStatus('error');
+        setError('裁剪开始时间必须大于或等于 0。');
+        return;
+      }
+
+      if (settings.trimEndTime <= settings.trimStartTime) {
+        setStatus('error');
+        setError('裁剪结束时间必须大于开始时间。');
+        return;
+      }
+
+      if (settings.trimEndTime > audio.duration) {
+        setStatus('error');
+        setError('裁剪结束时间不能超过音频总时长。');
+        return;
+      }
+    }
+
     setStatus('processing');
     setError('');
     setProcessing({ progress: 0, step: '分析音频' });
@@ -163,6 +192,19 @@ function App() {
 
         <div className="right-stack">
           <ModeSelector disabled={isProcessing} enabledFeatures={settings.enabledFeatures} onToggleFeature={toggleFeature} />
+
+          {settings.enabledFeatures.trim && (
+            <TrimSelector
+              audio={audio}
+              disabled={isProcessing}
+              endTime={settings.trimEndTime}
+              onChange={({ startTime, endTime }) => {
+                setSettings((current) => ({ ...current, trimStartTime: startTime, trimEndTime: endTime }));
+                if (audio) setStatus('configuring');
+              }}
+              startTime={settings.trimStartTime}
+            />
+          )}
 
           {settings.enabledFeatures.tempo && (
             <TempoSelector

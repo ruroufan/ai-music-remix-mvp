@@ -7,6 +7,7 @@ export type TempoValue = '0.8' | '1.0' | '1.2' | '1.5';
 export type TargetFormat = 'mp3' | 'wav' | 'm4a';
 
 export type EnabledFeatures = {
+  trim: boolean;
   tempo: boolean;
   format: boolean;
 };
@@ -23,6 +24,8 @@ export type AudioFileInfo = {
 export type GenerationSettings = {
   mode: RemixMode;
   enabledFeatures: EnabledFeatures;
+  trimStartTime: number;
+  trimEndTime: number;
   style: string;
   voice: string;
   tempo: TempoValue;
@@ -40,7 +43,11 @@ export type GenerationResult = {
   audioUrl: string;
   createdAt: string;
   resultType: 'real' | 'mock';
-  appliedFeatures?: Array<'tempo' | 'format'>;
+  appliedFeatures?: Array<'trim' | 'tempo' | 'format'>;
+  trim?: {
+    startTime: number;
+    endTime: number;
+  };
   tempo?: TempoValue;
   format?: TargetFormat;
 };

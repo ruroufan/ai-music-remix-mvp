@@ -144,6 +144,9 @@ const runFfmpegTempo = ({ inputPath, outputPath, tempo }) =>
     outputPath,
   ]);
 
+const runFfmpegTrim = ({ inputPath, outputPath, startTime, endTime }) =>
+  runFfmpeg(['-y', '-ss', String(startTime), '-to', String(endTime), '-i', inputPath, '-vn', '-codec:a', 'libmp3lame', '-q:a', '2', outputPath]);
+
 const formatArgs = {
   mp3: ['-codec:a', 'libmp3lame', '-q:a', '2'],
   wav: ['-codec:a', 'pcm_s16le'],
@@ -163,7 +166,12 @@ const handleUploadError = (error, response) => {
 
 const statusForProcessingError = (error) => {
   const message = error instanceof Error ? error.message : '';
-  return message.includes('5 分钟') || message.includes('无法读取音频时长') ? 400 : 500;
+  return message.includes('5 分钟') ||
+    message.includes('无法读取音频时长') ||
+    message.includes('裁剪开始时间') ||
+    message.includes('裁剪结束时间')
+    ? 400
+    : 500;
 };
 
 app.use('/outputs', express.static(outputDir));
@@ -185,6 +193,8 @@ app.post('/api/process-audio', (request, response) => {
     }
 
     const file = request.file;
+    const startTime = Number(request.body.startTime);
+    const endTime = Number(request.body.endTime);
     const tempo = String(request.body.tempo || '1.0');
     const targetFormat = String(request.body.targetFormat || 'mp3').toLowerCase();
 
@@ -197,13 +207,14 @@ app.post('/api/process-audio', (request, response) => {
 
     const useTempo = enabledFeatures.tempo === true;
     const useFormat = enabledFeatures.format === true;
+    const useTrim = enabledFeatures.trim === true;
 
     if (!file) {
       response.status(400).json({ error: 'Audio file is required.' });
       return;
     }
 
-    if (!useTempo && !useFormat) {
+    if (!useTrim && !useTempo && !useFormat) {
       fs.rmSync(file.path, { force: true });
       response.status(400).json({ error: 'Please enable at least one real processing feature.' });
       return;
@@ -230,7 +241,30 @@ app.post('/api/process-audio', (request, response) => {
     let currentPath = file.path;
 
     try {
-      await ensureValidDuration(file.path);
+      const duration = await getAudioDuration(file.path);
+
+      if (duration > maxAudioDurationSeconds) {
+        throw new Error('音频太长。第一版最大支持 5 分钟。');
+      }
+
+      if (useTrim) {
+        if (!Number.isFinite(startTime) || startTime < 0) {
+          throw new Error('裁剪开始时间必须大于或等于 0。');
+        }
+
+        if (!Number.isFinite(endTime) || endTime <= startTime) {
+          throw new Error('裁剪结束时间必须大于开始时间。');
+        }
+
+        if (endTime > duration) {
+          throw new Error('裁剪结束时间不能超过音频总时长。');
+        }
+
+        const trimOutputPath = useTempo || useFormat ? path.join(outputDir, `${safeBaseName || 'audio'}-trim-${id}.mp3`) : outputPath;
+        await runFfmpegTrim({ inputPath: currentPath, outputPath: trimOutputPath, startTime, endTime });
+        currentPath = trimOutputPath;
+        if (useTempo || useFormat) tempFiles.push(trimOutputPath);
+      }
 
       if (useTempo && tempo !== '1.0') {
         const tempoOutputPath = useFormat ? path.join(outputDir, `${safeBaseName || 'audio'}-tempo-${id}.mp3`) : outputPath;
@@ -241,7 +275,7 @@ app.post('/api/process-audio', (request, response) => {
 
       if (useFormat) {
         await runFfmpegFormat({ inputPath: currentPath, outputPath, targetFormat });
-      } else if (!useTempo || tempo === '1.0') {
+      } else if (!useTrim && (!useTempo || tempo === '1.0')) {
         await runFfmpegFormat({ inputPath: currentPath, outputPath, targetFormat: finalFormat });
       }
 
@@ -249,6 +283,7 @@ app.post('/api/process-audio', (request, response) => {
       tempFiles.forEach((tempFile) => fs.rmSync(tempFile, { force: true }));
 
       const appliedFeatures = [];
+      if (useTrim) appliedFeatures.push('trim');
       if (useTempo) appliedFeatures.push('tempo');
       if (useFormat) appliedFeatures.push('format');
 
@@ -258,6 +293,7 @@ app.post('/api/process-audio', (request, response) => {
         url: `/outputs/${outputName}`,
         resultType: 'real',
         appliedFeatures,
+        trim: useTrim ? { startTime, endTime } : undefined,
         tempo: useTempo ? tempo : undefined,
         format: finalFormat,
       });

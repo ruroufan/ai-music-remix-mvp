@@ -1,4 +1,4 @@
-import { AudioLines, Disc3, FileAudio, Mic2, SlidersHorizontal, SplitSquareHorizontal, Wand2 } from './icons';
+import { AudioLines, Disc3, FileAudio, Mic2, SlidersHorizontal, SplitSquareHorizontal, Timer, Wand2 } from './icons';
 import type { EnabledFeatures } from '../types';
 
 const featureCards: Array<{
@@ -10,6 +10,15 @@ const featureCards: Array<{
   isToggleable: boolean;
   icon: typeof Wand2;
 }> = [
+  {
+    id: 'trim',
+    title: '音频裁剪',
+    description: '设置开始与结束秒数',
+    badge: '真实处理',
+    isReal: true,
+    isToggleable: true,
+    icon: Timer,
+  },
   {
     id: 'tempo',
     title: '节奏变速',
@@ -67,7 +76,10 @@ export function ModeSelector({ enabledFeatures, disabled, onToggleFeature }: Mod
       <div className="mode-grid">
         {featureCards.map((feature) => {
           const Icon = feature.icon;
-          const isEnabled = feature.id === 'tempo' || feature.id === 'format' ? enabledFeatures[feature.id] : false;
+          const isEnabled =
+            feature.id === 'trim' || feature.id === 'tempo' || feature.id === 'format'
+              ? enabledFeatures[feature.id]
+              : false;
 
           return (
             <button

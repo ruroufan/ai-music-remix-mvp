@@ -1,5 +1,6 @@
 import { Download, RotateCcw, Wand2 } from './icons';
 import type { GenerationResult } from '../types';
+import { formatDuration } from '../lib/format';
 
 type ResultPlayerProps = {
   result: GenerationResult | null;
@@ -8,6 +9,9 @@ type ResultPlayerProps = {
 
 const appliedFeatureLabels = (result: GenerationResult) => {
   const labels = [];
+  if (result.appliedFeatures?.includes('trim') && result.trim) {
+    labels.push(`裁剪 ${formatDuration(result.trim.startTime)} - ${formatDuration(result.trim.endTime)}`);
+  }
   if (result.appliedFeatures?.includes('tempo')) labels.push(`节奏变速 ${result.tempo ?? result.settings.tempo}x`);
   if (result.appliedFeatures?.includes('format')) labels.push(`格式转换 ${result.format ?? result.settings.targetFormat}`);
   return labels;

@@ -30,6 +30,8 @@ const readPayload = async (response: Response) => response.json().catch(() => ({
 
 export const processAudio = async (input: ApiJobInput): Promise<GenerationResult> => {
   const formData = createAudioFormData(input);
+  formData.append('startTime', String(input.settings.trimStartTime));
+  formData.append('endTime', String(input.settings.trimEndTime));
   formData.append('tempo', input.settings.tempo);
   formData.append('targetFormat', input.settings.targetFormat);
   formData.append('enabledFeatures', JSON.stringify(input.settings.enabledFeatures));
@@ -54,6 +56,7 @@ export const processAudio = async (input: ApiJobInput): Promise<GenerationResult
     createdAt: new Date().toISOString(),
     resultType: 'real',
     appliedFeatures: payload.appliedFeatures,
+    trim: payload.trim,
     tempo: payload.tempo,
     format: payload.format,
   };
