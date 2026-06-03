@@ -1,6 +1,6 @@
 export type AppStatus = 'idle' | 'uploaded' | 'configuring' | 'processing' | 'completed' | 'error';
 
-export type RemixMode = 'style' | 'voice' | 'tempo' | 'stems' | 'accompaniment';
+export type RemixMode = 'style' | 'voice' | 'tempo' | 'format' | 'stems' | 'accompaniment';
 
 export type AudioFileInfo = {
   file: File;
@@ -17,6 +17,7 @@ export type GenerationSettings = {
   voice: string;
   tempo: string;
   customBpm: number;
+  targetFormat: 'mp3' | 'wav' | 'm4a';
   stem: string;
   accompaniment: string;
 };

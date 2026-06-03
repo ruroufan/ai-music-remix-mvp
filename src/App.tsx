@@ -9,7 +9,7 @@ import { OptionSelector } from './components/OptionSelector';
 import { ResultPlayer } from './components/ResultPlayer';
 import { TempoSelector } from './components/TempoSelector';
 import { UploadArea } from './components/UploadArea';
-import { canUseRealTempo, changeTempo } from './lib/api';
+import { canUseRealTempo, changeTempo, convertFormat } from './lib/api';
 import { runMockGeneration } from './lib/mockProcessing';
 import type { AppStatus, AudioFileInfo, GenerationResult, GenerationSettings, RemixMode } from './types';
 
@@ -31,6 +31,7 @@ const styles = [
 const voices = ['女声', '男声', '少年感', '低沉男声', '清透女声', '机器人声', '自定义声线占位'];
 const stems = ['提取人声', '提取伴奏', '提取鼓点', '提取贝斯', '提取其他乐器'];
 const accompaniments = ['保留原旋律', '保留原歌词', '改变编曲', '改变氛围', '改变速度', '改变乐器'];
+const formats = ['mp3', 'wav', 'm4a'];
 
 const defaultSettings: GenerationSettings = {
   mode: 'style',
@@ -38,6 +39,7 @@ const defaultSettings: GenerationSettings = {
   voice: '清透女声',
   tempo: '保持原速',
   customBpm: 120,
+  targetFormat: 'mp3',
   stem: '提取伴奏',
   accompaniment: '保留原旋律',
 };
@@ -45,33 +47,39 @@ const defaultSettings: GenerationSettings = {
 const modeCopy: Record<RemixMode, { title: string; subtitle: string; options: string[] }> = {
   style: {
     title: '风格替换',
-    subtitle: '把歌曲转换为新的音乐审美，后续可接 ACE-Step、MusicGen 或 Stable Audio。',
+    subtitle: '当前为 mock preview，后续可接 ACE-Step、MusicGen 或 Stable Audio。',
     options: styles,
   },
   voice: {
     title: '人声替换',
-    subtitle: '第一版只做 UI 占位，不做真实 voice clone，后续可接 RVC 或 so-vits-svc。',
+    subtitle: '当前为 UI 占位，不做真实 voice clone，后续可接 RVC 或 so-vits-svc。',
     options: voices,
   },
   tempo: {
     title: '节奏调整',
-    subtitle: '调整速度、BPM 与律动强度。',
+    subtitle: '0.8x / 1.2x / 1.5x 已支持真实 FFmpeg 变速。',
     options: [],
+  },
+  format: {
+    title: '格式转换',
+    subtitle: '使用 FFmpeg 真实转换为 mp3、wav 或 m4a。',
+    options: formats,
   },
   stems: {
     title: '人声 / 伴奏分离',
-    subtitle: '后续可接 Demucs 或 UVR 输出多轨 stems。',
+    subtitle: '当前为 mock preview，后续可接 Demucs 或 UVR。',
     options: stems,
   },
   accompaniment: {
     title: '重新生成伴奏',
-    subtitle: '保留核心旋律或歌词，重新设计编曲、氛围与乐器。',
+    subtitle: '当前为 mock preview，后续可接 ACE-Step、MusicGen 或 YuE。',
     options: accompaniments,
   },
 };
 
 const getModeValue = (settings: GenerationSettings) => {
   if (settings.mode === 'voice') return settings.voice;
+  if (settings.mode === 'format') return settings.targetFormat;
   if (settings.mode === 'stems') return settings.stem;
   if (settings.mode === 'accompaniment') return settings.accompaniment;
   return settings.style;
@@ -91,9 +99,9 @@ function App() {
 
   const heroStats = useMemo(
     () => [
-      ['5', 'AI 改编模式'],
-      ['3-5s', 'mock 生成流程'],
-      ['8', '预留 API 接口'],
+      ['2', '真实 FFmpeg 功能'],
+      ['20MB', '上传上限'],
+      ['5min', '音频时长上限'],
     ],
     [],
   );
@@ -115,6 +123,7 @@ function App() {
   const updateActiveOption = (value: string) => {
     setSettings((current) => {
       if (current.mode === 'voice') return { ...current, voice: value };
+      if (current.mode === 'format') return { ...current, targetFormat: value as GenerationSettings['targetFormat'] };
       if (current.mode === 'stems') return { ...current, stem: value };
       if (current.mode === 'accompaniment') return { ...current, accompaniment: value };
       return { ...current, style: value };
@@ -136,6 +145,11 @@ function App() {
         setProcessing({ progress: 45, step: 'FFmpeg 调整节奏' });
         nextResult = await changeTempo({ audio, settings });
         setProcessing({ progress: 100, step: '完成' });
+      } else if (settings.mode === 'format') {
+        setProcessing({ progress: 18, step: '上传到后端' });
+        setProcessing({ progress: 45, step: 'FFmpeg 转换格式' });
+        nextResult = await convertFormat({ audio, settings });
+        setProcessing({ progress: 100, step: '完成' });
       } else {
         nextResult = await runMockGeneration({ audio, settings }, setProcessing);
       }
@@ -143,9 +157,10 @@ function App() {
       setResult(nextResult);
       setHistory((items) => [nextResult, ...items].slice(0, 8));
       setStatus('completed');
-    } catch (error) {
+    } catch (caughtError) {
       setStatus('error');
-      setError(error instanceof Error ? error.message : '生成失败，请稍后重试。');
+      setProcessing({ progress: 0, step: '处理失败' });
+      setError(caughtError instanceof Error ? caughtError.message : '生成失败，请稍后重试。');
     }
   };
 
@@ -166,7 +181,7 @@ function App() {
           </span>
           <h1>把一首歌变成新的创作版本。</h1>
           <p>
-            上传音频，选择风格、人声、节奏或分轨能力，先用前端 mock 跑完整生成体验，后续接入真实音乐 AI 服务。
+            上传音频，选择节奏变速或格式转换即可调用真实 FFmpeg 处理；其他 AI 改编能力先保留 mock preview。
           </p>
           <div className="hero-stats">
             {heroStats.map(([value, label]) => (
@@ -192,11 +207,11 @@ function App() {
           <div className="console-chips">
             <span>
               <Cpu size={14} />
-              ACE-Step ready
+              FFmpeg tempo
             </span>
             <span>
               <Headphones size={14} />
-              RVC slot
+              FFmpeg format
             </span>
           </div>
         </div>

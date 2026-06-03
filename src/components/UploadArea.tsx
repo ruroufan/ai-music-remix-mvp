@@ -1,8 +1,13 @@
 import { UploadCloud, Music2, AlertCircle } from './icons';
 import type { AudioFileInfo } from '../types';
+import {
+  AUDIO_LIMIT_COPY,
+  MAX_AUDIO_DURATION_SECONDS,
+  MAX_AUDIO_SIZE_BYTES,
+  SUPPORTED_AUDIO_EXTENSIONS,
+} from '../lib/limits';
 
 const acceptedTypes = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/mp4', 'audio/m4a'];
-const acceptedExtensions = ['mp3', 'wav', 'm4a'];
 
 type UploadAreaProps = {
   audio: AudioFileInfo | null;
@@ -21,28 +26,42 @@ const readDuration = (url: string) =>
     audio.src = url;
   });
 
+const getExtension = (file: File) => file.name.split('.').pop()?.toLowerCase() ?? '';
+
 const isSupportedFile = (file: File) => {
-  const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
-  return acceptedExtensions.includes(extension) || acceptedTypes.includes(file.type);
+  const extension = getExtension(file);
+  return SUPPORTED_AUDIO_EXTENSIONS.includes(extension) && (!file.type || acceptedTypes.includes(file.type));
 };
 
 export function UploadArea({ audio, disabled, error, onUpload, onError }: UploadAreaProps) {
   const handleFile = async (file: File | undefined) => {
     if (!file || disabled) return;
+
     if (!isSupportedFile(file)) {
-      onError('请上传 mp3、wav 或 m4a 格式的音频文件。');
+      onError('格式不支持。请上传 mp3、wav 或 m4a 音频文件。');
+      return;
+    }
+
+    if (file.size > MAX_AUDIO_SIZE_BYTES) {
+      onError('文件太大。第一版最大支持 20MB 音频。');
       return;
     }
 
     const url = URL.createObjectURL(file);
     const duration = await readDuration(url);
 
+    if (duration > MAX_AUDIO_DURATION_SECONDS) {
+      URL.revokeObjectURL(url);
+      onError('音频太长。第一版最大支持 5 分钟。');
+      return;
+    }
+
     onUpload({
       file,
       name: file.name,
       size: file.size,
       duration,
-      type: file.type || file.name.split('.').pop()?.toUpperCase() || 'Audio',
+      type: file.type || getExtension(file).toUpperCase() || 'Audio',
       url,
     });
   };
@@ -52,6 +71,7 @@ export function UploadArea({ audio, disabled, error, onUpload, onError }: Upload
       <div className="panel-heading">
         <span className="eyebrow">Step 01</span>
         <h2>上传歌曲</h2>
+        <p>{AUDIO_LIMIT_COPY}</p>
       </div>
 
       <label
@@ -72,7 +92,9 @@ export function UploadArea({ audio, disabled, error, onUpload, onError }: Upload
           {audio ? <Music2 size={28} /> : <UploadCloud size={30} />}
         </span>
         <span className="upload-title">{audio ? '已载入音频' : '拖入音频或点击上传'}</span>
-        <span className="upload-copy">支持 mp3、wav、m4a。第一版会使用本地文件做 mock 试听结果。</span>
+        <span className="upload-copy">
+          {audio ? '选择节奏调整 0.8x / 1.2x / 1.5x 可进行真实 FFmpeg 变速。' : AUDIO_LIMIT_COPY}
+        </span>
       </label>
 
       {error && (

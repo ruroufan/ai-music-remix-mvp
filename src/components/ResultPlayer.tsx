@@ -6,6 +6,12 @@ type ResultPlayerProps = {
   onRegenerate: () => void;
 };
 
+const resultTags = (result: GenerationResult) => {
+  if (result.mode === 'format') return [`目标格式 ${result.settings.targetFormat.toUpperCase()}`, 'FFmpeg convert'];
+  if (result.mode === 'tempo') return [result.settings.tempo, 'FFmpeg tempo'];
+  return [result.settings.style, result.settings.voice, result.settings.tempo];
+};
+
 export function ResultPlayer({ result, onRegenerate }: ResultPlayerProps) {
   if (!result) {
     return (
@@ -36,15 +42,15 @@ export function ResultPlayer({ result, onRegenerate }: ResultPlayerProps) {
       </div>
 
       <div className="result-tags">
-        <span>{result.settings.style}</span>
-        <span>{result.settings.voice}</span>
-        <span>{result.settings.tempo}</span>
+        {resultTags(result).map((tag) => (
+          <span key={tag}>{tag}</span>
+        ))}
       </div>
 
       <audio className="audio-control" controls src={result.audioUrl} />
 
       <div className="result-actions">
-        <a className="download-button" download={`${result.name}.mp3`} href={result.audioUrl}>
+        <a className="download-button" download={`${result.name}.${result.mode === 'format' ? result.settings.targetFormat : 'mp3'}`} href={result.audioUrl}>
           <Download size={18} />
           {isReal ? '下载处理后音频' : '下载模拟预览'}
         </a>

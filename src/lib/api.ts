@@ -44,16 +44,43 @@ export const changeTempo = async (input: ApiJobInput): Promise<GenerationResult>
     body: formData,
   });
 
-  const payload = await response.json();
+  const payload = await response.json().catch(() => ({ error: '' }));
 
   if (!response.ok) {
-    throw new Error(payload.error || 'FFmpeg 变速处理失败。');
+    throw new Error(payload.error || 'FFmpeg 处理失败，请换一个音频文件后重试。');
   }
 
   return {
     id: payload.id,
     name: payload.name,
     mode: 'tempo',
+    settings: input.settings,
+    audioUrl: payload.url,
+    createdAt: new Date().toISOString(),
+    resultType: 'real',
+  };
+};
+
+export const convertFormat = async (input: ApiJobInput): Promise<GenerationResult> => {
+  const formData = new FormData();
+  formData.append('audio', input.audio.file);
+  formData.append('targetFormat', input.settings.targetFormat);
+
+  const response = await fetch('/api/convert-format', {
+    method: 'POST',
+    body: formData,
+  });
+
+  const payload = await response.json().catch(() => ({ error: '' }));
+
+  if (!response.ok) {
+    throw new Error(payload.error || 'FFmpeg 格式转换失败，请换一个音频文件后重试。');
+  }
+
+  return {
+    id: payload.id,
+    name: payload.name,
+    mode: 'format',
     settings: input.settings,
     audioUrl: payload.url,
     createdAt: new Date().toISOString(),

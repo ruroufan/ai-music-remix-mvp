@@ -1,4 +1,4 @@
-import { AudioLines, Disc3, Mic2, SlidersHorizontal, SplitSquareHorizontal, Wand2 } from './icons';
+import { AudioLines, Disc3, FileAudio, Mic2, SlidersHorizontal, SplitSquareHorizontal, Wand2 } from './icons';
 import type { RemixMode } from '../types';
 
 const modes: Array<{
@@ -12,6 +12,7 @@ const modes: Array<{
   { id: 'style', title: '改风格', description: 'AI 音乐风格转换', badge: 'Mock preview', isReal: false, icon: Wand2 },
   { id: 'voice', title: '换人声', description: 'RVC 声线占位', badge: '即将支持', isReal: false, icon: Mic2 },
   { id: 'tempo', title: '改节奏', description: '0.8x / 1.2x / 1.5x', badge: '真实处理', isReal: true, icon: SlidersHorizontal },
+  { id: 'format', title: '转格式', description: 'mp3 / wav / m4a', badge: '真实处理', isReal: true, icon: FileAudio },
   {
     id: 'stems',
     title: '分离音轨',
@@ -68,7 +69,7 @@ export function ModeSelector({ value, disabled, onChange }: ModeSelectorProps) {
 
       <div className="inline-note">
         <AudioLines size={16} />
-        节奏变速已支持真实 FFmpeg 处理；其他模式当前为 mock preview，后续再接 RVC、Demucs、ACE-Step。
+        节奏变速和格式转换已支持真实 FFmpeg 处理；其他模式当前保持 mock preview。
       </div>
     </section>
   );
