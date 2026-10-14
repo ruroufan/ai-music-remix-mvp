@@ -19,7 +19,7 @@ const DUCK_RAMP = 8; // frames
 export const EpisodeVideo: React.FC<{ ep: EpisodeDef }> = ({ ep }) => {
   const { data, timeline, scenes, look } = ep;
   // Without narration the score carries the video, so it plays louder.
-  const full = timeline.hasVoiceover ? 0.55 : 0.85;
+  const full = timeline.hasVoiceover ? 0.55 : 0.7;
   const ducked = 0.14;
   const ranges = timeline.voiceRanges();
 
