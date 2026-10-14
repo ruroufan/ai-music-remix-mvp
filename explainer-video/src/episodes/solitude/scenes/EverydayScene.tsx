@@ -68,7 +68,8 @@ export const EverydayScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
             <div style={{ padding: "26px 28px 10px", fontSize: 30, fontWeight: 700, display: "flex", justifyContent: "space-between" }}>
               通讯录 <span style={{ fontFamily: fonts.mono, fontSize: 20, color: palette.dim, marginTop: 8 }}>386 位联系人</span>
             </div>
-            <div style={{ position: "absolute", left: 0, right: 0, top: 90, transform: `translateY(${-scroll * 2400}px)` }}>
+            <div style={{ position: "absolute", left: 0, right: 0, top: 90, bottom: 0, overflow: "hidden", borderTop: `1px solid ${palette.faint}` }}>
+            <div style={{ transform: `translateY(${-scroll * 2400}px)` }}>
               {Array.from({ length: 60 }, (_, i) => {
                 const name = CONTACTS[(i * 7) % CONTACTS.length];
                 return (
@@ -78,6 +79,7 @@ export const EverydayScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
                   </div>
                 );
               })}
+            </div>
             </div>
           </div>
           <div style={{ position: "absolute", left: 220, top: 380, fontFamily: fonts.mono, fontSize: 72, color: palette.alert }}>02:13</div>
@@ -91,15 +93,15 @@ export const EverydayScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
             <div style={{ padding: "20px 26px", fontSize: 28, fontWeight: 700, borderBottom: `1px solid ${palette.faint}` }}>
               相亲相爱一家人（128） <span style={{ float: "right", fontFamily: fonts.mono, fontSize: 18, color: palette.alert, marginTop: 8 }}>99+</span>
             </div>
-            <div style={{ position: "absolute", left: 0, right: 0, bottom: 110, display: "flex", flexDirection: "column", gap: 12, padding: "0 26px" }}>
+            <div style={{ position: "absolute", left: 0, right: 0, top: 74, bottom: 100, overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "flex-end", gap: 12, padding: "0 26px 10px" }}>
               {GROUP.slice(0, msgs).map((m, i) => (
-                <div key={i} style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                <div key={i} style={{ display: "flex", gap: 12, alignItems: "center", flexShrink: 0 }}>
                   <div style={{ width: 40, height: 40, borderRadius: 8, background: `hsl(${(i * 67) % 360} 30% 34%)` }} />
                   <div style={{ padding: "8px 16px", borderRadius: 12, background: "#1c2330", fontSize: 26 }}>{m}</div>
                 </div>
               ))}
               {sent && (
-                <div style={{ alignSelf: "flex-end", width: 110, height: 110, borderRadius: 16, background: "#ffd166", display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${Math.min(1, (t3 - sentAt) / 4)})` }}>
+                <div style={{ alignSelf: "flex-end", flexShrink: 0, width: 110, height: 110, borderRadius: 16, background: "#ffd166", display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${Math.min(1, (t3 - sentAt) / 4)})` }}>
                   <svg width={80} height={80} viewBox="-40 -40 80 80">
                     <circle r={34} fill="#ffe8a3" stroke="#3a2608" strokeWidth={3} />
                     <path d="M-16 -6 q4 -6 8 0 M8 -6 q4 -6 8 0" fill="none" stroke="#3a2608" strokeWidth={3} strokeLinecap="round" />

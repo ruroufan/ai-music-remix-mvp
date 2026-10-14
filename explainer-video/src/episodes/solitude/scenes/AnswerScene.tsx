@@ -35,8 +35,8 @@ export const AnswerScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
         <Person key={`b${i}`} x={p.x} bottom={p.bottom} height={p.h} glow={0.5} opacity={0.8} />
       ))}
       {/* 孤独: a long cold shadow chasing him */}
-      <div style={{ position: "absolute", left: shadowX - 120, top: FLOOR - 300, width: 240, height: 300, borderRadius: "120px 120px 0 0", background: "radial-gradient(ellipse at 50% 60%, rgba(0,0,0,0.95), rgba(0,0,0,0) 70%)" }} />
-      <div style={{ position: "absolute", left: shadowX - 60, top: FLOOR - 340, width: 120, textAlign: "center", fontFamily: fonts.mono, fontSize: 22, letterSpacing: 6, color: "rgb(150,200,255)" }}>孤独</div>
+      <Person x={shadowX} bottom={FLOOR} height={320} rgb="150, 200, 255" glow={0.35} opacity={0.75} />
+      <div style={{ position: "absolute", left: shadowX - 60, top: FLOOR - 380, width: 120, textAlign: "center", fontFamily: fonts.mono, fontSize: 22, letterSpacing: 6, color: "rgb(150,200,255)" }}>孤独</div>
       <Person x={x} bottom={FLOOR} height={230} pose={run > 0 && run < 1 ? "hunch" : "plain"} ghost={ghost} glow={0.8} />
       {RING.filter((p) => p.bottom >= FLOOR - 30).map((p, i) => (
         <Person key={`f${i}`} x={p.x} bottom={p.bottom} height={p.h} glow={0.6} />

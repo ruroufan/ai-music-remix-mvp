@@ -272,7 +272,7 @@ export const WindowSeat: React.FC<{ frame: number; solid: number; opacity?: numb
   const rim = solid > 0.6 ? `rgba(${palette.halo},${rimA})` : `rgba(232,238,242,${rimA})`;
   const fill = `rgba(3,4,5,${0.2 + 0.8 * solid})`;
   const s = 1.25;
-  const seat = { x: 760, floor: 860 };
+  const seat = { x: 820, floor: 790 };
   return (
     <div style={{ position: "absolute", inset: 0, opacity }}>
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(#0a0f18, #0d131e)" }} />
@@ -309,7 +309,7 @@ export const WindowSeat: React.FC<{ frame: number; solid: number; opacity?: numb
           <circle cx={SEATED.head.cx} cy={SEATED.head.cy} r={28} />
         </g>
       </svg>
-      <div style={{ position: "absolute", left: seat.x - 20, top: seat.floor + 24, fontFamily: fonts.mono, fontSize: 20, letterSpacing: 6, color: palette.dim, opacity: solid }}>
+      <div style={{ position: "absolute", left: win.x, top: win.y - 44, fontFamily: fonts.mono, fontSize: 20, letterSpacing: 6, color: palette.dim, opacity: solid }}>
         16:40 · 一个人
       </div>
     </div>
