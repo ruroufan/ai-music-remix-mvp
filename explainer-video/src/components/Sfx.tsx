@@ -8,7 +8,7 @@ export type SfxName = "boom" | "shatter" | "rise" | "whoosh" | "glint" | "step" 
 // animation it belongs to so the two stay in sync when timings change. Scenes
 // start on the beat grid, so snapping to half beats keeps every hit on the music.
 // Leaves headroom for effects that land on top of a full drum hit.
-const SFX_GAIN = 0.85;
+const SFX_GAIN = 0.75;
 
 export const Sfx: React.FC<{ name: SfxName; at: number; volume?: number }> = ({ name, at, volume = 0.7 }) => {
   const { timeline } = useEpisode();
