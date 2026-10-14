@@ -113,7 +113,7 @@ export const script: SceneSpec[] = [
   {
     id: "standFirm",
     lines: [
-      { text: "当你不再站在别人的目光上，" },
+      { text: "当你不再站在别人的目光上，", seconds: 4 },
       { text: "你才算第一次【站稳】。", seconds: 5.8 },
     ],
   },
