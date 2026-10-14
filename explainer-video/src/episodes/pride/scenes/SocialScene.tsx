@@ -1,10 +1,10 @@
 import React from "react";
 import { useCurrentFrame, interpolate } from "remotion";
-import { Frame } from "../components/Frame";
-import { Rays } from "../components/Figures";
-import { GlowWord, WatchingEyes } from "../components/Stage";
-import { Subtitles } from "../components/Subtitles";
-import { Sfx } from "../components/Sfx";
+import { Frame } from "../Frame";
+import { Rays } from "../../../components/Figures";
+import { GlowWord, WatchingEyes } from "../../../components/Stage";
+import { Subtitles } from "../../../components/Subtitles";
+import { Sfx } from "../../../components/Sfx";
 import { useRamp, BEAT, onBeat, type SceneProps } from "../timing";
 
 const card: React.CSSProperties = {

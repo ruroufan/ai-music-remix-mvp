@@ -13,10 +13,3 @@ export const theme = {
   stone: "#d8d4cc",
   font: '"Noto Serif SC", "Songti SC", "SimSun", serif',
 };
-
-// Shown on every scene: top-left topic, top-right channel watermark.
-export const brand = {
-  topic: "傲慢",
-  topicLatin: "SUPERBIA",
-  watermark: "你的频道",
-};

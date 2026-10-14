@@ -1,16 +1,17 @@
 import React from "react";
 import { useCurrentFrame, interpolate } from "remotion";
-import { theme } from "../theme";
-import type { Line } from "../script";
+import { useEpisode } from "../EpisodeContext";
+import type { Line } from "../types";
 
 // "第一种，叫作【自爱心】" → plain text with the bracketed part in accent colour.
 export const RichText: React.FC<{ text: string }> = ({ text }) => {
+  const { look } = useEpisode();
   const parts = text.split(/(【[^】]*】)/g).filter(Boolean);
   return (
     <>
       {parts.map((p, i) =>
         p.startsWith("【") ? (
-          <span key={i} style={{ color: theme.accent, textShadow: `0 0 12px rgba(224,83,63,0.6)` }}>
+          <span key={i} style={{ color: look.accent, textShadow: `0 0 12px ${look.accentGlow}` }}>
             {p.slice(1, -1)}
           </span>
         ) : (

@@ -1,11 +1,11 @@
 import React from "react";
 import { random } from "remotion";
-import { Frame } from "../components/Frame";
-import { Bust } from "../components/Bust";
-import { Floor } from "../components/Stage";
-import { Subtitles } from "../components/Subtitles";
-import { Sfx } from "../components/Sfx";
-import { theme } from "../theme";
+import { Frame } from "../Frame";
+import { Bust } from "../../../components/Bust";
+import { Floor } from "../../../components/Stage";
+import { Subtitles } from "../../../components/Subtitles";
+import { Sfx } from "../../../components/Sfx";
+import { theme } from "../../../theme";
 import { useRamp, BEAT, HALF_BEAT, type SceneProps } from "../timing";
 
 const FLOOR = 720;

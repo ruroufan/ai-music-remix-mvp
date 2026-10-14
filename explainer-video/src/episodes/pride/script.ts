@@ -1,28 +1,11 @@
-// The whole video is driven by this file: one entry per scene, one entry per
-// subtitle line. Each line stays up long enough to be read (see timeline.ts),
-// rounded to whole beats of the music; subtitles, animation cues and the score
-// all re-time themselves from that.
+// 《傲慢》— the reference episode (a study of the 叁号暗房 video's structure).
 //
+// One entry per scene, one entry per subtitle line. Each line stays up long
+// enough to be read (see timeline.ts), rounded to whole beats of the music;
+// subtitles, animation cues and the score all re-time themselves from that.
 // Text wrapped in 【】 is rendered in the accent colour. `\n` breaks the line.
-// `seconds` (optional) forces a longer hold for a line.
-// `say` (optional) is what the TTS reads if you add a voiceover (`npm run voiceover`).
 
-export type Line = { text: string; seconds?: number; say?: string };
-export type SceneId =
-  | "title"
-  | "diagnosis"
-  | "misconception"
-  | "social"
-  | "twoLoves"
-  | "podium"
-  | "scores"
-  | "rebuttal"
-  | "question"
-  | "cup"
-  | "rank"
-  | "audience"
-  | "standFirm";
-export type SceneSpec = { id: SceneId; lines: Line[] };
+import type { SceneSpec } from "../../types.ts";
 
 export const script: SceneSpec[] = [
   {

@@ -1,13 +1,13 @@
 import React from "react";
 import { useCurrentFrame, interpolate } from "remotion";
-import { Frame } from "../components/Frame";
-import { Spotlight } from "../components/Figures";
-import { Bust } from "../components/Bust";
-import { GazeField } from "../components/Stage";
-import { ShatterTitle } from "../components/ShatterTitle";
-import { Subtitles } from "../components/Subtitles";
-import { Sfx } from "../components/Sfx";
-import { brand } from "../theme";
+import { Frame } from "../Frame";
+import { Spotlight } from "../../../components/Figures";
+import { Bust } from "../../../components/Bust";
+import { GazeField } from "../../../components/Stage";
+import { ShatterTitle } from "../../../components/ShatterTitle";
+import { Subtitles } from "../../../components/Subtitles";
+import { Sfx } from "../../../components/Sfx";
+import { brand } from "../episode";
 import { useRamp, BEAT, HALF_BEAT, type SceneProps } from "../timing";
 
 // Line 0: someone points out a mistake (a red beam) and the plaster face cracks.

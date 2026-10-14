@@ -1,10 +1,10 @@
 import React from "react";
 import { useCurrentFrame, interpolate } from "remotion";
-import { Frame } from "../components/Frame";
-import { Silhouette, Spotlight } from "../components/Figures";
-import { Dust, Floor, GlowWord } from "../components/Stage";
-import { Subtitles } from "../components/Subtitles";
-import { Sfx } from "../components/Sfx";
+import { Frame } from "../Frame";
+import { Silhouette, Spotlight } from "../../../components/Figures";
+import { Dust, Floor, GlowWord } from "../../../components/Stage";
+import { Subtitles } from "../../../components/Subtitles";
+import { Sfx } from "../../../components/Sfx";
 import { useRamp, onBeat, type SceneProps } from "../timing";
 
 const FLOOR = 780;

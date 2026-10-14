@@ -1,6 +1,7 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, interpolate } from "remotion";
-import { brand, theme } from "../theme";
+import { theme } from "../../theme";
+import { brand } from "./episode";
 
 const Grain: React.FC = () => {
   const frame = useCurrentFrame();

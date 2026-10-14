@@ -1,7 +1,7 @@
 import React from "react";
 import { useCurrentFrame, interpolate } from "remotion";
-import { Frame } from "../components/Frame";
-import { Subtitles } from "../components/Subtitles";
+import { Frame } from "../Frame";
+import { Subtitles } from "../../../components/Subtitles";
 import { type SceneProps } from "../timing";
 
 // Nothing but the question, slowly pushing in.

@@ -1,11 +1,11 @@
 import React from "react";
 import { useCurrentFrame, interpolate, random } from "remotion";
-import { Frame } from "../components/Frame";
-import { Spotlight } from "../components/Figures";
-import { Bust } from "../components/Bust";
-import { GazeField } from "../components/Stage";
-import { Subtitles } from "../components/Subtitles";
-import { Sfx } from "../components/Sfx";
+import { Frame } from "../Frame";
+import { Spotlight } from "../../../components/Figures";
+import { Bust } from "../../../components/Bust";
+import { GazeField } from "../../../components/Stage";
+import { Subtitles } from "../../../components/Subtitles";
+import { Sfx } from "../../../components/Sfx";
 import { useRamp, BEAT, type SceneProps } from "../timing";
 
 const SCALE = 0.95;

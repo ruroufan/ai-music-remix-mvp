@@ -1,9 +1,4 @@
 import { useCurrentFrame, interpolate } from "remotion";
-import type { Line } from "./script";
-
-export { sec, BEAT, BAR, HALF_BEAT, onBeat } from "./timeline";
-
-export type SceneProps = { lines: Line[]; cues: number[]; duration: number };
 
 // 0 → 1 over `len` frames starting at `start`, clamped, eased.
 export const useRamp = (start: number, len = 18) => {

@@ -1,9 +1,9 @@
 import React from "react";
 import { interpolateColors } from "remotion";
-import { Frame } from "../components/Frame";
-import { Subtitles } from "../components/Subtitles";
-import { Sfx } from "../components/Sfx";
-import { theme } from "../theme";
+import { Frame } from "../Frame";
+import { Subtitles } from "../../../components/Subtitles";
+import { Sfx } from "../../../components/Sfx";
+import { theme } from "../../../theme";
 import { useRamp, BEAT, onBeat, type SceneProps } from "../timing";
 
 const ROWS = [98, 95, 92, 90, 87, 85, 81];

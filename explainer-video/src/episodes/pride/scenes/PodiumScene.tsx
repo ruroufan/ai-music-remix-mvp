@@ -1,9 +1,9 @@
 import React from "react";
-import { Frame } from "../components/Frame";
-import { Silhouette, Spotlight } from "../components/Figures";
-import { Subtitles } from "../components/Subtitles";
-import { Sfx } from "../components/Sfx";
-import { theme } from "../theme";
+import { Frame } from "../Frame";
+import { Silhouette, Spotlight } from "../../../components/Figures";
+import { Subtitles } from "../../../components/Subtitles";
+import { Sfx } from "../../../components/Sfx";
+import { theme } from "../../../theme";
 import { useRamp, BEAT, type SceneProps } from "../timing";
 
 const FLOOR = 900;

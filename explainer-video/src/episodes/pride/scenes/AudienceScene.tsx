@@ -1,8 +1,8 @@
 import React from "react";
-import { Frame } from "../components/Frame";
-import { Subtitles } from "../components/Subtitles";
-import { Sfx } from "../components/Sfx";
-import { theme } from "../theme";
+import { Frame } from "../Frame";
+import { Subtitles } from "../../../components/Subtitles";
+import { Sfx } from "../../../components/Sfx";
+import { theme } from "../../../theme";
 import { useRamp, onBeat, type SceneProps } from "../timing";
 
 const TABLE = 740;

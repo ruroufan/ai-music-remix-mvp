@@ -1,10 +1,10 @@
 import React from "react";
 import { useCurrentFrame, interpolate } from "remotion";
-import { Frame } from "../components/Frame";
-import { Silhouette } from "../components/Figures";
-import { Subtitles, RichText } from "../components/Subtitles";
-import { Sfx } from "../components/Sfx";
-import { theme } from "../theme";
+import { Frame } from "../Frame";
+import { Silhouette } from "../../../components/Figures";
+import { Subtitles, RichText } from "../../../components/Subtitles";
+import { Sfx } from "../../../components/Sfx";
+import { theme } from "../../../theme";
 import { useRamp, HALF_BEAT, BEAT, type SceneProps } from "../timing";
 
 const FLOOR = 760;
