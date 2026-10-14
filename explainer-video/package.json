@@ -9,12 +9,13 @@
     "studio": "remotion studio src/index.ts",
     "music": "node scripts/music.mjs",
     "voiceover": "node scripts/voiceover.mjs",
-    "prerender": "node scripts/music.mjs anxiety",
-    "render": "remotion render src/index.ts Anxiety out/anxiety.mp4",
+    "prerender": "node scripts/music.mjs regret",
+    "render": "remotion render src/index.ts Regret out/regret.mp4",
+    "render:anxiety": "node scripts/music.mjs anxiety && remotion render src/index.ts Anxiety out/anxiety.mp4",
     "render:inferiority": "node scripts/music.mjs inferiority && remotion render src/index.ts Inferiority out/inferiority.mp4",
     "render:pleasing": "node scripts/music.mjs pleasing && remotion render src/index.ts Pleasing out/pleasing.mp4",
     "render:pride": "node scripts/music.mjs pride && remotion render src/index.ts Pride out/pride.mp4",
-    "still": "remotion still src/index.ts Anxiety out/still.png --frame=300",
+    "still": "remotion still src/index.ts Regret out/still.png --frame=300",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
