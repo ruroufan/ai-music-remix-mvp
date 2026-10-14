@@ -11,14 +11,13 @@
 import { mkdirSync } from "node:fs";
 import { FPS } from "../src/theme.ts";
 import { createTimeline } from "../src/timeline.ts";
-import { episode as pride } from "../src/episodes/pride/episode.ts";
-import { episode as pleasing } from "../src/episodes/pleasing/episode.ts";
+import { EPISODES as REGISTRY } from "../src/episodes/registry.ts";
 import { reseed, writeWav } from "./audio/lib.mjs";
 import { makeSfx } from "./audio/sfx.mjs";
 import { scoreAmbient } from "./audio/score-ambient.mjs";
 import { scoreDrive } from "./audio/score-drive.mjs";
 
-const EPISODES = { pride, pleasing };
+const EPISODES = Object.fromEntries(Object.entries(REGISTRY).map(([id, e]) => [id, e.episode]));
 const SCORES = { ambient: scoreAmbient, drive: scoreDrive };
 
 const root = new URL("../public/", import.meta.url);

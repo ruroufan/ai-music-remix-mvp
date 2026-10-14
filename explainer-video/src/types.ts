@@ -28,3 +28,14 @@ export type TimingOptions = {
   minSeconds?: number; // shortest a line may stay up
   sceneUnitBeats?: number; // scenes are padded to a multiple of this many beats
 };
+
+// What the frame/chrome prints on every scene. Channels use the fields they need.
+export type Brand = {
+  topic: string;
+  topicLatin?: string;
+  channel?: string;
+  channelLatin?: string;
+  series?: string;
+  watermark?: string;
+  signoff?: string;
+};

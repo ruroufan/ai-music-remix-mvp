@@ -1,7 +1,7 @@
 import React from "react";
-import { ObsFrame } from "../ObsFrame";
-import { Halo } from "../parts";
-import { fonts, palette } from "../look";
+import { ObsFrame } from "../../../channels/backlit/ObsFrame";
+import { Halo } from "../../../channels/backlit/parts";
+import { fonts, palette } from "../../../channels/backlit/look";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { useRamp, BEAT, type SceneProps } from "../timing";

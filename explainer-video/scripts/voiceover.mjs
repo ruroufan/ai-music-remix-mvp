@@ -14,14 +14,13 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { lineKey } from "../src/timeline.ts";
 import { voiceover as existing } from "../src/voiceover.generated.ts";
-import { episode as pride } from "../src/episodes/pride/episode.ts";
-import { episode as pleasing } from "../src/episodes/pleasing/episode.ts";
+import { EPISODES } from "../src/episodes/registry.ts";
 
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => a.replace(/^--/, "").split("=")).map(([k, v]) => [k, v ?? "true"]),
 );
 const engine = args.engine ?? "kokoro";
-const ep = { pride, pleasing }[args.episode ?? "pleasing"];
+const ep = EPISODES[args.episode ?? "pleasing"]?.episode;
 if (!ep) throw new Error(`Unknown episode ${args.episode}`);
 const script = ep.script;
 const here = (p) => fileURLToPath(new URL(p, import.meta.url));

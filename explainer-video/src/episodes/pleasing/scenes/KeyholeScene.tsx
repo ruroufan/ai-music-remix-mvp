@@ -1,8 +1,8 @@
 import React from "react";
 import { useCurrentFrame, interpolate, random } from "remotion";
-import { ObsFrame } from "../ObsFrame";
-import { FocusBox, Halo, Horizon } from "../parts";
-import { fonts, palette } from "../look";
+import { ObsFrame } from "../../../channels/backlit/ObsFrame";
+import { FocusBox, Halo, Horizon } from "../../../channels/backlit/parts";
+import { fonts, palette } from "../../../channels/backlit/look";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { useRamp, BEAT, type SceneProps } from "../timing";

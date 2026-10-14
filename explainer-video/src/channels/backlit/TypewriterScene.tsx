@@ -1,12 +1,15 @@
 import React from "react";
 import { useCurrentFrame } from "remotion";
-import { ObsFrame } from "../ObsFrame";
-import { palette } from "../look";
-import { HALF_BEAT, type SceneProps } from "../timing";
+import { ObsFrame } from "./ObsFrame";
+import { palette } from "./look";
+import { useEpisode } from "../../EpisodeContext";
+import type { SceneProps } from "../../types";
 
-// The music drops out; the question types itself, one character per half beat.
-export const QuestionScene: React.FC<SceneProps> = ({ lines, duration }) => {
+// A one-line scene: the text types itself, one character per half beat
+// (pair it with an energy-0 mood so the music drops out underneath).
+export const TypewriterScene: React.FC<SceneProps> = ({ lines, duration }) => {
   const frame = useCurrentFrame();
+  const { HALF_BEAT } = useEpisode().timeline;
   const text = lines[0].text;
   const shown = Math.min(text.length, Math.floor(frame / HALF_BEAT) + 1);
   const cursorOn = Math.floor(frame / HALF_BEAT) % 2 === 0;

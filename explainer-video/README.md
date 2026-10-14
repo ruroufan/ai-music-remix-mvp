@@ -2,11 +2,12 @@
 
 画面全部用代码绘制（SVG/CSS 剪影、光、粒子、文字动画），字幕和动作卡在音乐拍子上，背景音乐和音效也由代码合成，没有任何第三方素材。
 
-现在有两期：
+现在有三期：
 
 | 合成 ID | 期 | 风格 | 节奏 | 时长 |
 |---|---|---|---|---|
-| `Pleasing` | **背光观察室 · 观察 No.02《讨好》**（萨特“他人即地狱”） | 冷蓝黑底、青色强调、光从人物**背后**打来；取景框、REC、时间码 | 120 BPM，“drive”配乐：鼓组 + 抽吸低音 + 琶音，段落间军鼓滚奏推进 | ~1:46 |
+| `Inferiority` | **背光观察室 · 观察 No.03《自卑》**（阿德勒“优越感是对自卑的补偿”） | 同频道风格；核心意象：人物身上贴满金色标签，标签下透出被背光照亮的裂纹，结尾标签剥落、裂纹愈合 | 120 BPM “drive”，E 小调 | ~1:48 |
+| `Pleasing` | **背光观察室 · 观察 No.02《讨好》**（萨特“他人即地狱”） | 冷蓝黑底、青色强调、光从人物**背后**打来；取景框、REC、时间码 | 120 BPM，“drive”配乐：鼓组 + 抽吸低音 + 琶音，段落间军鼓滚奏推进，A 小调 | ~1:48 |
 | `Pride` | 《傲慢》——拆解参考视频结构的练习 | 暖黑底、顶光、石膏头像 | 72 BPM，“ambient”配乐 | ~1:58 |
 
 ## 运行
@@ -15,7 +16,8 @@
 cd explainer-video
 npm install
 npm run studio          # 浏览器里预览两期
-npm run render          # 《讨好》→ out/pleasing.mp4
+npm run render          # 《自卑》→ out/inferiority.mp4
+npm run render:pleasing # 《讨好》→ out/pleasing.mp4
 npm run render:pride    # 《傲慢》→ out/pride.mp4
 ```
 
@@ -25,15 +27,22 @@ npm run render:pride    # 《傲慢》→ out/pride.mp4
 
 ```
 src/
+  channels/backlit/      背光观察室频道共用：
+    channel.ts           频道名、片尾签名「这里是背光观察室，我们观察那些不被看见的部分。」
+    look.ts              配色和字体
+    ObsFrame.tsx         画框：取景框四角、REC、时间码、频道标识、切镜闪光
+    parts.tsx            视觉零件：背光人物、巨眼、取景框、镜子、视线
+    TypewriterScene.tsx  打字机式单句分镜（“可这样活着，有什么不好？”）
+    EndCard.tsx          片尾卡：频道名 + 逐字打出的签名
   episodes/
-    pleasing/            背光观察室《讨好》
-      script.ts          文案（每个分镜一组字幕）
-      episode.ts         频道信息、BPM、每个分镜的音乐情绪
-      look.ts            配色和字体
-      ObsFrame.tsx       画框：取景框四角、REC、时间码、频道标识、切镜闪光
-      parts.tsx          这一期的视觉零件：背光人物、巨眼、取景框、镜子、视线
-      scenes/*.tsx       11 个分镜
-    pride/               《傲慢》（结构同上）
+    registry.ts          所有期的数据登记表（配乐、配音、字体预加载都从这里读）
+    inferiority/         观察 No.03《自卑》
+      script.ts          文案（每个分镜一组字幕；最后一行是片尾签名）
+      episode.ts         期号、BPM、每个分镜的音乐情绪
+      gilded.tsx         这一期的核心意象：贴满金标签、带裂纹的人物，可剥落、可愈合
+      scenes/*.tsx       分镜
+    pleasing/            观察 No.02《讨好》
+    pride/               《傲慢》（参考练习，不属于本频道）
   timeline.ts            节拍网格：每句字幕从拍点开始、每个分镜从小节线开始
   EpisodeVideo.tsx       通用播放器：按顺序播放分镜 + 配乐（+ 可选配音）
   components/            通用组件：字幕、音效、剪影、石膏头像、碎裂标题…
@@ -56,7 +65,7 @@ scripts/
    - `3` 再加琶音和开镲（高潮）
 
    能量升到 2 以上之前的一小节自动做军鼓滚奏 + 上升音；进能量 0 之前自动“急停”。
-4. **新一期**：复制 `episodes/pleasing`，改文案、分镜、`episode.ts`，在 `src/Root.tsx`、`src/fonts.ts`、`scripts/music.mjs`、`scripts/voiceover.mjs` 里各登记一行。
+4. **新一期**：复制 `episodes/inferiority`，改文案、分镜、`episode.ts`（期号、和弦、能量），在 `src/episodes/registry.ts` 和 `src/Root.tsx` 各登记一行。文案最后一行保留 `channel.signoff`，片尾签名就会自动出现。
 
 ## 可选：配音
 

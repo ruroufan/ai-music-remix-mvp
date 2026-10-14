@@ -1,11 +1,12 @@
 import React, { useContext } from "react";
 import type { Timeline } from "./timeline";
+import type { Brand } from "./types";
 import { theme } from "./theme";
 
 // What shared components (subtitles, sound effects) need to know about the
 // episode they are playing in.
 export type EpisodeLook = { accent: string; accentGlow: string; font: string };
-export type EpisodeCtx = { timeline: Timeline; look: EpisodeLook };
+export type EpisodeCtx = { timeline: Timeline; look: EpisodeLook; brand: Brand };
 
 export const EpisodeContext = React.createContext<EpisodeCtx | null>(null);
 

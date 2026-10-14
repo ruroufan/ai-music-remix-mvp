@@ -1,10 +1,10 @@
-import type { EpisodeData } from "../../types.ts";
+import type { Brand, EpisodeData } from "../../types.ts";
+import { channel } from "../../channels/backlit/channel.ts";
 import { script } from "./script.ts";
 
 // Channel identity, shown in the frame of every scene.
-export const brand = {
-  channel: "背光观察室",
-  channelLatin: "BACKLIT OBSERVATORY",
+export const brand: Brand = {
+  ...channel,
   series: "观察 No.02",
   topic: "讨好",
   topicLatin: "PEOPLE-PLEASING",

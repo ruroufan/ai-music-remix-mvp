@@ -5,9 +5,11 @@ import { EpisodeVideo, type EpisodeDef } from "./EpisodeVideo";
 import { FPS, HEIGHT, WIDTH } from "./theme";
 import { pride } from "./episodes/pride";
 import { pleasing } from "./episodes/pleasing";
+import { inferiority } from "./episodes/inferiority";
 
 // One composition per episode. Render with `npx remotion render src/index.ts <id>`.
 const episodes: [string, EpisodeDef][] = [
+  ["Inferiority", inferiority],
   ["Pleasing", pleasing],
   ["Pride", pride],
 ];

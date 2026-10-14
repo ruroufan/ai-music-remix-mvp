@@ -1,7 +1,7 @@
 import React from "react";
 import { useCurrentFrame, interpolate } from "remotion";
-import { ObsFrame } from "../ObsFrame";
-import { Backlit, Eyes } from "../parts";
+import { ObsFrame } from "../../../channels/backlit/ObsFrame";
+import { Backlit, Eyes } from "../../../channels/backlit/parts";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { useRamp, BEAT, type SceneProps } from "../timing";

@@ -1,9 +1,7 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, interpolate, useVideoConfig } from "remotion";
-import { useSceneIndex } from "../../EpisodeContext";
-import { brand } from "./episode";
+import { useEpisode, useSceneIndex } from "../../EpisodeContext";
 import { fonts, palette } from "./look";
-import { timeline } from "./timing";
 
 const INSET = 46;
 
@@ -58,6 +56,7 @@ export const ObsFrame: React.FC<{ duration: number; children: React.ReactNode; f
 }) => {
   const frame = useCurrentFrame();
   const sceneIndex = useSceneIndex();
+  const { timeline, brand } = useEpisode();
   const { fps } = useVideoConfig();
   const fade = interpolate(frame, [0, 6, duration - 8, duration], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const flashA = flash ? interpolate(frame, [0, 5], [0.22, 0], { extrapolateRight: "clamp" }) : 0;

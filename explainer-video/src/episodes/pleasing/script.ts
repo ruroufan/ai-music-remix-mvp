@@ -4,6 +4,7 @@
 // enough to be read, rounded to whole beats (120 BPM), and every scene starts
 // on a bar line. Text in 【】 is highlighted; `\n` breaks the line.
 import type { SceneSpec } from "../../types.ts";
+import { channel } from "../../channels/backlit/channel.ts";
 
 export const script: SceneSpec[] = [
   {
@@ -82,7 +83,7 @@ export const script: SceneSpec[] = [
     lines: [
       { text: "当你不再住在别人的眼睛里，", seconds: 3.5 },
       { text: "那道目光，就只是目光。", seconds: 4 },
-      { text: "", seconds: 3.5 }, // end card
+      { text: channel.signoff, seconds: 6 }, // end card: the channel sign-off
     ],
   },
 ];

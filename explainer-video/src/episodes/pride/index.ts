@@ -1,7 +1,7 @@
 import type React from "react";
 import type { SceneProps } from "../../types";
 import { defaultLook } from "../../EpisodeContext";
-import { episode } from "./episode";
+import { episode, brand } from "./episode";
 import { timeline } from "./timing";
 import { TitleScene } from "./scenes/TitleScene";
 import { DiagnosisScene } from "./scenes/DiagnosisScene";
@@ -33,4 +33,4 @@ const scenes: Record<string, React.FC<SceneProps>> = {
   standFirm: StandFirmScene,
 };
 
-export const pride = { data: episode, timeline, scenes, look: defaultLook };
+export const pride = { data: episode, timeline, scenes, look: defaultLook, brand };

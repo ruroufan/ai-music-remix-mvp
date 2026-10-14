@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, Series, interpolate, staticFile } from "remotion";
-import type { EpisodeData, SceneProps } from "./types";
+import type { Brand, EpisodeData, SceneProps } from "./types";
 import { lineKey, sec, VOICE_DELAY, type Timeline } from "./timeline";
 import { voiceover } from "./voiceover.generated";
 import { EpisodeContext, SceneIndexContext, type EpisodeLook } from "./EpisodeContext";
@@ -10,6 +10,7 @@ export type EpisodeDef = {
   timeline: Timeline;
   scenes: Record<string, React.FC<SceneProps>>;
   look: EpisodeLook;
+  brand: Brand;
 };
 
 const DUCK_RAMP = 8; // frames
@@ -17,7 +18,7 @@ const DUCK_RAMP = 8; // frames
 // Plays an episode: its scenes in order on the beat grid, the generated score
 // (public/music/<id>.wav) and, if present, voiceover clips.
 export const EpisodeVideo: React.FC<{ ep: EpisodeDef }> = ({ ep }) => {
-  const { data, timeline, scenes, look } = ep;
+  const { data, timeline, scenes, look, brand } = ep;
   // Without narration the score carries the video, so it plays louder.
   const full = timeline.hasVoiceover ? 0.55 : 0.7;
   const ducked = 0.14;
@@ -41,7 +42,7 @@ export const EpisodeVideo: React.FC<{ ep: EpisodeDef }> = ({ ep }) => {
   };
 
   return (
-    <EpisodeContext.Provider value={{ timeline, look }}>
+    <EpisodeContext.Provider value={{ timeline, look, brand }}>
       <AbsoluteFill style={{ background: "#000" }}>
         <Audio src={staticFile(`music/${data.id}.wav`)} volume={musicVolume} />
         <Series>

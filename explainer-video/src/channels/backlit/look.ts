@@ -16,3 +16,6 @@ export const fonts = {
   sans: '"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
   mono: '"JetBrains Mono", "SFMono-Regular", Menlo, monospace',
 };
+
+// The accent the shared subtitles use for 【highlighted】 words.
+export const backlitLook = { accent: palette.accent, accentGlow: `rgba(${palette.accentRgb},0.6)`, font: fonts.sans };

@@ -1,9 +1,9 @@
 import React from "react";
 import { useCurrentFrame, interpolate } from "remotion";
-import { ObsFrame } from "../ObsFrame";
-import { Halo } from "../parts";
+import { ObsFrame } from "../../../channels/backlit/ObsFrame";
+import { Halo } from "../../../channels/backlit/parts";
 import { brand } from "../episode";
-import { fonts, palette } from "../look";
+import { fonts, palette } from "../../../channels/backlit/look";
 import { Sfx } from "../../../components/Sfx";
 import { useRamp, BEAT, type SceneProps } from "../timing";
 

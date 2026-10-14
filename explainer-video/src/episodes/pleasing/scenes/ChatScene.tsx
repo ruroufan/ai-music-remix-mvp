@@ -1,9 +1,9 @@
 import React from "react";
 import { useCurrentFrame, interpolate } from "remotion";
-import { ObsFrame } from "../ObsFrame";
-import { Backlit, Beam, Horizon } from "../parts";
+import { ObsFrame } from "../../../channels/backlit/ObsFrame";
+import { Backlit, Beam, Horizon } from "../../../channels/backlit/parts";
 import { Silhouette } from "../../../components/Figures";
-import { fonts, palette } from "../look";
+import { fonts, palette } from "../../../channels/backlit/look";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { useRamp, BEAT, HALF_BEAT, type SceneProps } from "../timing";
