@@ -4,6 +4,7 @@ import { Frame } from "../components/Frame";
 import { Silhouette, Spotlight } from "../components/Figures";
 import { ShatterTitle } from "../components/ShatterTitle";
 import { Subtitles } from "../components/Subtitles";
+import { Sfx } from "../components/Sfx";
 import { brand } from "../theme";
 import { useRamp, type SceneProps } from "../timing";
 
@@ -73,6 +74,12 @@ export const TitleScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
       <div style={{ position: "absolute", left: 580, top: 230, opacity: titleIn > 0 ? 1 : 0 }}>
         <ShatterTitle text={brand.topic} progress={titleIn} />
       </div>
+
+      <Sfx name="whoosh" at={0} volume={0.3} />
+      {/* shards fly in, then land with a crack */}
+      <Sfx name="whoosh" at={cues[1] + 12} volume={0.3} />
+      <Sfx name="boom" at={cues[1] + 48} volume={0.6} />
+      <Sfx name="shatter" at={cues[1] + 48} volume={0.45} />
 
       <Subtitles lines={lines} cues={cues} duration={duration} />
     </Frame>

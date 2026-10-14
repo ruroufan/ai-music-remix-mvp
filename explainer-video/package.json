@@ -1,10 +1,15 @@
 {
   "name": "explainer-video",
   "private": true,
+  "type": "module",
   "version": "0.1.0",
   "description": "Remotion template for dark-theatre style explainer videos (silhouettes, spotlights, serif subtitles)",
   "scripts": {
+    "prestudio": "node scripts/music.mjs",
     "studio": "remotion studio src/index.ts",
+    "voiceover": "node scripts/voiceover.mjs",
+    "music": "node scripts/music.mjs",
+    "prerender": "node scripts/music.mjs",
     "render": "remotion render src/index.ts Explainer out/explainer.mp4",
     "still": "remotion still src/index.ts Explainer out/still.png --frame=300",
     "typecheck": "tsc --noEmit"

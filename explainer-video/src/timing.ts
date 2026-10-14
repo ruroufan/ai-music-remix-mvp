@@ -1,22 +1,7 @@
 import { useCurrentFrame, interpolate } from "remotion";
-import { FPS } from "./theme";
-import type { Line, SceneSpec } from "./script";
+import type { Line } from "./script";
 
-export const sec = (s: number) => Math.round(s * FPS);
-
-export const sceneFrames = (scene: SceneSpec) =>
-  scene.lines.reduce((sum, l) => sum + sec(l.seconds), 0);
-
-// Start frame (scene-local) of every line, plus the scene end.
-export const lineStarts = (lines: Line[]) => {
-  const starts: number[] = [];
-  let t = 0;
-  for (const l of lines) {
-    starts.push(t);
-    t += sec(l.seconds);
-  }
-  return { starts, end: t };
-};
+export { sec } from "./timeline";
 
 export type SceneProps = { lines: Line[]; cues: number[]; duration: number };
 

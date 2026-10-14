@@ -3,6 +3,7 @@ import { useCurrentFrame, interpolate } from "remotion";
 import { Frame } from "../components/Frame";
 import { Silhouette } from "../components/Figures";
 import { Subtitles, RichText } from "../components/Subtitles";
+import { Sfx } from "../components/Sfx";
 import { theme } from "../theme";
 import { useRamp, type SceneProps } from "../timing";
 
@@ -75,6 +76,11 @@ export const TwoLovesScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
       <div style={{ position: "absolute", left: 959, top: 0, width: 2, height: 1080 * divider, background: "rgba(239,233,223,0.6)" }} />
       <Label x={480} title="自爱心" latin="amour de soi" show={leftLabel * left} />
       <Label x={1440} title="自尊心" latin="amour-propre" show={rightLabel * right} />
+      <Sfx name="whoosh" at={0} volume={0.3} />
+      {[20, 28, 36, 44].map((d) => (
+        <Sfx key={d} name="glint" at={cues[2] + d} volume={0.3} />
+      ))}
+
       <Subtitles lines={lines} cues={cues} duration={duration} />
     </Frame>
   );

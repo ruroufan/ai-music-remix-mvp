@@ -1,12 +1,12 @@
 // The whole video is driven by this file: one entry per scene, one entry per
-// narration line. Scene length = sum of its line durations, so once you have a
-// voiceover, replace `seconds` with the real clip lengths and everything
-// (subtitles, animation cues) re-times itself.
+// narration line. `npm run voiceover` speaks every line; each line then lasts
+// max(seconds, its clip length + a short pause), and subtitles, animation cues
+// and music ducking all re-time themselves from that.
 //
 // Text wrapped in 【】 is rendered in the accent colour. `\n` breaks the line.
-// `audio` (optional) is a file under public/, e.g. "voiceover/01.mp3".
+// `say` (optional) overrides what the TTS reads, e.g. to fix a pronunciation.
 
-export type Line = { text: string; seconds: number; audio?: string };
+export type Line = { text: string; seconds: number; say?: string };
 export type SceneId = "title" | "twoLoves" | "podium";
 export type SceneSpec = { id: SceneId; lines: Line[] };
 
@@ -15,7 +15,7 @@ export const script: SceneSpec[] = [
     id: "title",
     lines: [
       { text: "为什么被人指出错误时，\n我们的第一反应，是反驳？", seconds: 3.6 },
-      { text: "这，是七宗罪之首——", seconds: 3.4 },
+      { text: "这，是七宗罪的第一宗——", seconds: 3.4 },
     ],
   },
   {

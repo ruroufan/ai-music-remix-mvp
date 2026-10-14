@@ -2,6 +2,7 @@ import React from "react";
 import { Frame } from "../components/Frame";
 import { Silhouette, Spotlight } from "../components/Figures";
 import { Subtitles } from "../components/Subtitles";
+import { Sfx } from "../components/Sfx";
 import { theme } from "../theme";
 import { useRamp, type SceneProps } from "../timing";
 
@@ -74,6 +75,9 @@ export const PodiumScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
         </span>
       </div>
       <Silhouette x={960} bottom={top} height={260} />
+
+      <Sfx name="rise" at={cues[1]} volume={0.55} />
+      <Sfx name="boom" at={cues[2] + 10} volume={0.7} />
 
       <Subtitles lines={lines} cues={cues} duration={duration} position="top" />
     </Frame>
