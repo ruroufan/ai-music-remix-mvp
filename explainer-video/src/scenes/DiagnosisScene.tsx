@@ -6,7 +6,7 @@ import { Floor } from "../components/Stage";
 import { Subtitles } from "../components/Subtitles";
 import { Sfx } from "../components/Sfx";
 import { theme } from "../theme";
-import { useRamp, type SceneProps } from "../timing";
+import { useRamp, BEAT, HALF_BEAT, type SceneProps } from "../timing";
 
 const FLOOR = 720;
 const HEAD = { x: 900, y: 600 };
@@ -27,9 +27,9 @@ const shards = Array.from({ length: 16 }, (_, i) => {
 // Line 0: the proud bust lies broken on the floor. Line 1: Rousseau's diagnosis
 // lands on it as a beam of lines.
 export const DiagnosisScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
-  const fall = useRamp(0, 26);
-  const quote = useRamp(cues[1] + 4, 18);
-  const rays = useRamp(cues[1] + 12, 30);
+  const fall = useRamp(0, BEAT);
+  const quote = useRamp(cues[1], 18);
+  const rays = useRamp(cues[1] + HALF_BEAT, BEAT);
 
   return (
     <Frame duration={duration}>
@@ -79,9 +79,9 @@ export const DiagnosisScene: React.FC<SceneProps> = ({ lines, cues, duration }) 
         </div>
       </div>
 
-      <Sfx name="boom" at={4} volume={0.45} />
-      <Sfx name="shatter" at={6} volume={0.3} />
-      <Sfx name="glint" at={cues[1] + 6} volume={0.3} />
+      <Sfx name="boom" at={0} volume={0.45} />
+      <Sfx name="shatter" at={0} volume={0.3} />
+      <Sfx name="glint" at={cues[1] + HALF_BEAT} volume={0.3} />
 
       <Subtitles lines={lines} cues={cues} duration={duration} position="top" hide={[1]} />
     </Frame>

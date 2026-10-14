@@ -5,7 +5,7 @@ import { Silhouette } from "../components/Figures";
 import { Subtitles, RichText } from "../components/Subtitles";
 import { Sfx } from "../components/Sfx";
 import { theme } from "../theme";
-import { useRamp, type SceneProps } from "../timing";
+import { useRamp, HALF_BEAT, BEAT, type SceneProps } from "../timing";
 
 const FLOOR = 760;
 
@@ -59,10 +59,10 @@ export const TwoLovesScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
   const props = useRamp(cues[1] + 25, 20);
   const leftLabel = useRamp(cues[1] + 6, 18);
   const rightLabel = useRamp(cues[2] + 6, 18);
-  const m0 = useRamp(cues[2] + 20, 16);
-  const m1 = useRamp(cues[2] + 28, 16);
-  const m2 = useRamp(cues[2] + 36, 16);
-  const m3 = useRamp(cues[2] + 44, 16);
+  const m0 = useRamp(cues[2] + BEAT, 16);
+  const m1 = useRamp(cues[2] + BEAT + HALF_BEAT, 16);
+  const m2 = useRamp(cues[2] + 2 * BEAT, 16);
+  const m3 = useRamp(cues[2] + 2 * BEAT + HALF_BEAT, 16);
   const divider = useRamp(0, 25);
 
   return (
@@ -77,7 +77,7 @@ export const TwoLovesScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
       <Label x={480} title="自爱心" latin="amour de soi" show={leftLabel * left} />
       <Label x={1440} title="自尊心" latin="amour-propre" show={rightLabel * right} />
       <Sfx name="whoosh" at={0} volume={0.3} />
-      {[20, 28, 36, 44].map((d) => (
+      {[2, 3, 4, 5].map((h) => h * HALF_BEAT).map((d) => (
         <Sfx key={d} name="glint" at={cues[2] + d} volume={0.3} />
       ))}
 

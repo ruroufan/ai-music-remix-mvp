@@ -6,7 +6,7 @@ import { Bust } from "../components/Bust";
 import { Floor, Pedestal } from "../components/Stage";
 import { Subtitles } from "../components/Subtitles";
 import { Sfx } from "../components/Sfx";
-import { useRamp, type SceneProps } from "../timing";
+import { useRamp, BEAT, HALF_BEAT, type SceneProps } from "../timing";
 
 const FLOOR = 780;
 const HIM = { x: 700, plinth: 300 }; // the one who is right — higher up
@@ -14,13 +14,13 @@ const US = { x: 1240, plinth: 110 }; // us, standing on our superiority
 
 export const RebuttalScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const frame = useCurrentFrame();
-  const laser = useRamp(cues[0] + 12, 26);
-  const crack = useRamp(cues[0] + 40, 22);
+  const laser = useRamp(cues[0] + HALF_BEAT, BEAT);
+  const crack = useRamp(cues[0] + 2 * BEAT, BEAT);
   const close = interpolate(frame, [cues[1] - 10, cues[1] + 6], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const stage = useRamp(cues[1], 16);
   const waves = interpolate(frame, [cues[2], cues[3]], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const retort = useRamp(cues[2] + 18, 14);
-  const zoom = useRamp(cues[3], 36);
+  const retort = useRamp(cues[2] + BEAT, 14);
+  const zoom = useRamp(cues[3], 2 * BEAT);
 
   const himHead = { x: HIM.x, y: FLOOR - HIM.plinth - 225 };
   const usMouth = { x: US.x - 8, y: FLOOR - US.plinth - 222 };
@@ -75,9 +75,9 @@ export const RebuttalScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
         </svg>
       </div>
 
-      <Sfx name="whoosh" at={cues[0] + 12} volume={0.3} />
-      <Sfx name="boom" at={cues[0] + 40} volume={0.35} />
-      <Sfx name="whoosh" at={cues[2] + 18} volume={0.4} />
+      <Sfx name="whoosh" at={cues[0] + HALF_BEAT} volume={0.3} />
+      <Sfx name="boom" at={cues[0] + 2 * BEAT} volume={0.35} />
+      <Sfx name="whoosh" at={cues[2] + BEAT} volume={0.4} />
       <Sfx name="rise" at={cues[3]} volume={0.3} />
 
       <Subtitles lines={lines} cues={cues} duration={duration} position={zoom > 0 ? "top" : "bottom"} />

@@ -8,18 +8,19 @@ import { ShatterTitle } from "../components/ShatterTitle";
 import { Subtitles } from "../components/Subtitles";
 import { Sfx } from "../components/Sfx";
 import { brand } from "../theme";
-import { useRamp, type SceneProps } from "../timing";
+import { useRamp, BEAT, HALF_BEAT, type SceneProps } from "../timing";
 
 // Line 0: someone points out a mistake (a red beam) and the plaster face cracks.
 // Line 1: the bust sits on top of a crowd's gaze; the title assembles from shards.
 export const TitleScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const frame = useCurrentFrame();
-  const laser = useRamp(cues[0] + 15, 30);
-  const crack = useRamp(cues[0] + 45, 25);
+  const laser = useRamp(cues[0] + HALF_BEAT, BEAT);
+  const crack = useRamp(cues[0] + 2 * BEAT, BEAT);
   const close = interpolate(frame, [cues[1] - 10, cues[1] + 6], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const wide = useRamp(cues[1], 14);
   const gaze = useRamp(cues[1], 50);
-  const titleIn = useRamp(cues[1] + 20, 45);
+  // Shards fly in over two beats and land on the third.
+  const titleIn = useRamp(cues[1] + BEAT, 2 * BEAT);
   const dim = interpolate(frame, [cues[1] + 15, cues[1] + 40], [1, 0.25], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
@@ -38,12 +39,12 @@ export const TitleScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
         <ShatterTitle text={brand.topic} progress={titleIn} />
       </div>
 
-      <Sfx name="whoosh" at={cues[0] + 12} volume={0.3} />
-      <Sfx name="boom" at={cues[0] + 45} volume={0.35} />
+      <Sfx name="whoosh" at={cues[0] + HALF_BEAT} volume={0.3} />
+      <Sfx name="boom" at={cues[0] + 2 * BEAT} volume={0.35} />
       {/* shards fly in, then land with a crack */}
-      <Sfx name="whoosh" at={cues[1] + 12} volume={0.3} />
-      <Sfx name="boom" at={cues[1] + 48} volume={0.6} />
-      <Sfx name="shatter" at={cues[1] + 48} volume={0.45} />
+      <Sfx name="whoosh" at={cues[1] + BEAT} volume={0.3} />
+      <Sfx name="boom" at={cues[1] + 3 * BEAT} volume={0.6} />
+      <Sfx name="shatter" at={cues[1] + 3 * BEAT} volume={0.45} />
 
       <Subtitles lines={lines} cues={cues} duration={duration} />
     </Frame>

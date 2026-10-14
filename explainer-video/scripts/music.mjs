@@ -1,14 +1,16 @@
 // Synthesises the background score and sound effects from scratch, so the
-// template ships with no third-party audio. Run after `npm run voiceover`
-// (the score follows the scene timings): `npm run music`.
+// template ships with no third-party audio. The score follows the scene
+// timings, so it is regenerated before every studio/render: `npm run music`.
 //
-//   public/music/bgm.wav  — dark ambient bed: slow pad chords that change with
-//                           each scene, a soft heartbeat pulse, sparse piano notes
+//   public/music/bgm.wav  — dark score on the video's 72 BPM grid: pad chords that
+//                           change on each scene's downbeat, a high drone, sub
+//                           bass, a kick/tick pulse in the tense scenes, a piano
+//                           arpeggio and a riser into every cut
 //   public/sfx/*.wav      — one-shots placed by the scenes (see components/Sfx.tsx)
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { script } from "../src/script.ts";
-import { sceneFrames, totalFrames } from "../src/timeline.ts";
+import { BPM, sceneFrames, totalFrames } from "../src/timeline.ts";
 import { FPS } from "../src/theme.ts";
 
 const SR = 44100;
@@ -85,13 +87,19 @@ const pianoNote = (out, t0, midi, gain, pan) => {
 };
 
 // ---------- background score ----------
+//
+// Everything is placed on the same 72 BPM grid the video uses (timeline.ts), so
+// scene cuts, subtitle changes and sound effects all land on the music.
 
+const BEAT_S = 60 / BPM;
+const BAR_S = BEAT_S * 4;
 const sceneStarts = [];
 {
   let t = 0;
   for (const s of script) { sceneStarts.push(t / FPS); t += sceneFrames(s); }
 }
-const length = totalFrames / FPS + 2;
+const songEnd = totalFrames / FPS;
+const length = songEnd + 3;
 
 // Pad chords (MIDI notes).
 const CHORD_NOTES = {
@@ -105,29 +113,33 @@ const CHORD_NOTES = {
 const CHORDS = Object.values(CHORD_NOTES);
 const chordIndex = Object.fromEntries(Object.keys(CHORD_NOTES).map((k, i) => [k, i]));
 
-// Each scene's harmony and whether the heartbeat runs. Tension builds through
-// the "need others" section and releases into D major for the ending. Scenes
-// not listed cycle through the minor chords with the heartbeat on.
+// Each scene's harmony and whether the rhythm section plays. Tension builds
+// through the "need others" section and releases into D major for the ending.
+// Scenes not listed cycle through the minor chords with the pulse on.
 const MOODS = {
-  title: { chord: "Dm", beat: false },
-  diagnosis: { chord: "Bb", beat: false },
-  misconception: { chord: "Gm", beat: true },
-  social: { chord: "A", beat: true },
-  twoLoves: { chord: "F", beat: false },
-  podium: { chord: "Gm", beat: true },
-  scores: { chord: "Dm", beat: true },
-  rebuttal: { chord: "Bb", beat: true },
-  question: { chord: "A", beat: false },
-  cup: { chord: "Gm", beat: true },
-  rank: { chord: "A", beat: true },
-  audience: { chord: "F", beat: false },
-  standFirm: { chord: "D", beat: false },
+  title: { chord: "Dm", pulse: false },
+  diagnosis: { chord: "Bb", pulse: false },
+  misconception: { chord: "Gm", pulse: true },
+  social: { chord: "A", pulse: true },
+  twoLoves: { chord: "F", pulse: false },
+  podium: { chord: "Gm", pulse: true },
+  scores: { chord: "Dm", pulse: true },
+  rebuttal: { chord: "Bb", pulse: true },
+  question: { chord: "A", pulse: false },
+  cup: { chord: "Gm", pulse: true },
+  rank: { chord: "A", pulse: true },
+  audience: { chord: "F", pulse: false },
+  standFirm: { chord: "D", pulse: false },
 };
 const FALLBACK = ["Dm", "Bb", "Gm", "A"];
-const moodAt = (t) => {
+const sceneAt = (t) => {
   let k = 0;
-  sceneStarts.forEach((s, i) => { if (t >= s) k = i; });
-  return MOODS[script[k].id] ?? { chord: FALLBACK[k % FALLBACK.length], beat: true };
+  sceneStarts.forEach((s, i) => { if (t >= s - 1e-6) k = i; });
+  return k;
+};
+const moodAt = (t) => {
+  const k = sceneAt(t);
+  return MOODS[script[k].id] ?? { chord: FALLBACK[k % FALLBACK.length], pulse: true };
 };
 
 // One cycle of the pad's saw-ish waveform (6 harmonics), looked up by phase.
@@ -138,66 +150,101 @@ const WAVE = Float32Array.from({ length: TABLE_SIZE + 1 }, (_, i) => {
   return s;
 });
 
+const addMono = (out, t0, dur, fn) => {
+  const s0 = Math.round(t0 * SR);
+  for (let i = 0; i < dur * SR && s0 + i < out[0].length; i++) {
+    const v = fn(i / SR);
+    out[0][s0 + i] += v;
+    out[1][s0 + i] += v;
+  }
+};
+
 const bgm = buffer(length);
 {
   const [L, R] = bgm;
+
+  // 1. Pad: chords crossfade quickly at each scene's downbeat.
   const lpL = biquad(), lpR = biquad();
   const phases = new Float64Array(64);
-  const blend = CHORDS.map((_, i) => (i === 0 ? 1 : 0));
+  const blend = CHORDS.map((_, i) => (i === chordIndex[moodAt(0).chord] ? 1 : 0));
   let target = 0;
   for (let i = 0; i < L.length; i++) {
     const t = i / SR;
-    if (i % 1024 === 0) target = chordIndex[moodAt(t).chord];
-    // Crossfade chords over ~1.5 s when the scene changes.
-    for (let k = 0; k < blend.length; k++) blend[k] += ((k === target ? 1 : 0) - blend[k]) / (0.5 * SR);
+    if (i % 512 === 0) target = chordIndex[moodAt(t).chord];
+    for (let k = 0; k < blend.length; k++) blend[k] += ((k === target ? 1 : 0) - blend[k]) / (0.12 * SR);
     let l = 0, r = 0, p = 0;
     CHORDS.forEach((chord, k) => {
       if (blend[k] < 1e-4) { p += chord.length * 2; return; }
       chord.forEach((n, j) => {
         for (const det of [-0.11, 0.11]) {
-          // Saw-ish wavetable, detuned pairs panned apart.
           phases[p] = (phases[p] + hz(n + det) / SR) % 1;
-          let s = WAVE[(phases[p] * TABLE_SIZE) | 0];
-          s *= blend[k] * (j === 0 ? 1.4 : 0.6);
+          const s = WAVE[(phases[p] * TABLE_SIZE) | 0] * blend[k] * (j === 0 ? 1.4 : 0.6);
           if (det < 0) l += s; else r += s;
           p++;
         }
       });
     });
-    // Slow breathing filter keeps the pad moving.
-    const cutoff = 520 + 260 * Math.sin(t * 0.35) + 120 * Math.sin(t * 0.13);
-    L[i] = lpL(l, "lp", cutoff) * 0.08;
-    R[i] = lpR(r, "lp", cutoff) * 0.08;
+    // The filter opens a little on every beat, so even the pad breathes in time.
+    const beatPos = (t % BEAT_S) / BEAT_S;
+    const cutoff = 480 + 220 * Math.exp(-beatPos * 4) + 120 * Math.sin(t * 0.13);
+    L[i] = lpL(l, "lp", cutoff) * 0.07;
+    R[i] = lpR(r, "lp", cutoff) * 0.07;
   }
 
-  // Heartbeat: a soft double thump, in the scenes whose mood asks for it.
-  for (let t0 = 0.5; t0 < length - 2; t0 += 1.25) {
-    if (!moodAt(t0).beat) continue;
-    for (const [off, g] of [[0, 1], [0.24, 0.6]]) {
-      const s0 = Math.round((t0 + off) * SR);
-      for (let i = 0; i < 0.35 * SR && s0 + i < L.length; i++) {
-        const t = i / SR;
-        const v = Math.sin(2 * Math.PI * (48 + 30 * Math.exp(-t * 30)) * t) * Math.exp(-t * 14) * 0.32 * g;
-        L[s0 + i] += v; R[s0 + i] += v;
+  // 2. A thin high drone over everything (A4 + D5), slowly shimmering.
+  for (let i = 0; i < L.length; i++) {
+    const t = i / SR;
+    const v = (Math.sin(2 * Math.PI * 440 * t) + 0.7 * Math.sin(2 * Math.PI * 587.33 * t)) * (0.012 + 0.005 * Math.sin(t * 0.9));
+    L[i] += v * (1 + 0.3 * Math.sin(t * 0.5));
+    R[i] += v * (1 - 0.3 * Math.sin(t * 0.5));
+  }
+
+  const keys = bgm.map((ch) => new Float32Array(ch.length));
+  for (let b = 0; b * BEAT_S < songEnd; b++) {
+    const t0 = b * BEAT_S;
+    const mood = moodAt(t0 + 1e-3);
+    const chord = CHORD_NOTES[mood.chord];
+    const beatInBar = b % 4;
+
+    // 3. Sub bass: the chord root on every downbeat, ringing through the bar.
+    if (beatInBar === 0) {
+      const f = hz(chord[0] < 33 ? chord[0] + 12 : chord[0]);
+      addMono(bgm, t0, BAR_S, (t) => Math.sin(2 * Math.PI * f * t) * Math.min(1, t / 0.02) * Math.exp(-t * 1.1) * (mood.pulse ? 0.35 : 0.22));
+    }
+
+    // 4. Rhythm (tension scenes): soft kick on 1 and 3, a ticking clock on every beat.
+    if (mood.pulse) {
+      if (beatInBar === 0 || beatInBar === 2) {
+        addMono(bgm, t0, 0.4, (t) => Math.sin(2 * Math.PI * (46 + 40 * Math.exp(-t * 35)) * t) * Math.exp(-t * 12) * (beatInBar === 0 ? 0.45 : 0.3));
       }
+      const hp = biquad();
+      addMono(bgm, t0, 0.06, (t) => hp(noise(), "hp", 6500) * Math.exp(-t * 90) * (beatInBar === 0 ? 0.16 : 0.1));
+    }
+
+    // 5. Piano: the chord's upper notes as a slow arpeggio, one note every two beats.
+    if (b % 2 === 0) {
+      const upper = chord.map((n) => n + 24).filter((n) => n >= 62 && n <= 84);
+      const note = upper[(b / 2) % upper.length];
+      pianoNote(keys, t0, note, 0.085, 0.35 + 0.3 * ((b / 2) % 2));
     }
   }
-
-  // Sparse high piano notes from the D minor scale, through the echo.
-  const keys = bgm.map((ch) => new Float32Array(ch.length));
-  const SCALE = [74, 77, 81, 76, 72, 79, 74, 69];
-  let k = 0;
-  for (let t0 = 1.2; t0 < length - 3; t0 += 2.6 + rand() * 1.6) {
-    pianoNote(keys, t0, SCALE[k++ % SCALE.length], 0.09, 0.3 + rand() * 0.4);
-  }
-  echo(keys, 380, 0.42);
+  echo(keys, BEAT_S * 750, 0.3); // dotted-eighth echo on the piano, in time with the tempo
   for (let i = 0; i < L.length; i++) { L[i] += keys[0][i]; R[i] += keys[1][i]; }
 
-  // Fade the tail.
-  const fade = Math.round(1.5 * SR);
-  for (let i = 0; i < fade; i++) {
-    const g = i / fade;
-    L[L.length - 1 - i] *= g; R[R.length - 1 - i] *= g;
+  // 6. A riser over the last two beats before every scene change, so cuts land hard.
+  sceneStarts.slice(1).forEach((s) => {
+    const dur = 2 * BEAT_S, bp = biquad();
+    addMono(bgm, s - dur, dur, (t) => {
+      const k = t / dur;
+      return bp(noise(), "bp", 400 + 5000 * k * k, 2) * k * k * 0.35;
+    });
+  });
+
+  // Let the final chord ring, then fade.
+  const fadeFrom = Math.round(songEnd * SR), fadeLen = L.length - fadeFrom;
+  for (let i = 0; i < fadeLen; i++) {
+    const g = 1 - i / fadeLen;
+    L[fadeFrom + i] *= g; R[fadeFrom + i] *= g;
   }
   normalize(bgm, -1);
 }

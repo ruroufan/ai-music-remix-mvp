@@ -1,7 +1,7 @@
 import { useCurrentFrame, interpolate } from "remotion";
 import type { Line } from "./script";
 
-export { sec } from "./timeline";
+export { sec, BEAT, BAR, HALF_BEAT, onBeat } from "./timeline";
 
 export type SceneProps = { lines: Line[]; cues: number[]; duration: number };
 

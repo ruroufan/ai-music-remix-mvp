@@ -6,7 +6,7 @@ import { Bust } from "../components/Bust";
 import { GazeField } from "../components/Stage";
 import { Subtitles } from "../components/Subtitles";
 import { Sfx } from "../components/Sfx";
-import { useRamp, type SceneProps } from "../timing";
+import { useRamp, BEAT, type SceneProps } from "../timing";
 
 const SCALE = 0.95;
 
@@ -22,9 +22,9 @@ const Stars: React.FC = () => (
 // Line 2: the column vanishes; what actually holds the bust up is everyone's gaze.
 export const MisconceptionScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const frame = useCurrentFrame();
-  const grow = useRamp(cues[1] + 6, 40);
+  const grow = useRamp(cues[1], 2 * BEAT);
   const swap = useRamp(cues[2], 24);
-  const gaze = useRamp(cues[2] + 4, 50);
+  const gaze = useRamp(cues[2], 2 * BEAT);
   const pillarTop = interpolate(grow, [0, 1], [720, 520]);
   const bustY = pillarTop - 200 * SCALE + 40;
   const drift = interpolate(frame, [0, duration], [0, -14]);
@@ -53,7 +53,7 @@ export const MisconceptionScene: React.FC<SceneProps> = ({ lines, cues, duration
       <GazeField target={{ x: 960, y: 560 }} progress={gaze} open={swap} horizon={640} depth={440} opacity={swap} />
       <Bust x={960} y={interpolate(swap, [0, 1], [bustY, 560 - 200 * SCALE + 40]) + drift} scale={SCALE} id="mis" />
 
-      <Sfx name="rise" at={cues[1] + 6} volume={0.4} />
+      <Sfx name="rise" at={cues[1]} volume={0.4} />
       <Sfx name="whoosh" at={cues[2]} volume={0.3} />
 
       <Subtitles lines={lines} cues={cues} duration={duration} />

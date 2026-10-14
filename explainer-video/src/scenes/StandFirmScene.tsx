@@ -6,7 +6,7 @@ import { GazeField } from "../components/Stage";
 import { Subtitles } from "../components/Subtitles";
 import { Sfx } from "../components/Sfx";
 import { theme } from "../theme";
-import { useRamp, type SceneProps } from "../timing";
+import { useRamp, BEAT, type SceneProps } from "../timing";
 
 const GROUND = 820;
 const PERCH = 540;
@@ -16,13 +16,14 @@ const PERCH = 540;
 export const StandFirmScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const frame = useCurrentFrame();
   const gazeIn = useRamp(0, 30);
-  const letGo = interpolate(frame, [cues[1] - 40, cues[1] + 6], [0, 1], {
+  // Falls over the last two beats of line 0 and lands on the downbeat of line 1.
+  const letGo = interpolate(frame, [cues[1] - 2 * BEAT, cues[1]], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
-  const stone = useRamp(cues[1] - 16, 22);
-  const word = useRamp(cues[1] + 10, 22);
+  const stone = useRamp(cues[1] - BEAT, BEAT);
+  const word = useRamp(cues[1] + BEAT, 22);
   const feet = interpolate(letGo, [0, 1], [PERCH, GROUND]);
 
   return (
@@ -53,8 +54,8 @@ export const StandFirmScene: React.FC<SceneProps> = ({ lines, cues, duration }) 
         站稳
       </div>
 
-      <Sfx name="whoosh" at={cues[1] - 40} volume={0.35} />
-      <Sfx name="boom" at={cues[1] + 6} volume={0.7} />
+      <Sfx name="whoosh" at={cues[1] - 2 * BEAT} volume={0.35} />
+      <Sfx name="boom" at={cues[1]} volume={0.7} />
 
       <Subtitles lines={lines} cues={cues} duration={duration} position="top" />
     </Frame>

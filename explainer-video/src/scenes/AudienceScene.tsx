@@ -3,7 +3,7 @@ import { Frame } from "../components/Frame";
 import { Subtitles } from "../components/Subtitles";
 import { Sfx } from "../components/Sfx";
 import { theme } from "../theme";
-import { useRamp, type SceneProps } from "../timing";
+import { useRamp, onBeat, type SceneProps } from "../timing";
 
 const TABLE = 740;
 
@@ -50,10 +50,12 @@ const Crane: React.FC<{ x: number }> = ({ x }) => (
 export const AudienceScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const seats = useRamp(0, 30);
   const lamp = useRamp(cues[0] + 10, 30);
-  const bowl = useRamp(cues[1] + 2, 14);
+  const bowl = useRamp(cues[1], 14);
   const span = duration - cues[1];
-  const moon = useRamp(cues[1] + Math.round(span * 0.25), 14);
-  const crane = useRamp(cues[1] + Math.round(span * 0.5), 14);
+  const moonAt = cues[1] + onBeat(span * 0.25);
+  const craneAt = cues[1] + onBeat(span * 0.5);
+  const moon = useRamp(moonAt, 14);
+  const crane = useRamp(craneAt, 14);
 
   return (
     <Frame duration={duration}>
@@ -68,9 +70,9 @@ export const AudienceScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
       <div style={{ opacity: moon }}><Moon x={960} /></div>
       <div style={{ opacity: crane }}><Crane x={1180} /></div>
 
-      <Sfx name="glint" at={cues[1] + 2} volume={0.22} />
-      <Sfx name="glint" at={cues[1] + Math.round(span * 0.25)} volume={0.22} />
-      <Sfx name="glint" at={cues[1] + Math.round(span * 0.5)} volume={0.22} />
+      <Sfx name="glint" at={cues[1]} volume={0.22} />
+      <Sfx name="glint" at={moonAt} volume={0.22} />
+      <Sfx name="glint" at={craneAt} volume={0.22} />
 
       <Subtitles lines={lines} cues={cues} duration={duration} />
     </Frame>

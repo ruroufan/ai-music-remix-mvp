@@ -5,7 +5,7 @@ import { Silhouette, Spotlight } from "../components/Figures";
 import { Floor } from "../components/Stage";
 import { Subtitles } from "../components/Subtitles";
 import { Sfx } from "../components/Sfx";
-import { useRamp, type SceneProps } from "../timing";
+import { useRamp, BEAT, type SceneProps } from "../timing";
 
 const FLOOR = 820;
 const CUP = { x: 960, rim: 560 };
@@ -52,8 +52,8 @@ export const CupScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const frame = useCurrentFrame();
   const cupOut = interpolate(frame, [cues[1] - 10, cues[1] + 6], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const row = useRamp(cues[1], 18);
-  const links = useRamp(cues[1] + 20, 30);
-  const impossible = useRamp(cues[2] + 4, 24);
+  const links = useRamp(cues[1] + BEAT, BEAT);
+  const impossible = useRamp(cues[2], BEAT);
 
   return (
     <Frame duration={duration}>
@@ -83,7 +83,7 @@ export const CupScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
         </svg>
         {ROW.map((x, i) => {
           // Each one leans forward in turn, trying to get in front.
-          const t = (frame - cues[1] - 20 - i * 6) / 30;
+          const t = (frame - cues[1] - BEAT - i * 6) / 30;
           const lean = t > 0 && t < 2 ? Math.sin(Math.min(t, 1) * Math.PI) * 0.08 : 0;
           return (
             <div key={x} style={{ position: "absolute", inset: 0, transform: `scale(${1 + lean})`, transformOrigin: `${x}px ${FLOOR}px` }}>
@@ -93,9 +93,9 @@ export const CupScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
         })}
       </div>
 
-      <Sfx name="glint" at={10} volume={0.2} />
+      <Sfx name="glint" at={0} volume={0.2} />
       <Sfx name="whoosh" at={cues[1]} volume={0.3} />
-      <Sfx name="boom" at={cues[2] + 4} volume={0.45} />
+      <Sfx name="boom" at={cues[2]} volume={0.45} />
 
       <Subtitles lines={lines} cues={cues} duration={duration} position={frame >= cues[2] ? "top" : "bottom"} />
     </Frame>

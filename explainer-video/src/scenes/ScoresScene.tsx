@@ -4,7 +4,7 @@ import { Frame } from "../components/Frame";
 import { Subtitles } from "../components/Subtitles";
 import { Sfx } from "../components/Sfx";
 import { theme } from "../theme";
-import { useRamp, type SceneProps } from "../timing";
+import { useRamp, BEAT, onBeat, type SceneProps } from "../timing";
 
 const ROWS = [98, 95, 92, 90, 87, 85, 81];
 const ME = 2;
@@ -14,8 +14,9 @@ const TOP = 96;
 // A report card: you came third, and your eyes go straight to the two above you.
 export const ScoresScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const enter = useRamp(0, 22);
-  const look = useRamp(cues[0] + Math.round(duration * 0.35), 30);
-  const red = useRamp(cues[0] + Math.round(duration * 0.35) + 18, 16);
+  const lookAt = cues[0] + onBeat(duration * 0.3);
+  const look = useRamp(lookAt, BEAT);
+  const red = useRamp(lookAt + BEAT, 16);
   const pathLen = 420;
 
   return (
@@ -81,7 +82,7 @@ export const ScoresScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
       </div>
 
       <Sfx name="whoosh" at={0} volume={0.3} />
-      <Sfx name="glint" at={cues[0] + Math.round(duration * 0.35) + 18} volume={0.3} />
+      <Sfx name="glint" at={lookAt + BEAT} volume={0.3} />
 
       <Subtitles lines={lines} cues={cues} duration={duration} />
     </Frame>

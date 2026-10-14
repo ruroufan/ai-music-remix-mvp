@@ -5,7 +5,7 @@ import { Silhouette, Spotlight } from "../components/Figures";
 import { Dust, Floor, GlowWord } from "../components/Stage";
 import { Subtitles } from "../components/Subtitles";
 import { Sfx } from "../components/Sfx";
-import { useRamp, type SceneProps } from "../timing";
+import { useRamp, onBeat, type SceneProps } from "../timing";
 
 const FLOOR = 780;
 const STEPS = [
@@ -18,10 +18,12 @@ const STEPS = [
 export const RankScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const frame = useCurrentFrame();
   const enter = useRamp(0, 18);
-  const wary = useRamp(cues[0] + Math.round((cues[1] - cues[0]) * 0.45), 18);
+  const waryAt = cues[0] + onBeat((cues[1] - cues[0]) * 0.45);
+  const wary = useRamp(waryAt, 18);
   const out = interpolate(frame, [cues[1] - 10, cues[1] + 8], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const word = useRamp(cues[1] + 4, 18);
-  const crumble = interpolate(frame, [cues[1] + Math.round((duration - cues[1]) * 0.45), duration - 6], [0, 1], {
+  const crumbleAt = cues[1] + onBeat((duration - cues[1]) * 0.45);
+  const crumble = interpolate(frame, [crumbleAt, duration - 6], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -77,8 +79,8 @@ export const RankScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
         <Dust box={{ x: 780, y: 225, w: 360, h: 150 }} progress={crumble} />
       </div>
 
-      <Sfx name="glint" at={cues[0] + Math.round((cues[1] - cues[0]) * 0.45)} volume={0.3} />
-      <Sfx name="whoosh" at={cues[1] + Math.round((duration - cues[1]) * 0.45)} volume={0.35} />
+      <Sfx name="glint" at={waryAt} volume={0.3} />
+      <Sfx name="whoosh" at={crumbleAt} volume={0.35} />
 
       <Subtitles lines={lines} cues={cues} duration={duration} y={frame >= cues[1] ? 470 : undefined} />
     </Frame>

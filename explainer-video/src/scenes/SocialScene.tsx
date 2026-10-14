@@ -5,7 +5,7 @@ import { Rays } from "../components/Figures";
 import { GlowWord, WatchingEyes } from "../components/Stage";
 import { Subtitles } from "../components/Subtitles";
 import { Sfx } from "../components/Sfx";
-import { useRamp, type SceneProps } from "../timing";
+import { useRamp, BEAT, onBeat, type SceneProps } from "../timing";
 
 const card: React.CSSProperties = {
   position: "absolute",
@@ -55,14 +55,15 @@ const Chat: React.FC<{ withdrawn: number }> = ({ withdrawn }) => (
 
 export const SocialScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const frame = useCurrentFrame();
-  const postIn = useRamp(cues[0] + 4, 16);
+  const postIn = useRamp(cues[0], 16);
   // The unliked post drops away just before the next line ("删掉").
-  const postOut = interpolate(frame, [cues[1] - 22, cues[1]], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const chatIn = useRamp(cues[1] + 4, 16);
-  const withdrawn = useRamp(cues[1] + Math.round((cues[2] - cues[1]) * 0.55), 14);
+  const postOut = interpolate(frame, [cues[1] - BEAT, cues[1]], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const chatIn = useRamp(cues[1], 16);
+  const withdrawAt = cues[1] + onBeat((cues[2] - cues[1]) * 0.55);
+  const withdrawn = useRamp(withdrawAt, 14);
   const chatOut = interpolate(frame, [cues[2] - 10, cues[2] + 4], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const need = useRamp(cues[2] + 2, 22);
-  const rays = useRamp(cues[2] + 6, 40);
+  const need = useRamp(cues[2], 22);
+  const rays = useRamp(cues[2], 2 * BEAT);
 
   return (
     <Frame duration={duration}>
@@ -78,11 +79,11 @@ export const SocialScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
         <GlowWord text="需要" y={440} size={170} />
       </div>
 
-      <Sfx name="glint" at={cues[0] + 4} volume={0.25} />
-      <Sfx name="whoosh" at={cues[1] - 22} volume={0.3} />
-      <Sfx name="glint" at={cues[1] + 4} volume={0.25} />
-      <Sfx name="whoosh" at={cues[1] + Math.round((cues[2] - cues[1]) * 0.55)} volume={0.2} />
-      <Sfx name="boom" at={cues[2] + 2} volume={0.5} />
+      <Sfx name="glint" at={cues[0]} volume={0.25} />
+      <Sfx name="whoosh" at={cues[1] - BEAT} volume={0.3} />
+      <Sfx name="glint" at={cues[1]} volume={0.25} />
+      <Sfx name="whoosh" at={withdrawAt} volume={0.2} />
+      <Sfx name="boom" at={cues[2]} volume={0.5} />
 
       <Subtitles lines={lines} cues={cues} duration={duration} />
     </Frame>

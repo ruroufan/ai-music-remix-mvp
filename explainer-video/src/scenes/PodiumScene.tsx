@@ -4,16 +4,16 @@ import { Silhouette, Spotlight } from "../components/Figures";
 import { Subtitles } from "../components/Subtitles";
 import { Sfx } from "../components/Sfx";
 import { theme } from "../theme";
-import { useRamp, type SceneProps } from "../timing";
+import { useRamp, BEAT, type SceneProps } from "../timing";
 
 const FLOOR = 900;
 const CROWD = [380, 620, 1300, 1540];
 
 export const PodiumScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const crowd = useRamp(0, 20);
-  const rise = useRamp(cues[1], 40);       // "是比别人好" — the pedestal grows
-  const gaze = useRamp(cues[1] + 25, 30);  // everyone looks up at them
-  const label = useRamp(cues[2] + 10, 20); // "优越感" burns onto the pedestal
+  const rise = useRamp(cues[1], 2 * BEAT);       // "是比别人好" — the pedestal grows
+  const gaze = useRamp(cues[1] + BEAT, BEAT);  // everyone looks up at them
+  const label = useRamp(cues[2] + BEAT, 20); // "优越感" burns onto the pedestal, on beat 2
 
   const pedestalH = 30 + rise * 190;
   const top = FLOOR - pedestalH;
@@ -77,7 +77,7 @@ export const PodiumScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
       <Silhouette x={960} bottom={top} height={260} />
 
       <Sfx name="rise" at={cues[1]} volume={0.55} />
-      <Sfx name="boom" at={cues[2] + 10} volume={0.7} />
+      <Sfx name="boom" at={cues[2] + BEAT} volume={0.7} />
 
       <Subtitles lines={lines} cues={cues} duration={duration} position="top" />
     </Frame>

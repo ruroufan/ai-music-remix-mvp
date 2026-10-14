@@ -1,7 +1,7 @@
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, Series, interpolate, staticFile } from "remotion";
 import { script, type SceneId } from "./script";
-import { lineKey, lineStarts, sec, totalFrames, voiceRanges, VOICE_DELAY } from "./timeline";
+import { hasVoiceover, lineKey, lineStarts, sec, totalFrames, voiceRanges, VOICE_DELAY } from "./timeline";
 import { voiceover } from "./voiceover.generated";
 import type { SceneProps } from "./timing";
 import { TitleScene } from "./scenes/TitleScene";
@@ -34,7 +34,8 @@ const SCENES: Record<SceneId, React.FC<SceneProps>> = {
   standFirm: StandFirmScene,
 };
 
-const MUSIC_VOLUME = 0.55;
+// Without narration the score carries the video, so it plays louder.
+const MUSIC_VOLUME = hasVoiceover ? 0.55 : 0.85;
 const MUSIC_DUCKED = 0.14;
 const DUCK_RAMP = 8; // frames
 
