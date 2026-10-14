@@ -7,7 +7,20 @@
 // `say` (optional) overrides what the TTS reads, e.g. to fix a pronunciation.
 
 export type Line = { text: string; seconds: number; say?: string };
-export type SceneId = "title" | "twoLoves" | "podium";
+export type SceneId =
+  | "title"
+  | "diagnosis"
+  | "misconception"
+  | "social"
+  | "twoLoves"
+  | "podium"
+  | "scores"
+  | "rebuttal"
+  | "question"
+  | "cup"
+  | "rank"
+  | "audience"
+  | "standFirm";
 export type SceneSpec = { id: SceneId; lines: Line[] };
 
 export const script: SceneSpec[] = [
@@ -19,10 +32,33 @@ export const script: SceneSpec[] = [
     ],
   },
   {
+    id: "diagnosis",
+    lines: [
+      { text: "西方哲学史上，\n卢梭曾给出关于傲慢最著名的诊断：", seconds: 3.5 },
+      { text: "傲慢的人，最离不开别人。", seconds: 3.5 },
+    ],
+  },
+  {
+    id: "misconception",
+    lines: [
+      { text: "这可能会颠覆你对【傲慢】的认知。", seconds: 3 },
+      { text: "我们通常认为，\n傲慢就是狂妄自大，谁也不需要。", seconds: 3.5, say: "我们通常认为，傲慢就是狂妄、自大，谁也不需要。" },
+      { text: "可傲慢并非不需要别人，\n而是离不开别人。", seconds: 3.5 },
+    ],
+  },
+  {
+    id: "social",
+    lines: [
+      { text: "为什么朋友圈发出去没有点赞，\n我们就想删掉？", seconds: 3.5 },
+      { text: "为什么群里你的发言没人回复，\n我们便想着撤回？", seconds: 3.8 },
+      { text: "这正是我们太【需要】别人的表现。", seconds: 3.5 },
+    ],
+  },
+  {
     id: "twoLoves",
     lines: [
       { text: "卢梭说，人有两种爱自己。", seconds: 3 },
-      { text: "第一种，叫作【自爱心】：\n累了就睡觉，饿了就吃饭。", seconds: 4 },
+      { text: "第一种，叫作【自爱心】：\n累了就睡觉，饿了就吃饭，\n只管自己过得好不好。", seconds: 4 },
       { text: "第二种，叫作【自尊心】：\n它只在和别人比较时才存在。", seconds: 4.4 },
     ],
   },
@@ -32,6 +68,52 @@ export const script: SceneSpec[] = [
       { text: "你要的不是好，", seconds: 2.4 },
       { text: "是【比别人好】。", seconds: 2.6 },
       { text: "也就是我们常说的【优越感】。", seconds: 3.6 },
+    ],
+  },
+  {
+    id: "scores",
+    lines: [{ text: "成绩一出来，\n我们会去关注别人的分数。", seconds: 4 }],
+  },
+  {
+    id: "rebuttal",
+    lines: [
+      { text: "那么，为什么被人指出错误时，\n我们的第一反应，是反驳？", seconds: 3.4 },
+      { text: "因为认错，就等于承认：\n在这件事上，他比我们强。", seconds: 3.5 },
+      { text: "所以，话还没听完，\n反驳已经到了嘴边。", seconds: 3.4 },
+      { text: "我们护住的并非对错，\n而是那一点【优越感】。", seconds: 3.6 },
+    ],
+  },
+  {
+    id: "question",
+    lines: [{ text: "可这样活着，有什么不好？", seconds: 3 }],
+  },
+  {
+    id: "cup",
+    lines: [
+      { text: "卢梭说，自尊心永远不会满足。", seconds: 3.6 },
+      { text: "因为它要的，\n是别人把你放在他们自己前面。", seconds: 4 },
+      { text: "而这，是不可能的。", seconds: 3 },
+    ],
+  },
+  {
+    id: "rank",
+    lines: [
+      { text: "考了第一名，\n我们又开始提防第二名。", seconds: 3.8 },
+      { text: "傲慢的人，一刻也离不开别人，\n又永远等不到【满足】。", seconds: 4.6 },
+    ],
+  },
+  {
+    id: "audience",
+    lines: [
+      { text: "自爱心却不需要观众：", seconds: 2.8 },
+      { text: "一顿饭，一夜好觉，\n一件做到自己满意的事。", seconds: 4.4 },
+    ],
+  },
+  {
+    id: "standFirm",
+    lines: [
+      { text: "当你不再站在别人的目光上，", seconds: 3.6 },
+      { text: "你才算第一次【站稳】。", seconds: 4.5 },
     ],
   },
 ];

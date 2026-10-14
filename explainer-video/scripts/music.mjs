@@ -93,39 +93,71 @@ const sceneStarts = [];
 }
 const length = totalFrames / FPS + 2;
 
-// One chord per scene (MIDI notes), cycling if there are more scenes: Dm, B♭, Gm, A.
-const CHORDS = [
-  [38, 45, 50, 53, 57],
-  [34, 41, 46, 50, 53],
-  [31, 38, 43, 46, 50],
-  [33, 40, 45, 49, 52],
-];
-const chordAt = (t) => {
+// Pad chords (MIDI notes).
+const CHORD_NOTES = {
+  Dm: [38, 45, 50, 53, 57],
+  Bb: [34, 41, 46, 50, 53],
+  Gm: [31, 38, 43, 46, 50],
+  A: [33, 40, 45, 49, 52],
+  F: [29, 41, 45, 48, 53],
+  D: [38, 45, 50, 54, 57], // D major: the resolution at the very end
+};
+const CHORDS = Object.values(CHORD_NOTES);
+const chordIndex = Object.fromEntries(Object.keys(CHORD_NOTES).map((k, i) => [k, i]));
+
+// Each scene's harmony and whether the heartbeat runs. Tension builds through
+// the "need others" section and releases into D major for the ending. Scenes
+// not listed cycle through the minor chords with the heartbeat on.
+const MOODS = {
+  title: { chord: "Dm", beat: false },
+  diagnosis: { chord: "Bb", beat: false },
+  misconception: { chord: "Gm", beat: true },
+  social: { chord: "A", beat: true },
+  twoLoves: { chord: "F", beat: false },
+  podium: { chord: "Gm", beat: true },
+  scores: { chord: "Dm", beat: true },
+  rebuttal: { chord: "Bb", beat: true },
+  question: { chord: "A", beat: false },
+  cup: { chord: "Gm", beat: true },
+  rank: { chord: "A", beat: true },
+  audience: { chord: "F", beat: false },
+  standFirm: { chord: "D", beat: false },
+};
+const FALLBACK = ["Dm", "Bb", "Gm", "A"];
+const moodAt = (t) => {
   let k = 0;
   sceneStarts.forEach((s, i) => { if (t >= s) k = i; });
-  return k;
+  return MOODS[script[k].id] ?? { chord: FALLBACK[k % FALLBACK.length], beat: true };
 };
+
+// One cycle of the pad's saw-ish waveform (6 harmonics), looked up by phase.
+const TABLE_SIZE = 4096;
+const WAVE = Float32Array.from({ length: TABLE_SIZE + 1 }, (_, i) => {
+  let s = 0;
+  for (let h = 1; h <= 6; h++) s += Math.sin((2 * Math.PI * h * i) / TABLE_SIZE) / h ** 1.4;
+  return s;
+});
 
 const bgm = buffer(length);
 {
   const [L, R] = bgm;
   const lpL = biquad(), lpR = biquad();
   const phases = new Float64Array(64);
-  let blend = CHORDS.map((_, i) => (i === 0 ? 1 : 0));
+  const blend = CHORDS.map((_, i) => (i === 0 ? 1 : 0));
+  let target = 0;
   for (let i = 0; i < L.length; i++) {
     const t = i / SR;
-    const target = chordAt(t) % CHORDS.length;
+    if (i % 1024 === 0) target = chordIndex[moodAt(t).chord];
     // Crossfade chords over ~1.5 s when the scene changes.
-    blend = blend.map((b, k) => b + ((k === target ? 1 : 0) - b) / (0.5 * SR));
+    for (let k = 0; k < blend.length; k++) blend[k] += ((k === target ? 1 : 0) - blend[k]) / (0.5 * SR);
     let l = 0, r = 0, p = 0;
     CHORDS.forEach((chord, k) => {
       if (blend[k] < 1e-4) { p += chord.length * 2; return; }
       chord.forEach((n, j) => {
         for (const det of [-0.11, 0.11]) {
-          // Saw-ish: a handful of harmonics, detuned pairs panned apart.
-          phases[p] += (hz(n + det) * 2 * Math.PI) / SR;
-          let s = 0;
-          for (let h = 1; h <= 6; h++) s += Math.sin(phases[p] * h) / h ** 1.4;
+          // Saw-ish wavetable, detuned pairs panned apart.
+          phases[p] = (phases[p] + hz(n + det) / SR) % 1;
+          let s = WAVE[(phases[p] * TABLE_SIZE) | 0];
           s *= blend[k] * (j === 0 ? 1.4 : 0.6);
           if (det < 0) l += s; else r += s;
           p++;
@@ -138,9 +170,9 @@ const bgm = buffer(length);
     R[i] = lpR(r, "lp", cutoff) * 0.08;
   }
 
-  // Heartbeat: a soft double thump, from the second scene on.
-  const beat = sceneStarts[1] ?? 0;
-  for (let t0 = beat; t0 < length - 2; t0 += 1.25) {
+  // Heartbeat: a soft double thump, in the scenes whose mood asks for it.
+  for (let t0 = 0.5; t0 < length - 2; t0 += 1.25) {
+    if (!moodAt(t0).beat) continue;
     for (const [off, g] of [[0, 1], [0.24, 0.6]]) {
       const s0 = Math.round((t0 + off) * SR);
       for (let i = 0; i < 0.35 * SR && s0 + i < L.length; i++) {

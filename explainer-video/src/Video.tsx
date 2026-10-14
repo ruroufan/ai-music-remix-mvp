@@ -5,13 +5,33 @@ import { lineKey, lineStarts, sec, totalFrames, voiceRanges, VOICE_DELAY } from 
 import { voiceover } from "./voiceover.generated";
 import type { SceneProps } from "./timing";
 import { TitleScene } from "./scenes/TitleScene";
+import { DiagnosisScene } from "./scenes/DiagnosisScene";
+import { MisconceptionScene } from "./scenes/MisconceptionScene";
+import { SocialScene } from "./scenes/SocialScene";
 import { TwoLovesScene } from "./scenes/TwoLovesScene";
 import { PodiumScene } from "./scenes/PodiumScene";
+import { ScoresScene } from "./scenes/ScoresScene";
+import { RebuttalScene } from "./scenes/RebuttalScene";
+import { QuestionScene } from "./scenes/QuestionScene";
+import { CupScene } from "./scenes/CupScene";
+import { RankScene } from "./scenes/RankScene";
+import { AudienceScene } from "./scenes/AudienceScene";
+import { StandFirmScene } from "./scenes/StandFirmScene";
 
 const SCENES: Record<SceneId, React.FC<SceneProps>> = {
   title: TitleScene,
+  diagnosis: DiagnosisScene,
+  misconception: MisconceptionScene,
+  social: SocialScene,
   twoLoves: TwoLovesScene,
   podium: PodiumScene,
+  scores: ScoresScene,
+  rebuttal: RebuttalScene,
+  question: QuestionScene,
+  cup: CupScene,
+  rank: RankScene,
+  audience: AudienceScene,
+  standFirm: StandFirmScene,
 };
 
 const MUSIC_VOLUME = 0.55;

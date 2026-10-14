@@ -1,81 +1,45 @@
 import React from "react";
-import { useCurrentFrame, interpolate, random } from "remotion";
+import { useCurrentFrame, interpolate } from "remotion";
 import { Frame } from "../components/Frame";
-import { Silhouette, Spotlight } from "../components/Figures";
+import { Spotlight } from "../components/Figures";
+import { Bust } from "../components/Bust";
+import { GazeField } from "../components/Stage";
 import { ShatterTitle } from "../components/ShatterTitle";
 import { Subtitles } from "../components/Subtitles";
 import { Sfx } from "../components/Sfx";
 import { brand } from "../theme";
 import { useRamp, type SceneProps } from "../timing";
 
-const TARGET = { x: 960, y: 300 };
-
-// Rows of eyes on a perspective floor, every one staring at the figure.
-const eyes = (() => {
-  const out: { x: number; y: number; s: number; id: number }[] = [];
-  let id = 0;
-  for (let r = 0; r < 7; r++) {
-    const t = r / 6;
-    const y = 560 + Math.pow(t, 1.6) * 480;
-    const s = 0.7 + t * 1.6;
-    const n = 9 + r * 3;
-    const spread = 500 + t * 1500;
-    for (let i = 0; i < n; i++) {
-      const jitter = (random(`eye-${r}-${i}`) - 0.5) * (spread / n);
-      out.push({ x: 960 - spread / 2 + (i + 0.5) * (spread / n) + jitter, y, s, id: id++ });
-    }
-  }
-  return out;
-})();
-
-const Eye: React.FC<{ x: number; y: number; s: number; open: number }> = ({ x, y, s, open }) => (
-  <g transform={`translate(${x} ${y}) scale(${s})`}>
-    <path d={`M-14 0 Q0 ${-10 * open} 14 0 Q0 ${10 * open} -14 0 Z`} fill="#1c1a17" stroke="rgba(239,233,223,0.45)" strokeWidth={1.2} />
-    <circle cx={0} cy={-1} r={3.6 * open} fill="rgba(239,233,223,0.85)" />
-  </g>
-);
-
+// Line 0: someone points out a mistake (a red beam) and the plaster face cracks.
+// Line 1: the bust sits on top of a crowd's gaze; the title assembles from shards.
 export const TitleScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const frame = useCurrentFrame();
-  const gaze = useRamp(10, 50);
+  const laser = useRamp(cues[0] + 15, 30);
+  const crack = useRamp(cues[0] + 45, 25);
+  const close = interpolate(frame, [cues[1] - 10, cues[1] + 6], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const wide = useRamp(cues[1], 14);
+  const gaze = useRamp(cues[1], 50);
   const titleIn = useRamp(cues[1] + 20, 45);
-  const sceneDim = interpolate(frame, [cues[1], cues[1] + 25], [1, 0.25], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const dim = interpolate(frame, [cues[1] + 15, cues[1] + 40], [1, 0.25], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
     <Frame duration={duration} showTopic={false}>
-      <div style={{ position: "absolute", inset: 0, opacity: sceneDim }}>
-        <Spotlight x={TARGET.x} floor={TARGET.y + 40} width={300} intensity={0.8} />
-        <svg width={1920} height={1080} style={{ position: "absolute", inset: 0 }}>
-          {eyes.map((e) => {
-            const p = Math.min(1, Math.max(0, gaze * 1.4 - random(`g-${e.id}`) * 0.4));
-            return (
-              <line
-                key={`l${e.id}`}
-                x1={e.x}
-                y1={e.y}
-                x2={e.x + (TARGET.x - e.x) * p}
-                y2={e.y + (TARGET.y - e.y) * p}
-                stroke="rgba(217,184,120,0.16)"
-                strokeWidth={1}
-              />
-            );
-          })}
-          {eyes.map((e) => (
-            <Eye key={e.id} x={e.x} y={e.y} s={e.s} open={Math.min(1, gaze * 3)} />
-          ))}
-        </svg>
-        <div style={{ position: "absolute", left: TARGET.x - 70, top: TARGET.y, width: 140, height: 40, background: "linear-gradient(#d8d4cc,#8d887f)" }} />
-        <Silhouette x={TARGET.x} bottom={TARGET.y} height={200} />
+      <div style={{ opacity: close }}>
+        <Bust x={620} y={560} scale={1.9} laser={laser} crack={crack} id="title-close" />
+      </div>
+
+      <div style={{ position: "absolute", inset: 0, opacity: wide * dim }}>
+        <Spotlight x={960} floor={340} width={300} intensity={0.8} />
+        <GazeField target={{ x: 960, y: 330 }} progress={gaze} open={Math.min(1, gaze * 3)} />
+        <Bust x={960} y={215} scale={0.6} id="title-wide" />
       </div>
 
       <div style={{ position: "absolute", left: 580, top: 230, opacity: titleIn > 0 ? 1 : 0 }}>
         <ShatterTitle text={brand.topic} progress={titleIn} />
       </div>
 
-      <Sfx name="whoosh" at={0} volume={0.3} />
+      <Sfx name="whoosh" at={cues[0] + 12} volume={0.3} />
+      <Sfx name="boom" at={cues[0] + 45} volume={0.35} />
       {/* shards fly in, then land with a crack */}
       <Sfx name="whoosh" at={cues[1] + 12} volume={0.3} />
       <Sfx name="boom" at={cues[1] + 48} volume={0.6} />

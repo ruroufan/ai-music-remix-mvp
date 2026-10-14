@@ -25,14 +25,18 @@ type Props = {
   lines: Line[];
   cues: number[];
   duration: number;
-  position?: "bottom" | "top";
+  position?: "bottom" | "top" | "center";
+  // Explicit top offset in px, overrides `position`.
+  y?: number;
   size?: number;
+  // Line indices the scene renders itself (e.g. a big quote) — no subtitle for them.
+  hide?: number[];
 };
 
-export const Subtitles: React.FC<Props> = ({ lines, cues, duration, position = "bottom", size = 46 }) => {
+export const Subtitles: React.FC<Props> = ({ lines, cues, duration, position = "bottom", y, size = 46, hide = [] }) => {
   const frame = useCurrentFrame();
   const idx = cues.findLastIndex((c) => frame >= c);
-  if (idx < 0) return null;
+  if (idx < 0 || hide.includes(idx)) return null;
   const start = cues[idx];
   const end = idx + 1 < cues.length ? cues[idx + 1] : duration;
   const opacity = interpolate(frame, [start, start + 8, end - 6, end], [0, 1, 1, 0], {
@@ -47,7 +51,13 @@ export const Subtitles: React.FC<Props> = ({ lines, cues, duration, position = "
         position: "absolute",
         left: 0,
         right: 0,
-        [position]: position === "bottom" ? 110 : 150,
+        ...(y !== undefined
+          ? { top: y }
+          : position === "bottom"
+            ? { bottom: 110 }
+            : position === "top"
+              ? { top: 150 }
+              : { top: "50%", marginTop: -size }),
         textAlign: "center",
         fontWeight: 700,
         fontSize: size,

@@ -2,13 +2,25 @@
 
 复刻“七宗罪·傲慢”那类科普视频的做法：**画面全部用代码画**（SVG/CSS 剪影、聚光灯、粒子、碎裂文字），用 Remotion 逐帧渲染成 MP4。
 
-示例包含 3 个分镜（约 32 秒），带中文配音、背景音乐和音效：
+完整复刻了原片的 13 个分镜（约 2 分 18 秒），带中文配音、背景音乐和音效：
 
-| 分镜 | 文件 | 画面 |
-|---|---|---|
-| 开场 | `src/scenes/TitleScene.tsx` | 透视地面上一排排眼睛，视线汇聚到台上的人 →“傲慢”碎片飞入拼合 |
-| 两种爱自己 | `src/scenes/TwoLovesScene.tsx` | 分屏：暖光房间（自爱心）vs 镜子房间（自尊心），焦点随旁白切换 |
-| 优越感 | `src/scenes/PodiumScene.tsx` | 人群仰望，中间的人脚下基座升起，烙上“优越感” |
+| # | 分镜 | 文件 | 画面 |
+|---|---|---|---|
+| 1 | 开场 | `TitleScene` | 被指出错误的石膏头像（红色激光、面部开裂）→ 头像立在众人的目光上，“傲慢”碎片飞入拼合 |
+| 2 | 诊断 | `DiagnosisScene` | 头像倒地碎裂；卢梭的诊断“傲慢的人，最离不开别人”像光束一样落下 |
+| 3 | 误解 | `MisconceptionScene` | 头像立在柱子上，柱子升高（“谁也不需要”）→ 柱子消失，真正托住它的是众人的目光 |
+| 4 | 社交 | `SocialScene` | 零赞的朋友圈坠落、群聊消息被撤回 →“需要”放射金线 |
+| 5 | 两种爱自己 | `TwoLovesScene` | 分屏：暖光房间（自爱心）vs 镜子房间（自尊心） |
+| 6 | 优越感 | `PodiumScene` | 人群仰望，基座升起，烙上“优越感” |
+| 7 | 成绩单 | `ScoresScene` | 第 3 名的目光一路滑向 98 和 95 |
+| 8 | 反驳 | `RebuttalScene` | 激光与裂痕重现 → 高台上的他与站在“优越感”上的我们，声波与红色反驳线 → 推近 |
+| 9 | 发问 | `QuestionScene` | 只有一句话，缓慢推近 |
+| 10 | 漏杯 | `CupScene` | 有裂缝的石膏杯：光点不断倒入、不断漏走 → 七个人都想站到别人前面 |
+| 11 | 名次 | `RankScene` | 第一名回头提防第二名 →“满足”化为尘埃 |
+| 12 | 无需观众 | `AudienceScene` | 空座位下的一盏灯、一张桌：一碗饭、一扇夜窗、一只纸鹤 |
+| 13 | 站稳 | `StandFirmScene` | 站在目光上的人，目光闭合散去，落到真实的石头地面上 —“站稳” |
+
+> 原片没有旁白，只有字幕和配乐；这里的配音是额外加的。文案按原片字幕，个别字句为了 TTS 读准做了微调（见 `script.ts`）。
 
 ## 运行
 
@@ -61,7 +73,7 @@ npx remotion render src/index.ts Explainer out/explainer.mp4 --browser-executabl
 
 `scripts/music.mjs` 纯代码合成，不含任何第三方音频素材：
 
-- `public/music/bgm.wav` — 暗色氛围底：每个分镜换一个和弦（Dm → B♭ → Gm → A）、第二幕起有轻微心跳声、稀疏的高音钢琴点缀。时长按分镜时间轴生成，所以**改完配音后要重新跑一次**（`render` 前会自动跑）。
+- `public/music/bgm.wav` — 暗色氛围底：每个分镜一个和弦、紧张段落有轻微心跳声、稀疏的高音钢琴点缀；结尾“站稳”解决到 D 大调。分镜的情绪在 `scripts/music.mjs` 的 `MOODS` 里配置（新分镜不配置也能用，会自动轮换小调和弦）。时长按分镜时间轴生成，所以**改完配音后要重新跑一次**（`render` 前会自动跑）。
 - `public/sfx/` — `boom`（低频冲击）、`shatter`（碎裂）、`rise`（上升张力）、`whoosh`（转场风声）、`glint`（玻璃叮声）。
 
 音效在分镜代码里紧挨着对应动画放置，时间轴变化时会一起移动：
@@ -81,9 +93,13 @@ npx remotion render src/index.ts Explainer out/explainer.mp4 --browser-executabl
 - `ShatterTitle` — 文字切成三角碎片后飞入拼合
 - `Rays` — 随机放射线（适合“需要”“满足”这类关键词特写）
 - `Sfx` — 在某一帧播放一个音效
+- `Bust` — 石膏颅相学头像（侧面），可开裂、射出激光、平躺
+- `GazeField` / `WatchingEyes` — 透视地面上凝视某一点的眼睛阵列 / 黑暗中闭着的眼睛
+- `Pedestal` / `Floor` — 白色基座（可烙字）/ 舞台地面
+- `GlowWord` / `Dust` — 金色关键词 / 让一块区域化为粒子散落
 
-## 让 Claude Code 继续扩写的提示词示例
+## 让 Claude Code 做下一期的提示词示例
 
-> 在 explainer-video 里新增一个分镜 `cup`：旁白“卢梭说，自尊心永远不会满足。”画面是聚光灯下一只石膏酒杯，杯底有裂缝，倒进去的光点不断从裂缝漏走。复用 Frame / Subtitles / Spotlight，风格与现有分镜一致。
+> 用 explainer-video 模板做七宗罪的第二期“嫉妒”：先写 12 个分镜左右的文案到 script.ts（钩子提问 → 哲学家的诊断 → 生活中的例子 → 落点），每个分镜写一个新的 scene 组件，复用 Bust / Silhouette / Spotlight / GazeField / Pedestal 等组件，保持暗房剧场风格；然后跑 voiceover、render。
 
 字体使用 Noto Serif SC（SIL OFL），通过 `@fontsource/noto-serif-sc` 本地打包，渲染前会等待所有用到的字形加载完成。
