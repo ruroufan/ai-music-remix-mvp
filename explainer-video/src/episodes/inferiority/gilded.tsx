@@ -1,6 +1,9 @@
 import React from "react";
 import { palette } from "../../channels/backlit/look";
 import { Halo } from "../../channels/backlit/parts";
+import { FigureShape, type Pose } from "../../channels/backlit/figure";
+
+export { FigureShape, type Pose };
 
 // The episode's central image: a person covered in gold labels — 名校, 名表,
 // 精修照, 名牌 — with cracks underneath. The cracks are lit from behind (the
@@ -8,19 +11,6 @@ import { Halo } from "../../channels/backlit/parts";
 // a polished surface.
 //
 // All shapes live in the same 120×260 box as components/Figures' Silhouette.
-
-export type Pose = "plain" | "proud" | "hunch";
-
-const HEAD: Record<Pose, { cx: number; cy: number }> = {
-  plain: { cx: 60, cy: 34 },
-  proud: { cx: 64, cy: 28 }, // chin up
-  hunch: { cx: 70, cy: 52 }, // head down and forward
-};
-const BODY: Record<Pose, string> = {
-  plain: "M22 100 Q22 66 60 66 Q98 66 98 100 L98 170 Q98 178 90 178 L30 178 Q22 178 22 170 Z",
-  proud: "M20 98 Q22 62 60 62 Q100 62 100 98 L98 170 Q98 178 90 178 L30 178 Q22 178 22 170 Z",
-  hunch: "M28 112 Q30 78 70 84 Q100 92 96 120 L92 172 Q92 178 84 178 L36 178 Q28 178 30 170 Z",
-};
 
 export const LABELS = [
   { text: "精修照", x: 60, y: 30, w: 80, h: 26, rot: -6 },
@@ -35,23 +25,6 @@ const CRACKS = [
   "M40 192 L50 206 L42 216 L52 232",
 ];
 const CRACK_LEN = 70;
-
-export const FigureShape: React.FC<{ pose?: Pose; fill?: string; rim?: string; rimWidth?: number }> = ({
-  pose = "plain",
-  fill = "#030405",
-  rim = `rgba(${palette.halo},0.9)`,
-  rimWidth = 1.8,
-}) => {
-  const h = HEAD[pose];
-  return (
-    <g fill={fill} stroke={rim} strokeWidth={rimWidth}>
-      <rect x={38} y={150} width={16} height={110} rx={4} />
-      <rect x={66} y={150} width={16} height={110} rx={4} />
-      <path d={BODY[pose]} />
-      <circle cx={h.cx} cy={h.cy} r={28} />
-    </g>
-  );
-};
 
 // A gold sticker. In SVG units of the figure box.
 const Tag: React.FC<{ text: string; w: number; h: number; shine: number; xray: number }> = ({ text, w, h, shine, xray }) => (

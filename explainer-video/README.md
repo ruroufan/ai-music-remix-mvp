@@ -2,10 +2,11 @@
 
 画面全部用代码绘制（SVG/CSS 剪影、光、粒子、文字动画），字幕和动作卡在音乐拍子上，背景音乐和音效也由代码合成，没有任何第三方素材。
 
-现在有三期：
+现在有四期：
 
 | 合成 ID | 期 | 风格 | 节奏 | 时长 |
 |---|---|---|---|---|
+| `Anxiety` | **背光观察室 · 观察 No.04《焦虑》**（克尔凯郭尔“焦虑是自由的眩晕”） | 同频道风格；核心意象：悬崖下无数条发光的岔路，俯拍、旋转、红蓝重影制造眩晕，最后踏上其中一条、其余熄灭 | 120 BPM “drive”，D 小调 | ~1:46 |
 | `Inferiority` | **背光观察室 · 观察 No.03《自卑》**（阿德勒“优越感是对自卑的补偿”） | 同频道风格；核心意象：人物身上贴满金色标签，标签下透出被背光照亮的裂纹，结尾标签剥落、裂纹愈合 | 120 BPM “drive”，E 小调 | ~1:48 |
 | `Pleasing` | **背光观察室 · 观察 No.02《讨好》**（萨特“他人即地狱”） | 冷蓝黑底、青色强调、光从人物**背后**打来；取景框、REC、时间码 | 120 BPM，“drive”配乐：鼓组 + 抽吸低音 + 琶音，段落间军鼓滚奏推进，A 小调 | ~1:48 |
 | `Pride` | 《傲慢》——拆解参考视频结构的练习 | 暖黑底、顶光、石膏头像 | 72 BPM，“ambient”配乐 | ~1:58 |
@@ -16,7 +17,8 @@
 cd explainer-video
 npm install
 npm run studio          # 浏览器里预览两期
-npm run render          # 《自卑》→ out/inferiority.mp4
+npm run render          # 《焦虑》→ out/anxiety.mp4
+npm run render:inferiority # 《自卑》→ out/inferiority.mp4
 npm run render:pleasing # 《讨好》→ out/pleasing.mp4
 npm run render:pride    # 《傲慢》→ out/pride.mp4
 ```
@@ -32,10 +34,12 @@ src/
     look.ts              配色和字体
     ObsFrame.tsx         画框：取景框四角、REC、时间码、频道标识、切镜闪光
     parts.tsx            视觉零件：背光人物、巨眼、取景框、镜子、视线
+    figure.tsx           三种姿势的人物剪影（自然 / 昂头 / 低头）
     TypewriterScene.tsx  打字机式单句分镜（“可这样活着，有什么不好？”）
     EndCard.tsx          片尾卡：频道名 + 逐字打出的签名
   episodes/
     registry.ts          所有期的数据登记表（配乐、配音、字体预加载都从这里读）
+    anxiety/             观察 No.04《焦虑》（paths.tsx：发光岔路网、悬崖、眩晕镜头）
     inferiority/         观察 No.03《自卑》
       script.ts          文案（每个分镜一组字幕；最后一行是片尾签名）
       episode.ts         期号、BPM、每个分镜的音乐情绪
@@ -65,7 +69,7 @@ scripts/
    - `3` 再加琶音和开镲（高潮）
 
    能量升到 2 以上之前的一小节自动做军鼓滚奏 + 上升音；进能量 0 之前自动“急停”。
-4. **新一期**：复制 `episodes/inferiority`，改文案、分镜、`episode.ts`（期号、和弦、能量），在 `src/episodes/registry.ts` 和 `src/Root.tsx` 各登记一行。文案最后一行保留 `channel.signoff`，片尾签名就会自动出现。
+4. **新一期**：复制 `episodes/anxiety`，改文案、分镜、`episode.ts`（期号、和弦、能量），在 `src/episodes/registry.ts` 和 `src/Root.tsx` 各登记一行。文案最后一行保留 `channel.signoff`，片尾签名就会自动出现。
 
 ## 可选：配音
 
