@@ -2,10 +2,11 @@
 
 画面全部用代码绘制（SVG/CSS 剪影、光、粒子、文字动画），字幕和动作卡在音乐拍子上，背景音乐和音效也由代码合成，没有任何第三方素材。
 
-现在有五期：
+现在有六期：
 
 | 合成 ID | 期 | 风格 | 节奏 | 时长 |
 |---|---|---|---|---|
+| `Solitude` | **背光观察室 · 观察 No.06《孤独》**（叔本华“豪猪困境”） | 同频道风格；核心意象：雪地里的豪猪靠近、刺痛、分开；热闹人群里所有人轮廓清晰，只有主角是半透明的虚线；结尾他一个人坐在窗边，轮廓重新变清晰 | 120 BPM “drive”，F 小调 | ~1:50 |
 | `Regret` | **背光观察室 · 观察 No.05《后悔》**（斯宾诺莎“后悔的人是双重的不幸”） | 同频道风格；核心意象：深夜的卧室，放映机把同一个片段循环投到墙上，片段越播越多、层层叠叠，最后放映机关掉、窗外天亮 | 120 BPM “drive”，C 小调 | ~1:54 |
 | `Anxiety` | **背光观察室 · 观察 No.04《焦虑》**（克尔凯郭尔“焦虑是自由的眩晕”） | 同频道风格；核心意象：悬崖下无数条发光的岔路，俯拍、旋转、红蓝重影制造眩晕，最后踏上其中一条、其余熄灭 | 120 BPM “drive”，D 小调 | ~1:46 |
 | `Inferiority` | **背光观察室 · 观察 No.03《自卑》**（阿德勒“优越感是对自卑的补偿”） | 同频道风格；核心意象：人物身上贴满金色标签，标签下透出被背光照亮的裂纹，结尾标签剥落、裂纹愈合 | 120 BPM “drive”，E 小调 | ~1:48 |
@@ -18,7 +19,8 @@
 cd explainer-video
 npm install
 npm run studio          # 浏览器里预览所有期
-npm run render          # 《后悔》→ out/regret.mp4
+npm run render          # 《孤独》→ out/solitude.mp4
+npm run render:regret   # 《后悔》→ out/regret.mp4
 npm run render:anxiety  # 《焦虑》→ out/anxiety.mp4
 npm run render:inferiority # 《自卑》→ out/inferiority.mp4
 npm run render:pleasing # 《讨好》→ out/pleasing.mp4
@@ -41,6 +43,7 @@ src/
     EndCard.tsx          片尾卡：频道名 + 逐字打出的签名
   episodes/
     registry.ts          所有期的数据登记表（配乐、配音、字体预加载都从这里读）
+    solitude/            观察 No.06《孤独》（porcupine.tsx：雪地豪猪、人群与半透明的主角、窗边座位）
     regret/              观察 No.05《后悔》（projector.tsx：深夜卧室、放映机、循环播放的片段）
     anxiety/             观察 No.04《焦虑》（paths.tsx：发光岔路网、悬崖、眩晕镜头）
     inferiority/         观察 No.03《自卑》
@@ -72,7 +75,7 @@ scripts/
    - `3` 再加琶音和开镲（高潮）
 
    能量升到 2 以上之前的一小节自动做军鼓滚奏 + 上升音；进能量 0 之前自动“急停”。
-4. **新一期**：复制 `episodes/regret`，改文案、分镜、`episode.ts`（期号、和弦、能量），在 `src/episodes/registry.ts` 和 `src/Root.tsx` 各登记一行。文案最后一行保留 `channel.signoff`，片尾签名就会自动出现。
+4. **新一期**：复制 `episodes/solitude`，改文案、分镜、`episode.ts`（期号、和弦、能量），在 `src/episodes/registry.ts` 和 `src/Root.tsx` 各登记一行。文案最后一行保留 `channel.signoff`，片尾签名就会自动出现。
 
 ## 可选：配音
 
