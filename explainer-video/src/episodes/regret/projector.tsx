@@ -125,7 +125,10 @@ const Window: React.FC<{ dawn: number; frame: number }> = ({ dawn, frame }) => {
 // on); `dawn` brings morning into the window and the room.
 export const Bedroom: React.FC<{ frame: number; beam?: number; dawn?: number; sitUp?: number; children?: React.ReactNode }> = ({ frame, beam = 1, dawn = 0, sitUp = 0, children }) => {
   const { bed, projector, wall } = ROOM;
-  const s = 150 / 260;
+  const cx = wall.x + wall.w / 2, cy = wall.y + wall.h / 2;
+  // the sleeper lies on the mattress, head on the pillow; pivot = the feet
+  const s = 190 / 260;
+  const pivot = { x: bed.x + 250, y: bed.y - 22 };
   return (
     <div style={{ position: "absolute", inset: 0 }}>
       {/* walls, floor, morning light */}
@@ -142,7 +145,12 @@ export const Bedroom: React.FC<{ frame: number; beam?: number; dawn?: number; si
             <stop offset="1" stopColor={`rgba(${palette.halo},0.04)`} />
           </linearGradient>
         </defs>
-        <polygon points={`${projector.x - 30},${projector.y - 6} ${wall.x + wall.w},${wall.y} ${wall.x + wall.w * 0.35},${wall.y + wall.h}`} fill="url(#beam)" />
+        {/* aimed at the main clip (centre of the wall): the cone's outer rays hit
+            its top-right and bottom-left corners */}
+        <polygon
+          points={`${projector.x - 30},${projector.y - 6} ${cx + 280},${cy - 160} ${cx - 280},${cy - 160} ${cx - 280},${cy + 160}`}
+          fill="url(#beam)"
+        />
       </svg>
       {children}
 
@@ -155,15 +163,15 @@ export const Bedroom: React.FC<{ frame: number; beam?: number; dawn?: number; si
         viewBox="0 0 120 260"
         style={{
           position: "absolute",
-          left: bed.x + 110,
-          top: bed.y - 170 + 60 * (1 - sitUp),
+          left: pivot.x - 60 * s,
+          top: pivot.y - 260 * s,
           transform: `rotate(${-90 + sitUp * 90}deg)`,
           transformOrigin: "50% 100%",
         }}
       >
         <FigureShape pose="plain" rim={`rgba(${palette.halo},${0.5 + 0.4 * dawn})`} />
       </svg>
-      <div style={{ position: "absolute", left: bed.x + 230, top: bed.y - 30, width: bed.w - 260, height: 40, borderRadius: 16, background: "#232b3a", border: `1px solid ${palette.faint}` }} />
+      <div style={{ position: "absolute", left: bed.x + 150, top: bed.y - 34, width: bed.w - 170, height: 40, borderRadius: 16, background: "#232b3a", border: `1px solid ${palette.faint}` }} />
       <div style={{ position: "absolute", left: projector.x - 60, top: projector.y + 20, width: 120, height: ROOM.floor - projector.y - 20, background: "#141a24", border: `1px solid ${palette.faint}` }} />
       <div style={{ position: "absolute", left: projector.x - 44, top: projector.y - 22, width: 88, height: 42, borderRadius: 8, background: "#232b3a", border: `1px solid ${palette.faint}` }}>
         <div style={{ position: "absolute", left: 6, top: 9, width: 22, height: 22, borderRadius: 11, background: beam > 0.5 ? `rgb(${palette.halo})` : "#0b0f15", boxShadow: beam > 0.5 ? `0 0 16px rgb(${palette.halo})` : "none" }} />

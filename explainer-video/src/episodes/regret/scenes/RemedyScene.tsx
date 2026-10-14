@@ -66,10 +66,10 @@ export const RemedyScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
       {frame >= cues[2] - 6 && (
         <div style={{ position: "absolute", inset: 0, opacity: pair }}>
           <div style={{ position: "absolute", left: 0, right: 0, top: 120, height: 680, background: `radial-gradient(ellipse at 50% 60%, rgba(${palette.halo},${0.12 + 0.18 * warm}), transparent 60%)` }} />
-          <Person x={760} bottom={760} height={230} pose="hunch" glow={0.4 + 0.5 * warm} opacity={0.85} />
-          <Person x={1160} bottom={760} height={250} glow={0.9} />
-          <div style={{ position: "absolute", left: 660, width: 200, top: 790, textAlign: "center", fontFamily: fonts.mono, fontSize: 20, letterSpacing: 4, color: palette.dim, opacity: 1 - warm * 0.4 }}>当时的你</div>
-          <div style={{ position: "absolute", left: 1060, width: 200, top: 790, textAlign: "center", fontFamily: fonts.mono, fontSize: 20, letterSpacing: 4, color: palette.dim, opacity: 1 - warm * 0.4 }}>现在的你</div>
+          <Person x={760} bottom={690} height={230} pose="hunch" glow={0.4 + 0.5 * warm} opacity={0.85} />
+          <Person x={1160} bottom={690} height={250} glow={0.9} />
+          <div style={{ position: "absolute", left: 660, width: 200, top: 712, textAlign: "center", fontFamily: fonts.mono, fontSize: 20, letterSpacing: 4, color: palette.dim, opacity: 1 - warm * 0.4 }}>当时的你</div>
+          <div style={{ position: "absolute", left: 1060, width: 200, top: 712, textAlign: "center", fontFamily: fonts.mono, fontSize: 20, letterSpacing: 4, color: palette.dim, opacity: 1 - warm * 0.4 }}>现在的你</div>
           <div style={{ position: "absolute", left: 0, right: 0, top: 260, textAlign: "center", fontFamily: fonts.mono, fontSize: 30, letterSpacing: 8, color: `rgb(${palette.halo})`, opacity: warm }}>✓ 尽力了</div>
         </div>
       )}
