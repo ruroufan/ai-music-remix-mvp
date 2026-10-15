@@ -15,7 +15,8 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const FPS = 30, TITLE_DUR = 2.5, TAIL = 2.0;
+const FPS = 30, TITLE_DUR = 2.5;
+const OUTRO_TEXT = '每天一分半，一个历史故事。你学会了吗？';   // 每集固定结尾句
 
 // ---------- 参数 ----------
 const args = process.argv.slice(2);
@@ -24,6 +25,7 @@ const epDir = path.resolve(args[0]);
 const flag = (k) => args.includes(k);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
 const vertical = flag('--vertical');
+const noMusic = flag('--no-music');
 const preview = opt('--preview', null);
 const outFile = path.resolve(opt('--out', path.join(epDir, vertical ? 'out_vertical.mp4' : 'out.mp4')));
 
@@ -41,7 +43,17 @@ if (!fs.existsSync(srtFile)) {
 const ts = s => { const m = s.trim().match(/(\d+):(\d+):(\d+)[,.](\d+)/); return +m[1] * 3600 + +m[2] * 60 + +m[3] + +m[4] / 1000; };
 const cues = fs.readFileSync(srtFile, 'utf8').replace(/\r/g, '').split(/\n\s*\n/).map(b => b.trim().split('\n')).filter(l => l.length >= 2 && l.some(x => x.includes('-->')))
   .map(l => { const i = l.findIndex(x => x.includes('-->')); const [a, b] = l[i].split('-->'); return { start: ts(a), end: ts(b), text: l.slice(i + 1).join('') }; });
-const voiceDur = +execSync(`ffprobe -v error -show_entries format=duration -of csv=p=0 "${voiceFile}"`).toString().trim();
+const probeDur = f => +execSync(`ffprobe -v error -show_entries format=duration -of csv=p=0 "${f}"`).toString().trim();
+const voiceDur = probeDur(voiceFile);
+
+// ---------- 结尾句：配音结束、灯灭后出现；有 outro 配音就接在后面播放 ----------
+// 配音放在 集目录/outro.wav|mp3 或 piying/assets/outro.wav|mp3（全系列共用一条）
+const outroCfg = episode.outro === false ? null : Object.assign({ text: OUTRO_TEXT }, typeof episode.outro === 'object' ? episode.outro : {});
+const findAudio = (base, dirs) => dirs.flatMap(d => ['wav', 'mp3', 'm4a'].map(e => path.join(d, `${base}.${e}`))).find(f => fs.existsSync(f));
+const outroAudio = outroCfg && (outroCfg.audio ? path.resolve(epDir, outroCfg.audio) : findAudio('outro', [epDir, path.join(ROOT, 'assets')]));
+const outroDur = outroAudio ? probeDur(outroAudio) : 0;
+const OUTRO_LEAD = 0.5;  // 灯灭 0.5 秒后出结尾句
+const TAIL = !outroCfg ? 2.0 : outroAudio ? Math.max(2.0, OUTRO_LEAD + outroDur + 1.0) : 3.8;
 
 // ---------- 文案 → SRT 时间对齐 ----------
 const norm = s => s.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/[^\p{Script=Han}A-Za-z0-9]/gu, '').toLowerCase();
@@ -153,17 +165,21 @@ for (const c of cues) {
 
 const timeline = {
   fps: FPS, vertical, duration, voiceEnd, shots, subtitles,
+  outro: outroCfg ? { text: outroCfg.text, at: voiceEnd + OUTRO_LEAD + 0.05 } : null,
   seriesLine: `${episode.series || '一分钟历史'} · 第${episode.episode ?? 1}集`
 };
 fs.writeFileSync(path.join(epDir, vertical ? 'timeline_vertical.json' : 'timeline.json'), JSON.stringify(timeline, null, 1));
 console.log(`配音 ${voiceDur.toFixed(2)}s + 插入 ${totalGap.toFixed(2)}s + 片尾 ${TAIL}s = ${duration.toFixed(2)}s`);
 for (const s of shots) console.log(`  ${s.start.toFixed(2).padStart(6)}–${s.end.toFixed(2).padStart(6)}  ${s.kind.padEnd(5)} ${s.id}  ${(s.script || s.title || '').slice(0, 24)}`);
 
-// ---------- 音频：在片名/停顿处插静音，末尾补片尾 ----------
+// ---------- 音频：在片名/停顿处插静音，末尾接结尾句，再混入卡点背景音乐 ----------
 const audioOut = path.join(epDir, '.audio_build.wav');
+const voiceTrack = path.join(epDir, '.voice_build.wav');
+const lufs = f => { const r = spawnSync('ffmpeg', ['-hide_banner', '-i', f, '-af', 'ebur128=framelog=quiet', '-f', 'null', '-'], { encoding: 'utf8' }); const m = [...r.stderr.matchAll(/I:\s+(-?[\d.]+) LUFS/g)].pop(); return m ? +m[1] : -23; };
 if (!preview) {
   const pts = gaps.slice().sort((a, b) => a.at - b.at);
   const ffArgs = ['-v', 'error', '-y', '-i', voiceFile];
+  if (outroAudio) ffArgs.push('-i', outroAudio);
   let fc = '', labels = [], prev = 0, k = 0;
   const seg = (a, b) => { fc += `[0:a]aformat=sample_rates=48000:channel_layouts=stereo,atrim=${a}:${b},asetpts=PTS-STARTPTS[v${k}];`; labels.push(`[v${k++}]`); };
   for (const g of pts) {
@@ -172,10 +188,44 @@ if (!preview) {
     prev = g.at;
   }
   seg(prev, voiceDur + 0.01);
+  if (outroAudio) {
+    fc += `anullsrc=r=48000:cl=stereo,atrim=0:${OUTRO_LEAD}[z${k}];`; labels.push(`[z${k++}]`);
+    fc += `[1:a]aformat=sample_rates=48000:channel_layouts=stereo[o];`; labels.push('[o]');
+  }
   fc += `${labels.join('')}concat=n=${labels.length}:v=0:a=1,apad=pad_dur=${TAIL}[out]`;
-  ffArgs.push('-filter_complex', fc, '-map', '[out]', '-t', duration.toFixed(3), audioOut);
-  const r = spawnSync('ffmpeg', ffArgs, { stdio: 'inherit' });
+  ffArgs.push('-filter_complex', fc, '-map', '[out]', '-t', duration.toFixed(3), voiceTrack);
+  let r = spawnSync('ffmpeg', ffArgs, { stdio: 'inherit' });
   if (r.status !== 0) { console.error('音频合成失败'); process.exit(1); }
+
+  // 背景音乐：集目录有 bgm.wav/mp3 就用它（循环铺满），否则按时间线生成卡点音乐
+  const useMusic = !noMusic && episode.music !== false;
+  if (!useMusic) fs.copyFileSync(voiceTrack, audioOut);
+  else {
+    let bgm = findAudio('bgm', [epDir]), loop = !!bgm;
+    if (!bgm) {
+      bgm = path.join(epDir, '.bgm_build.wav');
+      r = spawnSync('python3', [path.join(ROOT, 'tools/bgm.py'), path.join(epDir, vertical ? 'timeline_vertical.json' : 'timeline.json'), bgm], { stdio: 'inherit' });
+      if (r.status !== 0) { console.error('背景音乐生成失败'); process.exit(1); }
+    }
+    // 音量：音乐整体比人声低 musicLevel LU（默认 10），说话时再被人声压低约 10 dB（侧链压缩）
+    // 实测第01集：说话时音乐比人声低约 20 dB，停顿/片名/片尾处比说话音量低约 13 dB
+    const vI = lufs(voiceTrack), mI = lufs(bgm), level = episode.musicLevel ?? 10, gain = (vI - level) - mI;
+    console.log(`人声 ${vI} LUFS，音乐 ${mI} LUFS → 音乐增益 ${gain.toFixed(1)} dB（低于人声 ${level} LU，说话时自动避让）`);
+    const mixArgs = ['-v', 'error', '-y', '-i', voiceTrack, ...(loop ? ['-stream_loop', '-1'] : []), '-i', bgm, '-filter_complex',
+      `[0:a]aformat=sample_rates=48000:channel_layouts=stereo,asplit=2[v1][v2];` +
+      `[1:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=${gain.toFixed(2)}dB[m];` +
+      `[m][v2]sidechaincompress=threshold=0.05:ratio=3:attack=20:release=500[md];` +
+      `[v1][md]amix=inputs=2:normalize=0:duration=first,alimiter=limit=0.95[out]`,
+      '-map', '[out]', '-t', duration.toFixed(3), audioOut];
+    r = spawnSync('ffmpeg', mixArgs, { stdio: 'inherit' });
+    if (r.status !== 0) { console.error('混音失败'); process.exit(1); }
+  }
+}
+
+if (flag('--audio-only')) { // 只出混音，便于试听音乐与人声的比例
+  const f = path.join(epDir, 'mix_preview.wav'); fs.renameSync(audioOut, f);
+  for (const x of [voiceTrack, path.join(epDir, '.bgm_build.wav')]) fs.rmSync(x, { force: true });
+  console.log(`混音试听：${f}`); process.exit(0);
 }
 
 // ---------- 渲染 ----------
@@ -213,6 +263,6 @@ if (preview) {
   }
   ff.stdin.end(); const code = await done;
   console.log(`\n${code === 0 ? '完成' : '失败'}：${outFile}（${((Date.now() - t0) / 1000).toFixed(1)}s）`);
-  fs.rmSync(audioOut, { force: true });
+  for (const f of [audioOut, voiceTrack, path.join(epDir, '.bgm_build.wav')]) fs.rmSync(f, { force: true });
 }
 await browser.close();

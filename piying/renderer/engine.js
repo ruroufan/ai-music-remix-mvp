@@ -551,6 +551,23 @@
   }
   const bigTextVisible = (shot, t) => shot.bigText && t >= shot.bigText.at;
 
+  // ---------- 结尾句（灯灭后，剪影前居中逐字出现，最后盖章） ----------
+  function drawOutro(ctx, t) {
+    const o = TL.outro; if (!o || t < o.at) return;
+    const lines = o.text.split(/(?<=[。！？])/).map(s => s.trim().replace(/。$/, '')).filter(Boolean);
+    const size = 76, lh = size * 1.55, y0 = H / 2 - (lines.length - 1) * lh / 2 - 50;
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.font = `${size}px ${FONT_CAL}`; ctx.textBaseline = 'middle';
+    let t0 = o.at;
+    lines.forEach((ln, li) => {
+      const chars = [...ln], ws = chars.map(c => ctx.measureText(c).width), tot = ws.reduce((a, b) => a + b, 0);
+      let x = W / 2 - tot / 2;
+      chars.forEach((c, i) => { ctx.globalAlpha = sstep(t0 + i * 0.07, t0 + i * 0.07 + 0.3, t); ctx.fillStyle = COL.hook; ctx.fillText(c, x, y0 + li * lh); x += ws[i]; });
+      t0 += chars.length * 0.07 + 0.2;
+    });
+    ctx.globalAlpha = 1; ctx.restore();
+    seal(ctx, W / 2, y0 + (lines.length - 1) * lh + 120, 64, (t - t0 - 0.1) / 0.2);
+  }
+
   // ---------- 转场 ----------
   function drawCurtain(ctx, xL, xR) { // 深红幕布
     if (xR <= xL) return;
@@ -577,7 +594,7 @@
     // 片尾：配音结束后灯灭，定格最后一个画面 2 秒
     if (t >= endT) {
       const last = S[S.length - 1], lm = lerp(1, 0.15 / Math.max(0.15, last.light != null ? last.light : 1), ease((t - endT) / 0.5));
-      renderShot(bg2, last, endT - 1 / TL.fps, lm); return;
+      renderShot(bg2, last, endT - 1 / TL.fps, lm); drawOutro(bg2, t); return;
     }
     const i = shotIndexAt(t), cur = S[i], next = S[i + 1];
     const trIn = i > 0 ? (cur.transition || 'dissolve') : 'cut';
