@@ -141,13 +141,13 @@ export const Road: React.FC<{ frame: number; fogX?: number; light?: number; phot
     <div style={{ position: "absolute", left: fogX, top: 0, right: 0, bottom: 1080 - FLOOR - 40, background: `linear-gradient(90deg, rgba(120,128,140,0), rgba(120,128,140,0.55) 18%, rgba(110,118,130,0.7))` }} />
     {Array.from({ length: 9 }, (_, i) => {
       const drift = ((frame * (0.4 + random(`fd-${i}`) * 0.5) + random(`fx-${i}`) * 900) % 900);
-      return <div key={i} style={{ position: "absolute", left: fogX + 40 + drift, top: 160 + random(`fy-${i}`) * 520, width: 380, height: 180, borderRadius: "50%", background: "rgba(160,168,180,0.18)", filter: "blur(28px)" }} />;
+      return <div key={i} style={{ position: "absolute", left: fogX + 40 + drift, top: 160 + random(`fy-${i}`) * 520, width: 380, height: 180, borderRadius: "50%", background: `rgba(${Math.round(160 + 95 * light)},${Math.round(168 + 30 * light)},${Math.round(180 - 60 * light)},${0.18 + 0.12 * light})`, filter: "blur(28px)" }} />;
     })}
     {/* faint shapes of photos-to-be inside the fog */}
     {future > 0 &&
       [1260, 1480, 1700].map((x, i) => <Polaroid key={x} x={x} y={300} w={140} rot={(i - 1) * 5} kind="blank" tone={0} opacity={future * 0.55} blur={2} />)}
     {/* the fog lighting up warm */}
-    <div style={{ position: "absolute", left: fogX - 200, top: 0, right: 0, bottom: 1080 - FLOOR, background: `radial-gradient(ellipse at 70% 55%, rgba(255,196,120,${0.55 * light}), rgba(255,170,90,${0.2 * light}) 45%, transparent 75%)` }} />
+    <div style={{ position: "absolute", left: fogX - 200, top: 0, right: 0, bottom: 1080 - FLOOR, background: `radial-gradient(ellipse at 70% 55%, rgba(255,200,125,${0.85 * light}), rgba(255,170,90,${0.38 * light}) 45%, transparent 80%)` }} />
   </div>
 );
 
