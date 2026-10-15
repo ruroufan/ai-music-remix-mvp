@@ -2,10 +2,11 @@
 
 画面全部用代码绘制（SVG/CSS 剪影、光、粒子、文字动画），字幕和动作卡在音乐拍子上，背景音乐和音效也由代码合成，没有任何第三方素材。
 
-现在有八期：
+现在有九期：
 
 | 合成 ID | 期 | 风格 | 节奏 | 时长 |
 |---|---|---|---|---|
+| `Revenge` | **背光观察室 · 观察 No.09《报复性熬夜》**（马克思《1844年经济学哲学手稿》） | 同频道风格；核心意象：白天人物被“工作、消息、会议……”的细线牵着像提线木偶；深夜细线一根根断开，他坐在手机屏幕的光里；最后阳光下他自己剪断了一根线 | 120 BPM “lofi”配乐（黑胶底噪 + 电钢琴 + 摇摆鼓 + 808 + trap 镲片），F♯ 小调 | ~1:48 |
 | `Procrastination` | **背光观察室 · 观察 No.08《拖延》**（塞涅卡《论生命之短暂》） | 同频道风格；核心意象：日历一页页被撕下，每页都写着“明天”，人物站在一堆“明天”中间；最后他撕下一页，下面写着“今天” | 120 BPM “clockwork”配乐（钟表滴答 + 拨弦 + 半拍鼓 + 钟琴），B 小调 | ~1:50 |
 | `Humility` | **背光观察室 · 观察 No.07《谦虚》**（拉罗什福科“谦虚是骄傲的计谋”） | 同频道风格；核心意象：人物戴着低头微笑的面具，面具背后的脸仰着头、墙上的影子昂着头；他把天平上属于自己的砝码拿开，面具随之脱落 | 120 BPM “drive”，G 小调 | ~1:44 |
 | `Solitude` | **背光观察室 · 观察 No.06《孤独》**（叔本华“豪猪困境”） | 同频道风格；核心意象：雪地里的豪猪靠近、刺痛、分开；热闹人群里所有人轮廓清晰，只有主角是半透明的虚线；结尾他一个人坐在窗边，轮廓重新变清晰 | 120 BPM “drive”，F 小调 | ~1:50 |
@@ -21,7 +22,8 @@
 cd explainer-video
 npm install
 npm run studio          # 浏览器里预览所有期
-npm run render          # 《拖延》→ out/procrastination.mp4
+npm run render          # 《报复性熬夜》→ out/revenge.mp4
+npm run render:procrastination # 《拖延》
 npm run render:humility # 《谦虚》→ out/humility.mp4
 npm run render:solitude # 《孤独》→ out/solitude.mp4
 npm run render:regret   # 《后悔》→ out/regret.mp4
@@ -47,6 +49,7 @@ src/
     EndCard.tsx          片尾卡：频道名 + 逐字打出的签名
   episodes/
     registry.ts          所有期的数据登记表（配乐、配音、字体预加载都从这里读）
+    revenge/             观察 No.09《报复性熬夜》（puppet.tsx：提线木偶、深夜卧室、剪刀、24 小时条）
     procrastination/     观察 No.08《拖延》（calendar.tsx：撕页日历、满地的“明天”）
     humility/            观察 No.07《谦虚》（mask.tsx：面具人物、墙上的影子、天平与砝码、对话气泡）
     solitude/            观察 No.06《孤独》（porcupine.tsx：雪地豪猪、人群与半透明的主角、窗边座位）
@@ -65,6 +68,7 @@ src/
 scripts/
   music.mjs              生成 public/music/<期>.wav 和 public/sfx/*.wav
   audio/score-drive.mjs  “drive”配乐（No.02–No.07）：鼓组 + 锯齿低音 + 方波琶音
+  audio/score-lofi.mjs  “lofi”配乐（《报复性熬夜》）：黑胶底噪 + FM 电钢琴 + 摇摆 boom-bap + 808 滑音 + trap 镲片滚奏
   audio/score-clockwork.mjs “clockwork”配乐（《拖延》）：滴答木鱼 + 拨弦固定音型 + 钢琴低音 + 半拍鼓 + 钟琴
   audio/score-ambient.mjs“ambient”配乐（《傲慢》）
   audio/sfx.mjs          音效：boom / shatter / rise / whoosh / glint / step / shutter / glitch / stamp
@@ -82,7 +86,7 @@ scripts/
    - `3` 再加琶音和开镲（高潮）
 
    能量升到 2 以上之前的一小节自动做军鼓滚奏 + 上升音；进能量 0 之前自动“急停”。
-4. **新一期**：复制 `episodes/procrastination`，改文案、分镜、`episode.ts`（期号、和弦、能量），在 `src/episodes/registry.ts` 和 `src/Root.tsx` 各登记一行。文案最后一行保留 `channel.signoff`，片尾签名就会自动出现。
+4. **新一期**：复制 `episodes/revenge`，改文案、分镜、`episode.ts`（期号、和弦、能量），在 `src/episodes/registry.ts` 和 `src/Root.tsx` 各登记一行。文案最后一行保留 `channel.signoff`，片尾签名就会自动出现。
 
 ## 可选：配音
 

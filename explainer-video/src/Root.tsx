@@ -11,9 +11,11 @@ import { regret } from "./episodes/regret";
 import { solitude } from "./episodes/solitude";
 import { humility } from "./episodes/humility";
 import { procrastination } from "./episodes/procrastination";
+import { revenge } from "./episodes/revenge";
 
 // One composition per episode. Render with `npx remotion render src/index.ts <id>`.
 const episodes: [string, EpisodeDef][] = [
+  ["Revenge", revenge],
   ["Procrastination", procrastination],
   ["Humility", humility],
   ["Solitude", solitude],

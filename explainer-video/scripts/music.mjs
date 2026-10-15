@@ -17,9 +17,10 @@ import { makeSfx } from "./audio/sfx.mjs";
 import { scoreAmbient } from "./audio/score-ambient.mjs";
 import { scoreDrive } from "./audio/score-drive.mjs";
 import { scoreClockwork } from "./audio/score-clockwork.mjs";
+import { scoreLofi } from "./audio/score-lofi.mjs";
 
 const EPISODES = Object.fromEntries(Object.entries(REGISTRY).map(([id, e]) => [id, e.episode]));
-const SCORES = { ambient: scoreAmbient, drive: scoreDrive, clockwork: scoreClockwork };
+const SCORES = { ambient: scoreAmbient, drive: scoreDrive, clockwork: scoreClockwork, lofi: scoreLofi };
 
 const root = new URL("../public/", import.meta.url);
 mkdirSync(new URL("music/", root), { recursive: true });

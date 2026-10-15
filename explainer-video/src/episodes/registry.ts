@@ -10,6 +10,7 @@ import { episode as regret, brand as regretBrand } from "./regret/episode.ts";
 import { episode as solitude, brand as solitudeBrand } from "./solitude/episode.ts";
 import { episode as humility, brand as humilityBrand } from "./humility/episode.ts";
 import { episode as procrastination, brand as procrastinationBrand } from "./procrastination/episode.ts";
+import { episode as revenge, brand as revengeBrand } from "./revenge/episode.ts";
 
 export const EPISODES: Record<string, { episode: EpisodeData; brand: Brand }> = {
   pride: { episode: pride, brand: prideBrand },
@@ -20,4 +21,5 @@ export const EPISODES: Record<string, { episode: EpisodeData; brand: Brand }> = 
   solitude: { episode: solitude, brand: solitudeBrand },
   humility: { episode: humility, brand: humilityBrand },
   procrastination: { episode: procrastination, brand: procrastinationBrand },
+  revenge: { episode: revenge, brand: revengeBrand },
 };
