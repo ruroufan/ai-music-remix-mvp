@@ -6,3 +6,5 @@ episodes/*/out*.mp4
 episodes/*/preview*/
 episodes/*/timeline*.json
 episodes/*/.audio_build.wav
+__pycache__/
+episodes/*/mix_preview.wav
