@@ -1,0 +1,850 @@
+{
+  "series": "一分钟历史",
+  "episode": 1,
+  "title": "立木为信",
+  "note": "第01集 商鞅立木。镜8 按「切到七国地图」拆成 8a/8b 两个镜头；时间点用「@短语」锚定到配音念到该短语的时刻。",
+  "shots": [
+    {
+      "id": "1_hook",
+      "kind": "hook",
+      "script": "如果有人说，你把一根木头从城南搬到城北，就给你五十两金子，你信吗？两千多年前的秦国，没人信。",
+      "text": "你信吗？",
+      "textAt": "@你信吗",
+      "subtitles": true,
+      "light": 0.15,
+      "camera": {
+        "x": 960,
+        "y": 560,
+        "move": "push"
+      },
+      "props": [
+        {
+          "type": "pole",
+          "x": 960
+        },
+        {
+          "type": "lamp",
+          "x": 770
+        }
+      ]
+    },
+    {
+      "id": "2_title",
+      "kind": "title",
+      "transition": "cut",
+      "light": 0.15,
+      "lightKeys": [
+        {
+          "at": 0,
+          "to": 1,
+          "dur": 0.8
+        }
+      ],
+      "props": [
+        {
+          "type": "gate",
+          "x": 820
+        },
+        {
+          "type": "pole",
+          "x": 560
+        }
+      ]
+    },
+    {
+      "id": "3_palace",
+      "script": "那时的秦国又穷又弱，被东方诸国看不起。秦孝公重用了一个叫商鞅的人，准备变法。可新法还没公布，商鞅就遇到一个难题：老百姓根本不相信官府说的话。",
+      "camera": {
+        "x": 760,
+        "y": 610,
+        "toX": 1160,
+        "zoom": 1.15
+      },
+      "props": [
+        {
+          "type": "map",
+          "x": 960,
+          "y": 380,
+          "w": 620,
+          "h": 310,
+          "hang": true
+        },
+        {
+          "type": "table",
+          "x": 960,
+          "w": 240
+        },
+        {
+          "type": "lampSmall",
+          "x": 960,
+          "y": 812
+        }
+      ],
+      "cast": [
+        {
+          "who": "qinxiaogong",
+          "x": 640,
+          "face": 1,
+          "pose": "kneel",
+          "actions": [
+            {
+              "do": "beat",
+              "name": "kneel_point",
+              "at": "@重用了",
+              "dur": 1.3
+            }
+          ]
+        },
+        {
+          "who": "shangyang",
+          "x": 1290,
+          "face": -1,
+          "pose": "kneel",
+          "actions": [
+            {
+              "do": "beat",
+              "name": "kneel_talk",
+              "at": "@准备变法",
+              "dur": 1.0
+            },
+            {
+              "do": "beat",
+              "name": "kneel_talk",
+              "at": "@可新法",
+              "dur": 1.4
+            },
+            {
+              "do": "beat",
+              "name": "kneel_talk",
+              "at": "@难题",
+              "dur": 0.9
+            },
+            {
+              "do": "pose",
+              "name": "kneel_lowhead",
+              "at": "@不相信",
+              "dur": 0.6
+            }
+          ]
+        }
+      ],
+      "nameplates": [
+        {
+          "who": "qinxiaogong",
+          "at": "@秦孝公"
+        },
+        {
+          "who": "shangyang",
+          "at": "@商鞅的人"
+        }
+      ]
+    },
+    {
+      "id": "4_gate",
+      "transition": "curtain",
+      "script": "于是他在国都南门立了一根三丈高的木头，贴出告示：谁能把它搬到北门，赏十金。",
+      "camera": {
+        "x": 960,
+        "y": 540,
+        "zoom": 1.0,
+        "toX": 1300,
+        "toY": 600,
+        "toZoom": 1.3,
+        "at": "@贴出告示",
+        "dur": 1.6
+      },
+      "props": [
+        {
+          "type": "gate",
+          "x": 900
+        },
+        {
+          "type": "pole",
+          "x": 620,
+          "rise": {
+            "at": "@立了一根",
+            "dur": 1.4
+          }
+        },
+        {
+          "type": "board",
+          "x": 1300
+        }
+      ],
+      "cast": [
+        {
+          "who": "shangyang",
+          "x": 1580,
+          "face": -1,
+          "pose": "stand",
+          "actions": [
+            {
+              "do": "beat",
+              "name": "point",
+              "at": "@贴出告示",
+              "dur": 1.6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "5_crowd",
+      "script": "围观的人越来越多，没有一个人动。",
+      "camera": {
+        "x": 1300,
+        "y": 600,
+        "zoom": 1.3,
+        "toX": 960,
+        "toY": 540,
+        "toZoom": 1.0
+      },
+      "props": [
+        {
+          "type": "gate",
+          "x": 900
+        },
+        {
+          "type": "pole",
+          "x": 620
+        },
+        {
+          "type": "board",
+          "x": 1300
+        }
+      ],
+      "cast": [
+        {
+          "id": "v1",
+          "who": "villager",
+          "x": -150,
+          "face": 1,
+          "actions": [
+            {
+              "do": "walk",
+              "to": 300,
+              "at": "0%",
+              "dur": 1.6
+            },
+            {
+              "do": "beat",
+              "name": "point_up",
+              "at": "60%",
+              "dur": 1.0
+            }
+          ]
+        },
+        {
+          "id": "porter",
+          "who": "porter",
+          "x": -260,
+          "face": 1,
+          "actions": [
+            {
+              "do": "walk",
+              "to": 430,
+              "at": "8%",
+              "dur": 1.7
+            }
+          ]
+        },
+        {
+          "id": "v2",
+          "who": "villager",
+          "x": -150,
+          "face": 1,
+          "look": {
+            "robe": "#B08F4A",
+            "cloth": "#8A6A30",
+            "legs": "#6A5030"
+          },
+          "actions": [
+            {
+              "do": "walk",
+              "to": 200,
+              "at": "20%",
+              "dur": 1.6
+            }
+          ]
+        },
+        {
+          "id": "v3",
+          "who": "villager",
+          "x": 2200,
+          "face": -1,
+          "look": {
+            "robe": "#B08F4A",
+            "cloth": "#8A6A30",
+            "legs": "#6A5030"
+          },
+          "actions": [
+            {
+              "do": "walk",
+              "to": 800,
+              "at": "4%",
+              "dur": 1.8
+            },
+            {
+              "do": "beat",
+              "name": "point_up",
+              "at": "70%",
+              "dur": 0.9
+            }
+          ]
+        },
+        {
+          "id": "v4",
+          "who": "villager",
+          "x": 2200,
+          "face": -1,
+          "actions": [
+            {
+              "do": "walk",
+              "to": 910,
+              "at": "14%",
+              "dur": 1.8
+            }
+          ]
+        },
+        {
+          "id": "v5",
+          "who": "villager",
+          "x": 2200,
+          "face": -1,
+          "look": {
+            "hat": "bun"
+          },
+          "actions": [
+            {
+              "do": "walk",
+              "to": 1030,
+              "at": "26%",
+              "dur": 1.8
+            }
+          ]
+        },
+        {
+          "who": "shangyang",
+          "x": 1580,
+          "face": -1,
+          "pose": "stand"
+        }
+      ]
+    },
+    {
+      "id": "6_board",
+      "script": "商鞅把赏金加到五十金。",
+      "camera": {
+        "x": 1300,
+        "y": 575,
+        "zoom": 1.6
+      },
+      "props": [
+        {
+          "type": "gate",
+          "x": 900
+        },
+        {
+          "type": "board",
+          "x": 1300,
+          "strike": {
+            "at": "12%",
+            "dur": 0.45
+          },
+          "stamp": {
+            "at": "45%",
+            "text": "五十金"
+          }
+        }
+      ],
+      "numbers": [
+        {
+          "text": "×5",
+          "at": "58%",
+          "x": 1420,
+          "y": 330,
+          "dur": 1.6
+        }
+      ]
+    },
+    {
+      "id": "7_carry",
+      "script": "终于有个人半信半疑地扛起木头，走到了北门。商鞅当场兑现，一分不少。",
+      "camera": {
+        "x": 760,
+        "follow": {
+          "who": "porter",
+          "dx": 160,
+          "at": "@扛起+0.8"
+        }
+      },
+      "props": [
+        {
+          "type": "gate",
+          "x": 1250,
+          "parallax": 0.72,
+          "plaqueTo": {
+            "text": "北门",
+            "at": "@走到了北门",
+            "dur": 0.8
+          },
+          "alpha": 0.5
+        },
+        {
+          "type": "board",
+          "x": 1300
+        },
+        {
+          "type": "pole",
+          "x": 620,
+          "tilt": {
+            "at": "@扛起",
+            "dur": 0.6,
+            "toX": 538,
+            "toY": 588
+          }
+        },
+        {
+          "type": "pole",
+          "x": 2140,
+          "lying": true,
+          "showAt": "@商鞅当场兑现"
+        }
+      ],
+      "cast": [
+        {
+          "id": "v1",
+          "who": "villager",
+          "x": 300,
+          "face": 1
+        },
+        {
+          "id": "v2",
+          "who": "villager",
+          "x": 200,
+          "face": 1,
+          "look": {
+            "robe": "#B08F4A",
+            "cloth": "#8A6A30",
+            "legs": "#6A5030"
+          }
+        },
+        {
+          "id": "v3",
+          "who": "villager",
+          "x": 820,
+          "face": -1,
+          "look": {
+            "robe": "#B08F4A",
+            "cloth": "#8A6A30",
+            "legs": "#6A5030"
+          }
+        },
+        {
+          "id": "v4",
+          "who": "villager",
+          "x": 930,
+          "face": -1
+        },
+        {
+          "id": "porter",
+          "who": "porter",
+          "x": 430,
+          "face": 1,
+          "layer": 1,
+          "actions": [
+            {
+              "do": "walk",
+              "to": 600,
+              "at": "3%",
+              "dur": 0.9
+            },
+            {
+              "do": "pose",
+              "name": "carry",
+              "at": "@扛起",
+              "dur": 0.5
+            },
+            {
+              "do": "carry",
+              "at": "@扛起+0.6",
+              "len": 640
+            },
+            {
+              "do": "walk",
+              "to": 2200,
+              "at": "@扛起+0.8",
+              "dur": 3.0
+            },
+            {
+              "do": "carry",
+              "on": false,
+              "at": "@商鞅当场兑现"
+            },
+            {
+              "do": "pose",
+              "name": "receive",
+              "at": "@商鞅当场兑现",
+              "dur": 0.4
+            },
+            {
+              "do": "hold",
+              "item": "gold",
+              "at": "@当场兑现+1.1"
+            }
+          ]
+        },
+        {
+          "id": "shangyang",
+          "who": "shangyang",
+          "x": 2420,
+          "face": -1,
+          "pose": "stand",
+          "hold": "gold",
+          "actions": [
+            {
+              "do": "pose",
+              "name": "give",
+              "at": "@商鞅当场兑现",
+              "dur": 0.4
+            },
+            {
+              "do": "hold",
+              "item": null,
+              "at": "@当场兑现+0.4"
+            }
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "type": "pass",
+          "item": "gold",
+          "from": "shangyang",
+          "to": "porter",
+          "at": "@当场兑现+0.4",
+          "dur": 0.7
+        },
+        {
+          "type": "sparkle",
+          "who": "porter",
+          "hand": "near",
+          "at": "@当场兑现+1.1",
+          "dur": 1.8,
+          "color": "#E8C25A",
+          "count": 46
+        }
+      ]
+    },
+    {
+      "id": "8a_cheer",
+      "script": "消息传遍全城。大家明白了，这个官府说到就做到。",
+      "camera": {
+        "x": 900,
+        "move": "push"
+      },
+      "props": [
+        {
+          "type": "gate",
+          "x": 900,
+          "plaque": "北门"
+        }
+      ],
+      "cast": [
+        {
+          "id": "v1",
+          "who": "villager",
+          "x": 360,
+          "face": 1,
+          "actions": [
+            {
+              "do": "pose",
+              "name": "cheer",
+              "at": "@消息",
+              "dur": 0.4
+            }
+          ]
+        },
+        {
+          "id": "v2",
+          "who": "villager",
+          "x": 480,
+          "face": 1,
+          "look": {
+            "robe": "#B08F4A",
+            "cloth": "#8A6A30",
+            "legs": "#6A5030"
+          },
+          "actions": [
+            {
+              "do": "pose",
+              "name": "cheer",
+              "at": "@消息+0.2",
+              "dur": 0.4
+            }
+          ]
+        },
+        {
+          "id": "v3",
+          "who": "villager",
+          "x": 1180,
+          "face": -1,
+          "look": {
+            "robe": "#B08F4A",
+            "cloth": "#8A6A30",
+            "legs": "#6A5030"
+          },
+          "actions": [
+            {
+              "do": "pose",
+              "name": "cheer",
+              "at": "@消息+0.1",
+              "dur": 0.4
+            }
+          ]
+        },
+        {
+          "id": "v4",
+          "who": "villager",
+          "x": 1300,
+          "face": -1,
+          "actions": [
+            {
+              "do": "pose",
+              "name": "cheer",
+              "at": "@消息+0.3",
+              "dur": 0.4
+            }
+          ]
+        },
+        {
+          "id": "v5",
+          "who": "villager",
+          "x": 1420,
+          "face": -1,
+          "look": {
+            "hat": "bun"
+          },
+          "actions": [
+            {
+              "do": "pose",
+              "name": "cheer",
+              "at": "@传遍",
+              "dur": 0.4
+            }
+          ]
+        },
+        {
+          "id": "porter",
+          "who": "porter",
+          "x": 760,
+          "face": 1,
+          "hold": "gold",
+          "pose": "stand",
+          "actions": [
+            {
+              "do": "pose",
+              "name": "cheer",
+              "at": "@传遍",
+              "dur": 0.4
+            }
+          ]
+        }
+      ],
+      "bigText": {
+        "columns": [
+          "说到做到"
+        ],
+        "at": "@这个官府"
+      }
+    },
+    {
+      "id": "8b_map",
+      "transition": "scroll",
+      "script": "新法推行下去，秦国从此一步步强大，最终统一天下。",
+      "props": [
+        {
+          "type": "map",
+          "x": 960,
+          "y": 470,
+          "w": 1240,
+          "h": 640,
+          "qin": {
+            "at": 0.3,
+            "dur": 0.8
+          },
+          "conquer": [
+            {
+              "state": "韩",
+              "at": "@一步步强大"
+            },
+            {
+              "state": "赵",
+              "at": "@一步步强大+0.5"
+            },
+            {
+              "state": "魏",
+              "at": "@一步步强大+1.0"
+            },
+            {
+              "state": "楚",
+              "at": "@最终"
+            },
+            {
+              "state": "燕",
+              "at": "@最终+0.45"
+            },
+            {
+              "state": "齐",
+              "at": "@统一天下"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9_inn",
+      "transition": "lights",
+      "script": "可故事还有结尾。秦孝公死后，商鞅失势逃亡，想住旅店，店主说：商君有法，没有凭证的人不能留宿。",
+      "tint": {
+        "color": "#3E5A66",
+        "opacity": 0.35
+      },
+      "camera": {
+        "x": 960
+      },
+      "props": [
+        {
+          "type": "moon",
+          "x": 420,
+          "y": 220
+        },
+        {
+          "type": "inn",
+          "x": 1250,
+          "door": [
+            {
+              "at": "@店主说",
+              "v": 0.55,
+              "dur": 0.6
+            }
+          ]
+        }
+      ],
+      "cast": [
+        {
+          "who": "shangyang",
+          "x": -160,
+          "face": 1,
+          "pose": "stand",
+          "actions": [
+            {
+              "do": "walk",
+              "to": 1040,
+              "at": "@商鞅失势",
+              "dur": 2.6
+            },
+            {
+              "do": "beat",
+              "name": "knock",
+              "at": "@想住旅店",
+              "dur": 0.45
+            },
+            {
+              "do": "beat",
+              "name": "knock",
+              "at": "@想住旅店+0.5",
+              "dur": 0.45
+            }
+          ]
+        },
+        {
+          "id": "keeper",
+          "who": "villager",
+          "x": 1268,
+          "face": -1,
+          "behindDoor": true,
+          "look": {
+            "s": 0.95,
+            "robe": "#8A6A40",
+            "cloth": "#5A4630",
+            "legs": "#4A3A28"
+          },
+          "actions": [
+            {
+              "do": "wave",
+              "at": "@商君有法",
+              "dur": 1.6,
+              "times": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "10_end",
+      "script": "他被自己定下的法律拦在了门外，最后被车裂而死。立木为信，他赢了天下的信任，也输掉了自己的退路。",
+      "tint": {
+        "color": "#3E5A66",
+        "opacity": 0.35
+      },
+      "camera": {
+        "x": 1080,
+        "y": 560,
+        "move": "push"
+      },
+      "lightKeys": [
+        {
+          "at": "@立木为信",
+          "to": 0.15,
+          "dur": 5.5
+        }
+      ],
+      "props": [
+        {
+          "type": "moon",
+          "x": 420,
+          "y": 220
+        },
+        {
+          "type": "inn",
+          "x": 1250,
+          "door": [
+            {
+              "at": 0,
+              "v": 0.55,
+              "dur": 0.01
+            },
+            {
+              "at": 0.4,
+              "v": 0,
+              "dur": 0.7
+            }
+          ]
+        }
+      ],
+      "cast": [
+        {
+          "who": "shangyang",
+          "x": 1040,
+          "face": 1,
+          "pose": "stand",
+          "actions": [
+            {
+              "do": "pose",
+              "name": "mourn",
+              "at": 1.2,
+              "dur": 1.2
+            }
+          ]
+        }
+      ],
+      "bigText": {
+        "columns": [
+          "立木为信"
+        ],
+        "at": "@立木为信"
+      }
+    }
+  ]
+}

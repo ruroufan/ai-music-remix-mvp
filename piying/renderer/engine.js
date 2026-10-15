@@ -2,7 +2,7 @@
 // build.mjs 把分镜脚本 + 配音时间编译成 timeline（所有时间均为成片秒数），
 // 再调用 ENGINE.setup(timeline)，然后按顺序 ENGINE.renderFrame(f) 逐帧取图。
 (function () {
-  const { CHARS, POSES, blendPose, drawPuppet, fillPart, polyD, smoothD, COLORS, carve, P2 } = window.RIG;
+  const { CHARS, POSES, blendPose, drawPuppet, fillPart, polyD, smoothD, COLORS, carve, P2, pair } = window.RIG;
   const W = 1920, H = 1080, FLOOR = 880, TAU = Math.PI * 2;
   const COL = {
     screenIn: '#F6E7C1', screenOut: '#C9A774', valance: '#9E2B25', tassel: '#C9A24A', floor: '#5A3A22', flame: '#FFB347',
@@ -44,20 +44,30 @@
   }
 
   // ---------- 镜头 ----------
-  function camera(shot, t) {
+  // camera: { x, y, zoom, move: static|pan|push|fastpush|pull, toX, toY, toZoom, at, dur, follow: {who, dx, at} }
+  // 写了 toX/toY/toZoom 就在 [at, at+dur]（默认整个镜头）内 ease-in-out 过渡。
+  function camera(shot, t, states) {
     const c = shot.camera || {}, d = Math.max(0.01, shot.end - shot.start), u = clamp((t - shot.start) / d, 0, 1);
     const move = c.move || 'static';
     let x = c.x != null ? c.x : 960, y = c.y != null ? c.y : 540, z = c.zoom || 1;
-    if (move.includes('pan') && c.toX != null) x = lerp(x, c.toX, ease(u));
-    if (move.includes('fastpush')) z = lerp(z, 1.35, ease((t - shot.start) / 0.4));
+    const t0 = c.at != null ? c.at : shot.start, k = ease((t - t0) / (c.dur || Math.max(0.01, shot.end - t0)));
+    if (c.toX != null) x = lerp(x, c.toX, k);
+    if (c.toY != null) y = lerp(y, c.toY, k);
+    if (c.toZoom != null) z = lerp(z, c.toZoom, k);
+    else if (move.includes('fastpush')) z = lerp(z, 1.35, ease((t - shot.start) / 0.4));
     else if (move.includes('push')) z = lerp(z, 1.15, ease(u));
     else if (move.includes('pull')) z = lerp(1.15, 1.0, ease(u));
+    if (c.follow && states) {
+      const s = states.find(o => (o.m.id || o.m.who) === c.follow.who);
+      if (s) { const fa = c.follow.at != null ? c.follow.at : shot.start; x = lerp(x, s.st.x + (c.follow.dx || 0), ease((t - fa) / 0.6)); }
+    }
     return { x, y, z };
   }
 
   // ---------- 角色状态 ----------
   function castState(m, t, shot) {
-    const def = CHARS[m.who];
+    const def = Object.assign({}, CHARS[m.who], m.look || {});
+    let carry = m.carry ? { len: m.carry.len || 520 } : null;
     let pose = POSES[m.pose || 'stand'], x = m.x, face = m.face || 1, alpha = m.alpha != null ? m.alpha : 1, yOff = 0;
     let hold = m.hold || null, holdFar = m.holdFar || null, swordAng = m.swordAng || 0, moving = false, rot = 0;
     const acts = (m.actions || []).slice().sort((a, b) => a.at - b.at);
@@ -86,6 +96,11 @@
       else if (a.do === 'show') alpha = lerp(0, 1, ease((t - a.at) / (a.dur || 0.3)));
       else if (a.do === 'hide') alpha = lerp(alpha, 0, ease((t - a.at) / (a.dur || 0.3)));
       else if (a.do === 'hold') { if (a.hand === 'far') holdFar = a.item || null; else hold = a.item || null; }
+      else if (a.do === 'carry') carry = a.on === false ? null : { len: a.len || 520 };
+      else if (a.do === 'wave') { // 挥手：近侧手臂抬起，前臂左右摆 times 次
+        const dur = a.dur || 1.2, u = (t - a.at) / dur;
+        if (u < 1) { const e = sstep(0, 0.12, u) * (1 - sstep(0.88, 1, u)); pose = blendPose(pose, Object.assign({}, pose, { aN: [1.75, 0.25 + 0.75 * Math.sin(TAU * (a.times || 2) * u)] }), e); }
+      }
       else if (a.do === 'lunge') {
         const dur = a.dur || 0.5, kk = ease((t - a.at) / dur), dir = Math.sign(face) || 1;
         x += (a.dx || 140) * dir * kk;
@@ -109,7 +124,7 @@
     }
     // 待机晃动 ±2°，周期 1.5 秒
     if (!moving) rot += (2 * Math.PI / 180) * Math.sin(TAU * t / 1.5 + (m.x || 0) * 0.013);
-    return { def, x, y: FLOOR + yOff, face, alpha: clamp(alpha, 0, 1), pose, hold, holdFar, swordAng, rot, t };
+    return { def, x, y: FLOOR + yOff, face, alpha: clamp(alpha, 0, 1), pose, hold, holdFar, swordAng, rot, t, carry, layer: m.layer || 0 };
   }
 
   // ---------- 布景道具 ----------
@@ -119,8 +134,129 @@
     field: [{ type: 'moon', x: 1460, y: 230 }, { type: 'hill', x: 500, w: 1200, h: 300 }, { type: 'reeds', x0: 0, x1: 760 }, { type: 'waves', x0: -400, x1: 2400 }],
     blank: [{ type: 'lamp', x: 480 }, { type: 'lamp', x: 1440 }]
   };
-  function drawProp(ctx, p, t, fx) {
+  // 七国地图：归一化坐标的简笔版图（西→东），按秦灭六国的先后顺序可逐块变色
+  const STATES = [
+    { name: '秦', pts: [[0.02, 0.18], [0.2, 0.08], [0.36, 0.16], [0.4, 0.42], [0.36, 0.62], [0.3, 0.84], [0.12, 0.9], [0.03, 0.62]], lab: [0.18, 0.46], col: '#8A8A8A' },
+    { name: '赵', pts: [[0.4, 0.1], [0.56, 0.04], [0.7, 0.1], [0.68, 0.34], [0.54, 0.36], [0.42, 0.3]], lab: [0.55, 0.2], col: '#7C8C5A' },
+    { name: '燕', pts: [[0.7, 0.04], [0.92, 0.06], [0.97, 0.26], [0.84, 0.32], [0.7, 0.3]], lab: [0.83, 0.17], col: '#5E7A86' },
+    { name: '魏', pts: [[0.42, 0.32], [0.54, 0.37], [0.66, 0.36], [0.64, 0.5], [0.5, 0.52], [0.4, 0.44]], lab: [0.53, 0.44], col: '#A88A4A' },
+    { name: '韩', pts: [[0.38, 0.46], [0.5, 0.53], [0.52, 0.64], [0.4, 0.66], [0.36, 0.58]], lab: [0.445, 0.58], col: '#8C6A5A' },
+    { name: '齐', pts: [[0.68, 0.32], [0.86, 0.34], [0.98, 0.42], [0.92, 0.56], [0.72, 0.56], [0.66, 0.48]], lab: [0.82, 0.45], col: '#6A8A70' },
+    { name: '楚', pts: [[0.36, 0.64], [0.52, 0.66], [0.66, 0.52], [0.9, 0.58], [0.94, 0.8], [0.7, 0.96], [0.4, 0.94], [0.3, 0.84]], lab: [0.63, 0.78], col: '#9A7A4A' }
+  ];
+  const mixHex = (a, b, k) => { const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16); const ch = sh => Math.round(lerp((pa >> sh) & 255, (pb >> sh) & 255, k)); return `rgba(${ch(16)},${ch(8)},${ch(0)},0.94)`; };
+  function drawMap(ctx, p, t) {
+    const { x, y, w, h } = p, x0 = x - w / 2, y0 = y - h / 2, P = ([u, v]) => [x0 + u * w, y0 + v * h];
+    if (p.hang) { ctx.strokeStyle = COL.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x - w * 0.3, y0 - 8); ctx.lineTo(x, y0 - 90); ctx.lineTo(x + w * 0.3, y0 - 8); ctx.stroke(); }
+    fillPart(ctx, polyD([[x0, y0], [x0 + w, y0], [x0 + w, y0 + h], [x0, y0 + h]]), 'rgba(226,200,150,0.9)', null, null, 2.4);
+    const red = '#6E1E1A';
+    for (const s of STATES) {
+      let k = 0;
+      if (s.name === '秦' && p.qin) k = ease((t - p.qin.at) / (p.qin.dur || 0.8));
+      const c = (p.conquer || []).find(c => c.state === s.name);
+      if (c) k = ease((t - c.at) / (c.dur || 0.5));
+      const col = mixHex(s.col, red, k);
+      // 边界抖动一点，像手刻
+      const pts = s.pts.map(([u, v], i) => P([u + 0.006 * Math.sin(i * 7.1 + u * 30), v + 0.006 * Math.cos(i * 5.3 + v * 30)]));
+      fillPart(ctx, smoothD(pts), col, k < 0.5 ? 'dots' : null, [x0, y0, x0 + w, y0 + h], 2);
+      const [lx, ly] = P(s.lab);
+      ctx.save(); ctx.fillStyle = k > 0.5 ? 'rgba(246,231,193,0.95)' : COL.ink; ctx.font = `${Math.round(h * 0.11)}px ${FONT_CAL}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s.name, lx, ly); ctx.restore();
+    }
+    if (p.hang) for (const yy of [y0 - 6, y0 + h + 6]) fillPart(ctx, polyD([[x0 - 18, yy - 7], [x0 + w + 18, yy - 7], [x0 + w + 18, yy + 7], [x0 - 18, yy + 7]]), COLORS.brown[1], null, null, 1.6);
+  }
+  function drawProp(ctx, p, t, fx, cam) {
     const C = COLORS;
+    if (p.parallax && cam) p = Object.assign({}, p, { x: p.x + (cam.x - 960) * p.parallax });
+    if (p.showAt != null && t < p.showAt) return;
+    if (p.hideAt != null && t >= p.hideAt) return;
+    if (p.type === 'gate') { // 城门：城墙 + 门楼 + 拱门洞 + 可切换牌匾
+      const x = p.x, w = p.w || 780, wallH = 300, top = FLOOR - wallH;
+      ctx.save(); ctx.globalAlpha *= p.alpha || 0.8;
+      const wall = [[x - w / 2, FLOOR], [x - w / 2, top]];
+      for (let k = 0; k <= 12; k++) { const xx = x - w / 2 + k * w / 12; wall.push([xx, top]); if (k < 12) { wall.push([xx + w / 48, top]); wall.push([xx + w / 48, top - 22]); wall.push([xx + w / 24, top - 22]); wall.push([xx + w / 24, top]); } }
+      wall.push([x + w / 2, top], [x + w / 2, FLOOR]);
+      fillPart(ctx, polyD(wall), 'rgba(104,84,62,0.92)', null, null, 2);
+      carve(ctx, P2(polyD(wall)), 'huiwen', [x - w / 2, top, x + w / 2, FLOOR]);
+      const tw = 320, th = 110, ty = top - th;
+      fillPart(ctx, polyD([[x - tw / 2, top], [x - tw / 2, ty], [x + tw / 2, ty], [x + tw / 2, top]]), 'rgba(120,46,34,0.92)', 'lattice', [x - tw / 2, ty, x + tw / 2, top]);
+      for (const [yy, ww, hh] of [[ty, tw + 120, 46], [ty - 70, tw - 40, 40]]) fillPart(ctx, smoothD([[x - ww / 2 - 20, yy + 4], [x - ww / 2 + 30, yy - 10], [x, yy - hh], [x + ww / 2 - 30, yy - 10], [x + ww / 2 + 20, yy + 4], [x, yy - 6]]), 'rgba(40,30,24,0.95)');
+      fillPart(ctx, polyD([[x - tw / 2 + 40, ty - 50], [x + tw / 2 - 40, ty - 50], [x + tw / 2 - 40, ty - 4], [x - tw / 2 + 40, ty - 4]]), 'rgba(120,46,34,0.92)');
+      // 拱形门洞：镂空，透出幕布的光
+      ctx.save(); ctx.globalCompositeOperation = 'destination-out'; ctx.beginPath(); ctx.moveTo(x - 90, FLOOR); ctx.lineTo(x - 90, FLOOR - 150); ctx.arc(x, FLOOR - 150, 90, Math.PI, 0); ctx.lineTo(x + 90, FLOOR); ctx.closePath(); ctx.fill(); ctx.restore();
+      ctx.strokeStyle = COL.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x - 90, FLOOR); ctx.lineTo(x - 90, FLOOR - 150); ctx.arc(x, FLOOR - 150, 90, Math.PI, 0); ctx.lineTo(x + 90, FLOOR); ctx.stroke();
+      // 牌匾
+      const py = top - 56;
+      fillPart(ctx, polyD([[x - 86, py - 34], [x + 86, py - 34], [x + 86, py + 34], [x - 86, py + 34]]), 'rgba(30,22,16,0.96)', null, null, 2.4);
+      ctx.strokeStyle = COL.tassel; ctx.lineWidth = 2; ctx.strokeRect(x - 78, py - 26, 156, 52);
+      const kk = p.plaqueTo ? ease((t - p.plaqueTo.at) / (p.plaqueTo.dur || 0.8)) : 0;
+      ctx.font = `46px ${FONT_CAL}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = COL.tassel;
+      if (kk < 1) { ctx.globalAlpha = (p.alpha || 0.8) * (1 - kk); ctx.fillText(p.plaque || '南门', x, py + 2); }
+      if (kk > 0) { ctx.globalAlpha = (p.alpha || 0.8) * kk; ctx.fillText(p.plaqueTo.text, x, py + 2); }
+      ctx.restore();
+    } else if (p.type === 'pole') { // 三丈长木：可从地面升起、可倾倒扛上肩、可平放
+      const h = p.h || 520, w = p.w || 28;
+      const drawBeam = () => {
+        fillPart(ctx, polyD([[-w / 2, -h / 2], [w / 2, -h / 2], [w / 2, h / 2], [-w / 2, h / 2]]), 'rgba(122,84,46,0.95)', null, null, 2);
+        ctx.strokeStyle = 'rgba(60,36,18,0.55)'; ctx.lineWidth = 1.2;
+        for (let k = 0; k < 6; k++) { ctx.beginPath(); ctx.moveTo(-w / 2 + 6 + (k % 3) * 6, -h / 2 + 30 + k * 80); ctx.lineTo(-w / 2 + 8 + (k % 3) * 6, -h / 2 + 100 + k * 80); ctx.stroke(); }
+      };
+      ctx.save();
+      if (p.lying) { ctx.translate(p.x, FLOOR - w / 2); ctx.rotate(Math.PI / 2); drawBeam(); }
+      else {
+        const rise = p.rise ? ease((t - p.rise.at) / (p.rise.dur || 1)) : 1;
+        const tk = p.tilt ? ease((t - p.tilt.at) / (p.tilt.dur || 0.6)) : 0;
+        if (p.tilt && t >= p.tilt.at + (p.tilt.dur || 0.6)) { ctx.restore(); return; }
+        const cx = lerp(p.x, p.tilt ? p.tilt.toX : p.x, tk), cy = lerp(FLOOR - h / 2 + h * (1 - rise), p.tilt ? p.tilt.toY : 0, tk);
+        if (rise < 1) { ctx.beginPath(); ctx.rect(p.x - 400, -2000, 800, FLOOR + 2000); ctx.clip(); }
+        ctx.translate(cx, cy); ctx.rotate(-Math.PI / 2 * tk); drawBeam();
+      }
+      ctx.restore();
+    } else if (p.type === 'board') { // 木告示牌：竖排告示，可划线、盖红字
+      const x = p.x, bw = p.w || 270, bh = 320, top = FLOOR - 470;
+      for (const dx of [-bw / 2 + 24, bw / 2 - 24]) fillPart(ctx, polyD([[x + dx - 8, top + 20], [x + dx + 8, top + 20], [x + dx + 9, FLOOR], [x + dx - 9, FLOOR]]), COLORS.brown[1]);
+      fillPart(ctx, polyD([[x - bw / 2, top], [x + bw / 2, top], [x + bw / 2, top + bh], [x - bw / 2, top + bh]]), 'rgba(196,156,100,0.94)', null, null, 2.6);
+      fillPart(ctx, polyD([[x - bw / 2 - 16, top - 18], [x + bw / 2 + 16, top - 18], [x + bw / 2, top], [x - bw / 2, top]]), COLORS.brown[1], null, null, 2);
+      const cols = p.cols || ['徙此木至北门者', '赏十金'], fs = 36;
+      ctx.save(); ctx.font = `${fs}px ${FONT_CAL}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = COL.ink;
+      cols.forEach((col, i) => [...col].forEach((ch, j) => ctx.fillText(ch, x + bw / 2 - 52 - i * 64, top + 22 + j * fs * 1.12)));
+      ctx.restore();
+      const cx2 = x + bw / 2 - 52 - 64, y1 = top + 22 + fs * 1.12, y2 = top + 22 + fs * 1.12 * 3;   // 「十金」所在位置
+      if (p.strike && t >= p.strike.at) {
+        const k = ease((t - p.strike.at) / (p.strike.dur || 0.4));
+        ctx.strokeStyle = 'rgba(178,34,34,0.95)'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(cx2 - 22, y1 - 2); ctx.lineTo(lerp(cx2 - 22, cx2 + 22, k), lerp(y1 - 2, y2 + 2, k)); ctx.stroke();
+      }
+      if (p.stamp && t >= p.stamp.at) {
+        const k = clamp((t - p.stamp.at) / 0.2, 0, 1), sc = lerp(1.4, 1, ease(k)), sx = cx2 - 66, sy = top + 40;
+        ctx.save(); ctx.globalAlpha *= Math.min(1, k * 2); ctx.translate(sx, sy + fs * 1.6); ctx.rotate(-0.05); ctx.scale(sc, sc); ctx.translate(-sx, -(sy + fs * 1.6));
+        ctx.font = `${fs + 4}px ${FONT_CAL}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = 'rgba(178,34,34,0.97)';
+        [...(p.stamp.text || '五十金')].forEach((ch, j) => ctx.fillText(ch, sx, sy + j * (fs + 4) * 1.08));
+        ctx.restore();
+      }
+    } else if (p.type === 'map') {
+      drawMap(ctx, p, t);
+    } else if (p.type === 'inn') { // 客栈：墙、檐、招子、两扇木门（门缝可开）
+      const x = p.x, w = p.w || 560, wallH = 380, top = FLOOR - wallH, dw = 170, dh = 270, dTop = FLOOR - dh;
+      const wall = [[x - w / 2, FLOOR], [x - w / 2, top], [x + w / 2, top], [x + w / 2, FLOOR], [x + dw / 2, FLOOR], [x + dw / 2, dTop], [x - dw / 2, dTop], [x - dw / 2, FLOOR]];
+      fillPart(ctx, polyD(wall), 'rgba(110,84,58,0.9)', 'lattice', [x - w / 2, top, x + w / 2, FLOOR]);
+      fillPart(ctx, smoothD([[x - w / 2 - 50, top + 6], [x - w / 2, top - 30], [x, top - 60], [x + w / 2, top - 30], [x + w / 2 + 50, top + 6], [x, top - 10]]), 'rgba(40,30,24,0.95)');
+      const fl = x - w / 2 + 60, sway = Math.sin(t * 1.5) * 3; // 招子「客栈」
+      ctx.strokeStyle = COL.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(fl, top + 30); ctx.lineTo(fl + sway, top + 50); ctx.stroke();
+      fillPart(ctx, polyD([[fl - 26 + sway, top + 50], [fl + 26 + sway, top + 50], [fl + 26 + sway * 1.4, top + 190], [fl - 26 + sway * 1.4, top + 190]]), 'rgba(160,40,30,0.92)');
+      ctx.save(); ctx.fillStyle = COL.tassel; ctx.font = `40px ${FONT_CAL}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('客', fl + sway * 1.2, top + 70); ctx.fillText('栈', fl + sway * 1.3, top + 120); ctx.restore();
+      let v = 0; for (const k of p.door || []) if (t >= k.at) v = lerp(v, k.v, ease((t - k.at) / (k.dur || 0.5)));
+      const gap = v * 120;
+      p._gap = { x0: x - gap / 2 + 20, x1: x + gap / 2 + 20, top: dTop, v };
+      if (gap > 2) fx.push({ kind: 'warm', x0: x - gap / 2 + 20, x1: x + gap / 2 + 20, y0: dTop + 6, y1: FLOOR, v });
+      return p._gap;
+    } else if (p.type === 'innDoors') { // 门扇（画在店主之上）
+      const x = p.x, dw = 170, dh = 270, dTop = FLOOR - dh;
+      let v = 0; for (const k of p.door || []) if (t >= k.at) v = lerp(v, k.v, ease((t - k.at) / (k.dur || 0.5)));
+      const gap = v * 120, mid = x + 20;
+      fillPart(ctx, polyD([[x - dw / 2, dTop], [mid - gap / 2, dTop], [mid - gap / 2, FLOOR], [x - dw / 2, FLOOR]]), 'rgba(92,60,34,0.95)', 'dots', [x - dw / 2, dTop, mid, FLOOR]);
+      fillPart(ctx, polyD([[mid + gap / 2, dTop], [x + dw / 2, dTop], [x + dw / 2, FLOOR], [mid + gap / 2, FLOOR]]), 'rgba(92,60,34,0.95)', 'dots', [mid, dTop, x + dw / 2, FLOOR]);
+      for (const hx of [mid - gap / 2 - 14, mid + gap / 2 + 14]) { ctx.fillStyle = COL.tassel; ctx.beginPath(); ctx.arc(hx, dTop + dh * 0.5, 5, 0, TAU); ctx.fill(); }
+    }
     if (p.type === 'table') {
       const w = p.w || 200, x = p.x, y = FLOOR - 62;
       fillPart(ctx, polyD([[x - w / 2 - 8, y - 6], [x + w / 2 + 8, y - 6], [x + w / 2, y + 10], [x - w / 2, y + 10]]), C.black[0], 'dots', [x - w / 2, y - 6, x + w / 2, y + 10]);
@@ -134,6 +270,11 @@
       ctx.strokeStyle = COL.ink; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(x, FLOOR - 22); ctx.lineTo(x, FLOOR - 210); ctx.stroke();
       fillPart(ctx, polyD([[x - 26, FLOOR - 212], [x + 26, FLOOR - 212], [x + 14, FLOOR - 198], [x - 14, FLOOR - 198]]), C.yellow[1], null, null, 1.6);
       fx.push({ kind: 'flame', x, y: FLOOR - 224, seed: x });
+    } else if (p.type === 'lampSmall') { // 案上小油灯
+      const x = p.x, y = p.y || FLOOR - 62;
+      fillPart(ctx, polyD([[x - 16, y], [x + 16, y], [x + 6, y - 30], [x - 6, y - 30]]), C.yellow[1], null, null, 1.6);
+      fillPart(ctx, polyD([[x - 20, y - 32], [x + 20, y - 32], [x + 10, y - 22], [x - 10, y - 22]]), C.yellow[1], null, null, 1.6);
+      fx.push({ kind: 'flame', x, y: y - 42, seed: x, small: true });
     } else if (p.type === 'banner') {
       const x = p.x, top = p.top || 300;
       ctx.strokeStyle = COL.ink; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(x, FLOOR); ctx.lineTo(x, top - 20); ctx.stroke();
@@ -205,8 +346,14 @@
   }
 
   // ---------- 一个镜头画进缓冲区 ----------
+  function lightAt(shot, t) {
+    let v = shot.light != null ? shot.light : 1;
+    for (const k of (shot.lightKeys || []).slice().sort((a, b) => a.at - b.at)) if (t >= k.at) v = lerp(v, k.to, ease((t - k.at) / (k.dur || 0.5)));
+    return v;
+  }
   function renderShot(ctx, shot, t, lightMul) {
-    const cam = camera(shot, t), light = clamp((shot.light != null ? shot.light : 1) * lightMul, 0, 1);
+    const states = (shot.cast || []).map(m => ({ m, st: castState(m, t, shot) }));
+    const cam = camera(shot, t, states), light = clamp(lightAt(shot, t) * lightMul, 0, 1);
     const flick = 1 + 0.06 * (noise1(t * 7) * 2 - 1);  // 油灯闪烁 ±6%
     // 幕布
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; ctx.filter = 'none';
@@ -222,19 +369,31 @@
     plg.setTransform(cam.z, 0, 0, cam.z, W / 2 - cam.x * cam.z, H / 2 - cam.y * cam.z);
     const vx0 = cam.x - W / 2 / cam.z, vx1 = cam.x + W / 2 / cam.z;
     const props = (shot.scene && SCENES[shot.scene] ? SCENES[shot.scene] : []).concat(shot.props || []);
-    for (const p of props.filter(p => !p.front)) drawProp(plg, p, t, fx);
-    const states = (shot.cast || []).map(m => ({ m, st: castState(m, t, shot) }));
+    for (const p of props.filter(p => !p.front)) drawProp(plg, p, t, fx, cam);
     plg.save(); plg.beginPath(); plg.rect(vx0 - 400, -2000, vx1 - vx0 + 800, FLOOR + 2000 + 1); plg.clip();
-    for (const { m, st } of states) {
+    let doors = props.find(p => p.type === 'innDoors');
+    const inn = props.find(p => p.type === 'inn');
+    if (inn && !doors) doors = { type: 'innDoors', x: inn.x, door: inn.door };
+    for (const { m, st } of states.slice().sort((a, b) => a.st.layer - b.st.layer)) {
       if (st.alpha <= 0.001) continue;
+      if (m.behindDoor && doors) { // 门后的人：身体被门扇挡住，只有近侧手臂伸到门外
+        plg.save(); plg.beginPath(); plg.rect(doors.x - 85, FLOOR - 270, 170, 270); plg.clip();
+        drawPuppet(plg, st.def, Object.assign({}, st, { skipNear: true }));
+        plg.restore();
+        drawProp(plg, doors, t, fx, cam);
+        const out = drawPuppet(plg, st.def, Object.assign({}, st, { onlyNear: true }));
+        heads[m.id || m.who] = { p: out.head, face: st.face, alpha: st.alpha, hands: out.hands };
+        continue;
+      }
       const out = drawPuppet(plg, st.def, st);
-      heads[m.id || m.who] = { p: out.head, face: st.face, alpha: st.alpha };
+      heads[m.id || m.who] = { p: out.head, face: st.face, alpha: st.alpha, hands: out.hands };
       for (const r of out.rods) rods.push({ p: r, a: st.alpha });
       if (out.sword) fx.push({ kind: 'sword', key: shot.id + ':' + (m.id || m.who), ...out.sword });
       if (out.jade) heads[(m.id || m.who) + ':jade'] = { p: out.jade };
     }
+    if (doors && !states.some(o => o.m.behindDoor)) drawProp(plg, doors, t, fx, cam);
     plg.restore();
-    for (const p of props.filter(p => p.front)) drawProp(plg, p, t, fx);
+    for (const p of props.filter(p => p.front)) drawProp(plg, p, t, fx, cam);
     drawFloor(plg, vx0, vx1);
     drawValance(plg, vx0, vx1, t);
     // 操纵杆：颈与双手各一根，直线延伸到画面底部
@@ -245,15 +404,18 @@
     ctx.save(); ctx.globalAlpha = 0.25; ctx.filter = `brightness(0) blur(${(6 * cam.z).toFixed(1)}px)`; ctx.drawImage(pl, 8 * cam.z, 6 * cam.z); ctx.restore();
     ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.drawImage(pl, 0, 0); ctx.restore();
     ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.drawImage(vign, 0, 0); ctx.restore();
+    // 本集色调（如夜景冷青滤镜）
+    if (shot.tint) { ctx.save(); ctx.globalAlpha = shot.tint.opacity != null ? shot.tint.opacity : 0.35; ctx.fillStyle = shot.tint.color; ctx.fillRect(0, 0, W, H); ctx.restore(); }
     // 灯焰与剑光
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
     for (const e of fx) {
-      if (e.kind === 'flame') {
-        const [sx, sy] = toS(cam, e.x, e.y), fl = 1 + 0.06 * (noise1(t * 9 + e.seed) * 2 - 1), r = 22 * cam.z * fl;
-        const fg = ctx.createRadialGradient(sx, sy, 0, sx, sy, r * 4);
-        fg.addColorStop(0, `rgba(255,236,190,${0.95 * fl})`); fg.addColorStop(0.18, 'rgba(255,179,71,0.7)'); fg.addColorStop(0.5, 'rgba(255,179,71,0.18)'); fg.addColorStop(1, 'rgba(255,179,71,0)');
-        ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(sx, sy, r * 4, 0, TAU); ctx.fill();
-        ctx.fillStyle = COL.flame; ctx.beginPath(); ctx.ellipse(sx, sy - r * 0.2, r * 0.32, r * 0.6, 0, 0, TAU); ctx.fill();
+      if (e.kind === 'flame') continue; // 灯焰在亮度遮罩之后单独画
+      if (e.kind === 'warm') { // 门缝透出的暖光
+        const [a0, b0] = toS(cam, e.x0, e.y0), [a1, b1] = toS(cam, e.x1, e.y1), cx = (a0 + a1) / 2;
+        const wg = ctx.createRadialGradient(cx, (b0 + b1) / 2, 10, cx, (b0 + b1) / 2, 360 * cam.z);
+        wg.addColorStop(0, `rgba(255,190,100,${0.45 * e.v / 0.35})`); wg.addColorStop(1, 'rgba(255,150,60,0)');
+        ctx.fillStyle = wg; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = 'rgba(255,200,120,0.85)'; ctx.fillRect(a0, b0, a1 - a0, b1 - b0);
       } else if (e.kind === 'sword') {
         let tr = trails.get(e.key); if (!tr) trails.set(e.key, tr = []);
         if (tr.lastF !== curFrame) { tr.push({ base: e.base, tip: e.tip }); tr.lastF = curFrame; while (tr.length > 7) tr.shift(); }
@@ -267,7 +429,47 @@
     ctx.restore();
     // 全局亮度：暗场 0.15，正常 1
     if (light < 1) { ctx.save(); ctx.fillStyle = `rgba(8,4,2,${(1 - light) * 0.92})`; ctx.fillRect(0, 0, W, H); ctx.restore(); }
-    drawShotOverlays(ctx, shot, t, cam, heads);
+    // 灯焰：画在亮度遮罩之后，暗场里也看得见（随亮度减弱但不熄灭）
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.4 + 0.6 * light;
+    for (const e of fx) if (e.kind === 'flame') {
+      const [sx, sy] = toS(cam, e.x, e.y), fl = 1 + 0.06 * (noise1(t * 9 + e.seed) * 2 - 1), r = (e.small ? 14 : 22) * cam.z * fl;
+      const fg = ctx.createRadialGradient(sx, sy, 0, sx, sy, r * 4);
+      fg.addColorStop(0, `rgba(255,236,190,${0.95 * fl})`); fg.addColorStop(0.18, 'rgba(255,179,71,0.7)'); fg.addColorStop(0.5, 'rgba(255,179,71,0.18)'); fg.addColorStop(1, 'rgba(255,179,71,0)');
+      ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(sx, sy, r * 4, 0, TAU); ctx.fill();
+      ctx.fillStyle = COL.flame; ctx.beginPath(); ctx.ellipse(sx, sy - r * 0.2, r * 0.32, r * 0.6, 0, 0, TAU); ctx.fill();
+    }
+    ctx.restore();
+    drawEffects(ctx, shot, t, cam, heads);
+    drawShotOverlays(ctx, shot, t, cam, heads, light);
+  }
+
+  // ---------- 特效 ----------
+  // effects: [{ type:'pass', item:'gold', from, to, at, dur }, { type:'sparkle', who, hand, at, dur, color }]
+  function drawEffects(ctx, shot, t, cam, heads) {
+    for (const e of shot.effects || []) {
+      const u = t - e.at;
+      if (e.type === 'pass' && u >= 0 && u <= (e.dur || 0.7)) {
+        const a = heads[e.from], b = heads[e.to]; if (!a || !b || !a.hands || !b.hands) continue;
+        const pa = a.hands[e.fromHand || 'near'], pb = b.hands[e.toHand || 'near'], k = ease(u / (e.dur || 0.7));
+        const x = lerp(pa[0], pb[0], k), y = lerp(pa[1], pb[1], k) - Math.sin(Math.PI * k) * 90 * cam.z;
+        ctx.save(); ctx.translate(x, y); ctx.scale(cam.z, cam.z); ctx.rotate(k * 4);
+        ctx.fillStyle = 'rgba(232,194,90,0.98)'; ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.ellipse(0, 0, 17, 10, 0, 0, TAU); ctx.fill(); ctx.stroke(); ctx.restore();
+      }
+      if (e.type === 'sparkle' && u >= 0 && u <= (e.dur || 1.6)) {
+        const h = heads[e.who]; if (!h) continue;
+        const o = (h.hands && h.hands[e.hand || 'near']) || h.p, col = e.color || '#E8C25A', n = e.count || 40;
+        const r = parseInt(col.slice(1, 3), 16), g = parseInt(col.slice(3, 5), 16), b = parseInt(col.slice(5, 7), 16);
+        ctx.save(); ctx.globalCompositeOperation = 'lighter';
+        for (let i = 0; i < n; i++) { // 无状态粒子：由序号决定方向与速度
+          const ang = hash(i * 3.1) * TAU, sp = (60 + 160 * hash(i * 7.7)) * cam.z, life = 0.8 + 0.8 * hash(i * 1.3);
+          if (u > life) continue;
+          const x = o[0] + Math.cos(ang) * sp * u, y = o[1] + Math.sin(ang) * sp * u - 60 * u * cam.z, al = 1 - u / life;
+          ctx.fillStyle = `rgba(${r},${g},${b},${al})`; ctx.beginPath(); ctx.arc(x, y, (2 + 3 * hash(i)) * cam.z * (0.6 + al * 0.4), 0, TAU); ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
   }
 
   // ---------- 文字叠层（随镜头一起溶解） ----------
@@ -290,21 +492,24 @@
     });
     ctx.globalAlpha = 1; return yy;
   }
-  function drawShotOverlays(ctx, shot, t, cam, heads) {
+  function drawShotOverlays(ctx, shot, t, cam, heads, light) {
+    // 深色字在暗场里看不见：亮度低于 ~0.5 时逐渐换成幕布浅色
+    const inkK = sstep(0.32, 0.62, light == null ? 1 : light);
+    const inkCol = `rgb(${Math.round(lerp(246, 42, inkK))},${Math.round(lerp(231, 26, inkK))},${Math.round(lerp(193, 16, inkK))})`;
     ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over';
     // 钩子句：暗场居中，72px，逐字淡入
     if (shot.kind === 'hook' && shot.hookText) {
-      const chars = [...shot.hookText], d = shot.end - shot.start, stg = Math.min(0.12, d * 0.55 / chars.length);
+      const chars = [...shot.hookText], d = shot.end - shot.start, stg = Math.min(0.12, d * 0.55 / chars.length), h0 = shot.textAt != null ? shot.textAt - 0.1 : shot.start;
       ctx.font = `72px ${FONT_CAL}`; ctx.textBaseline = 'middle';
       const ws = chars.map(c => ctx.measureText(c).width), tot = ws.reduce((a, b) => a + b, 0);
       let x = W / 2 - tot / 2;
-      chars.forEach((c, i) => { const a = sstep(shot.start + 0.1 + i * stg, shot.start + 0.1 + i * stg + 0.35, t); ctx.globalAlpha = a; ctx.fillStyle = COL.hook; ctx.fillText(c, x, H / 2); x += ws[i]; });
+      chars.forEach((c, i) => { const a = sstep(h0 + 0.1 + i * stg, h0 + 0.1 + i * stg + 0.35, t); ctx.globalAlpha = a; ctx.fillStyle = COL.hook; ctx.fillText(c, x, H / 2); x += ws[i]; });
       ctx.globalAlpha = 1;
     }
     // 片名：竖排居中偏右，120px，右下角盖章
     if (shot.kind === 'title' && shot.title) {
       const n = [...shot.title].length, x = W * 0.62, y0 = H / 2 - n * 120 * 1.08 / 2;
-      const yEnd = vChars(ctx, shot.title, x, y0, 120, COL.ink, shot.start + 0.15, t, 0.18);
+      const yEnd = vChars(ctx, shot.title, x, y0, 120, inkCol, shot.start + 0.15, t, 0.18);
       seal(ctx, x + 100, yEnd - 40, 84, (t - (shot.start + 0.2 + n * 0.18 + 0.3)) / 0.2);
     }
     // 名牌：头顶斜上方红底竖牌，弹入后停 2 秒淡出
@@ -337,7 +542,7 @@
       const cols = shot.bigText.columns; let t0 = shot.bigText.at, lastEnd = 0, lastX = 0;
       cols.forEach((col, i) => {
         const x = (shot.bigText.x || 1730) - i * 130;
-        lastEnd = vChars(ctx, col, x, shot.bigText.y || 150, 96, shot.bigText.colors ? shot.bigText.colors[i] : COL.ink, t0, t, 0.2);
+        lastEnd = vChars(ctx, col, x, shot.bigText.y || 150, 96, shot.bigText.colors ? shot.bigText.colors[i] : inkCol, t0, t, 0.2);
         t0 += [...col].length * 0.2 + 0.15; lastX = x;
       });
       seal(ctx, lastX - 8, lastEnd + 46, 72, (t - t0 - 0.1) / 0.2);
@@ -406,7 +611,7 @@
   // ---------- 字幕 ----------
   function subtitleAt(t) {
     const i = shotIndexAt(t), sh = TL.shots[i];
-    if (t >= TL.voiceEnd || sh.kind === 'hook' || sh.kind === 'title' || bigTextVisible(sh, t)) return null;
+    if (t >= TL.voiceEnd || (sh.kind === 'hook' && !sh.subtitles) || sh.kind === 'title' || bigTextVisible(sh, t)) return null;
     for (const s of TL.subtitles) if (t >= s.start && t < s.end) return s.text;
     return null;
   }

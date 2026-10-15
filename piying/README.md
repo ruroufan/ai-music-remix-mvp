@@ -84,15 +84,21 @@ node tools/build.mjs episodes/ep01 --from 20 --to 30   # 只渲染一段，改�
 }
 ```
 
-**时间写法**（`at`）：数字 = 镜头开始后的秒数；`"40%"` = 镜头时长的百分比（随配音快慢自动伸缩，推荐）；`"end-1.5"` = 镜头结束前 1.5 秒。
+**时间写法**（任何 `at` 字段）：
+- `"@短语"` = 配音念到这个短语的时刻（最贴合「念到 XX 时」这类要求，推荐）；可加偏移 `"@扛起+0.6"`。从本镜头开始处往后找，用 `align.py` 生成的逐字时间 `voice.chars.json`（没有就按整句插值）。
+- 数字 = 镜头开始后的秒数；`"40%"` = 镜头时长的百分比；`"end-1.5"` = 镜头结束前 1.5 秒。
 
 **坐标**：舞台世界坐标，镜头 1.0 时与 1920×1080 像素一致；地面线 y=880，`x` 是人物脚下位置。`face`：1 朝右，-1 朝左。
 
-**镜头 `camera.move`**（只用规范允许的运动，无旋转、无透视）：`static`、`pan`（x→toX）、`push`（1.0→1.15）、`fastpush`（0.4 秒推到 1.35）、`pull`（1.15→1.0）；可组合，如 `"pan+push"`。`x`/`y` 为镜头中心，`zoom` 为起始缩放。
+**镜头 `camera`**（只做平移和缩放，无旋转、无透视）：
+- `move`：`static`、`pan`（x→toX）、`push`（1.0→1.15）、`fastpush`（0.4 秒推到 1.35）、`pull`（1.15→1.0），可组合如 `"pan+push"`。
+- 自定义：`x`/`y`/`zoom` 为起点，`toX`/`toY`/`toZoom` 为终点，`at`/`dur` 指定这段运动的时间（默认整个镜头）。如「推近告示牌 1.0→1.3」。
+- 跟随：`follow: { who, dx, at }` 镜头 x 跟着某个人物走。
 
-**角色 `who`**：`xiangyu` 项羽、`liubang` 刘邦、`zhangliang` 张良、`fankuai` 樊哙、`fanzeng` 范增、`xiangzhuang` 项庄、`xiangbo` 项伯、`soldier` 士卒。新角色在 `rig.js` 的 `CHARS` 里加一行：配色、帽子、胡须、脸色（light/black/red）、下摆（long/short）、镂空纹样（dots/scale/lattice/huiwen）、袖子（wide/tight）。同一镜头出现同一角色两次时，给其中一个加 `"id"` 区分（名牌、数字锚点用 `id`）。
+**角色 `who`**：`qinxiaogong` 秦孝公（冕旒）、`shangyang` 商鞅、`porter` 扛木人、`villager` 百姓（小号 260px）、`xiangyu` 项羽、`liubang` 刘邦、`zhangliang` 张良、`fankuai` 樊哙、`fanzeng` 范增、`xiangzhuang` 项庄、`xiangbo` 项伯、`soldier` 士卒。新角色在 `rig.js` 的 `CHARS` 里加一行：配色（色名或 `#RRGGBB`）、帽子（helmet/crown/tall/liu/scholar/band/mianliu/kerchief/bun/helmetS）、胡须、脸色（light/black/red）、下摆（long/short）、镂空纹样（dots/scale/lattice/huiwen）、袖子（wide/tight）。
+单个镜头里还可以：`look` 覆盖外观（如 `{"robe":"#B08F4A","s":0.95}`）；`layer` 调前后层次；`behindDoor: true` 站在客栈门后（身体被门挡住，只有手伸到门外）。同一镜头出现同一角色多次时用 `"id"` 区分（名牌、特效、镜头跟随都用 `id`）。
 
-**姿势 `pose`**：`stand` `kneel` `bow` `kneel_bow` `point` `kneel_point` `angry` `kneel_angry` `raise` `kneel_raise` `kneel_drink` `kneel_silent` `shield` `sword_up` `sword_low` `sneak` `mourn` `order` `smash_up` `smash_down` `fist`。新姿势在 `rig.js` 的 `POSES` 里用关节角度定义。
+**姿势 `pose`**：`stand` `kneel` `bow` `kneel_bow` `point` `kneel_point` `angry` `kneel_angry` `raise` `kneel_raise` `kneel_drink` `kneel_silent` `kneel_talk` `kneel_lowhead` `talk` `cheer` `point_up` `carry` `give` `receive` `knock` `shield` `sword_up` `sword_low` `sneak` `mourn` `order` `smash_up` `smash_down` `fist`。新姿势在 `rig.js` 的 `POSES` 里用关节角度定义。
 
 **动作 `actions[].do`**：
 - `pose` {name, dur=0.4}：换姿势（ease-in-out 过渡）
@@ -102,8 +108,22 @@ node tools/build.mjs episodes/ep01 --from 20 --to 30   # 只渲染一段，改�
 - `show` / `hide` {dur=0.3}：出场 / 退场
 - `hold` {item, hand: near|far}：换手持道具 `sword` `jade` `cup` `dipper`(玉斗) `spear`，`null` 为空手
 - `dance` {dur, dx}：舞剑；`lunge` {dur, dx}：前刺
+- `carry` {len, on}：把长木横扛在肩上（`on:false` 放下）；`wave` {dur, times}：挥手
 
-**道具 `props[].type`**：`table` `lamp`(油灯，带闪烁) `banner`{text,color} `tent` `screen`(屏风) `rack`(兵器架) `hill` `moon` `waves` `reeds`；加 `"front": true` 画在人物前面。
+**道具 `props[].type`**：`table` `lamp`(油灯，带闪烁) `lampSmall`(案上小灯) `banner`{text,color} `tent` `screen`(屏风) `rack`(兵器架) `hill` `moon` `waves` `reeds`，以及：
+- `gate` 城门 {x, w, plaque:"南门", plaqueTo:{text:"北门", at, dur}, alpha}
+- `pole` 长木 {x, h=520, rise:{at,dur} 从地面升起, tilt:{at,dur,toX,toY} 倾倒到某处（如肩上）, lying:true 平放}
+- `board` 告示牌 {x, cols:[竖排各列], strike:{at,dur} 红线划掉「十金」, stamp:{at,text} 盖红字}
+- `map` 七国地图 {x,y,w,h, hang, qin:{at,dur} 秦由灰变黑红, conquer:[{state:"韩",at}, …] 逐块吞并}
+- `inn` 客栈 {x, door:[{at, v 0~1, dur}] 门缝开合（带暖光）}
+
+通用字段：`front: true` 画在人物前；`parallax: 0~1` 跟随镜头的程度（背景慢移）；`showAt`/`hideAt` 出现/消失时刻。
+
+**灯光与色调**：`light` 起始亮度；`lightKeys: [{at, to, dur}]` 亮度变化（如「念最后一句时缓慢降到 0.15」）；`tint: {color, opacity}` 整个画面叠色（如夜景冷青滤镜）。灯焰在暗场里仍会发光；暗场里的片名/竖排大字自动换成浅色。
+
+**特效 `effects`**：`{type:"pass", item:"gold", from, to, at, dur}` 物品从一人手中划弧飞到另一人手中；`{type:"sparkle", who, hand, at, dur, color, count}` 手边飘出光点粒子。
+
+**钩子镜头**：`text` 居中显示的钩子句（不写就用整段文案），`textAt` 出现时刻（如 `"@你信吗"`），`subtitles: true` 钩子期间照常出字幕（当居中大字只是文案的一部分时用）。
 
 **叠层**：
 - `nameplates`：{who, at, text?, dx?, dy?} 头顶斜上方红底竖牌，弹入后停 2 秒淡出

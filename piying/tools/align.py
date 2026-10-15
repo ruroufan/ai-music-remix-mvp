@@ -129,6 +129,23 @@ def main():
     with open(os.path.join(ep_dir, "voice.srt"), "w", encoding="utf-8") as f:
         for i, (a, b, s) in enumerate(cues, 1):
             f.write(f"{i}\n{fmt(a)} --> {fmt(b)}\n{s}\n\n")
+    # 逐字时间（缺的按相邻已匹配字插值），供 build.mjs 的「@短语」锚点精确定位
+    known = sorted(t_of)
+    per_char = []
+    for k in range(len(A)):
+        if k in t_of:
+            tk = t_of[k]
+        else:
+            prev = max((j for j in known if j < k), default=None)
+            nxt = min((j for j in known if j > k), default=None)
+            if prev is not None and nxt is not None:
+                tk = t_of[prev] + (t_of[nxt] - t_of[prev]) * (k - prev) / (nxt - prev)
+            elif prev is not None:
+                tk = t_of[prev] + (k - prev) * CHAR_SEC
+            else:
+                tk = max(0.0, (t_of[nxt] if nxt is not None else 0.0) - ((nxt or 0) - k) * CHAR_SEC)
+        per_char.append([A[k], round(tk, 3)])
+    json.dump(per_char, open(os.path.join(ep_dir, "voice.chars.json"), "w", encoding="utf-8"), ensure_ascii=False)
     matched = len(t_of) / max(1, len(A))
     print(f"对齐完成：{len(cues)} 句，逐字匹配率 {matched:.0%} → {ep_dir}/voice.srt")
     if matched < 0.6:

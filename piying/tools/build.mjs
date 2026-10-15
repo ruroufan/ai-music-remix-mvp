@@ -48,6 +48,7 @@ const norm = s => s.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(
 const stream = []; // 每个字及其时间
 cues.forEach((c, ci) => { const n = [...norm(c.text)]; n.forEach((ch, i) => stream.push({ ch, t: i === 0 ? c.start : c.start + (c.end - c.start) * i / n.length, ci })); });
 const streamStr = stream.map(s => s.ch).join('');
+const streamAll = stream, streamAllStr = streamStr;
 let ptr = 0;
 function locate(script) {
   const first = script.split(/[。！？!?；;]/).find(s => norm(s).length) || script;
@@ -83,25 +84,52 @@ shotsIn.forEach((s, i) => {
 const totalGap = gaps.reduce((a, g) => a + g.dur, 0);
 const voiceEnd = voiceDur + totalGap, duration = voiceEnd + TAIL;
 
+// 在配音里找某个短语被念到的时刻（从 fromV 之后找），返回配音时间。
+// 有 align.py 生成的逐字时间 voice.chars.json 时用它（比按整句插值准）。
+const charsFile = path.join(epDir, 'voice.chars.json');
+const fine = fs.existsSync(charsFile) && fs.statSync(charsFile).mtimeMs >= fs.statSync(srtFile).mtimeMs - 1000
+  ? JSON.parse(fs.readFileSync(charsFile, 'utf8')).map(([ch, t]) => ({ ch, t })) : null;
+function phraseV(phrase, fromV) {
+  const stream = fine || streamAll, streamStr = fine ? fineStr : streamAllStr;
+  const key = norm(phrase);
+  let i0 = stream.findIndex(s => s.t >= fromV - 0.05); if (i0 < 0) i0 = 0;
+  let idx = streamStr.indexOf(key, i0);
+  if (idx < 0) {
+    let best = -1, bs = 0;
+    for (let j = i0; j < stream.length; j++) { let s = 0; for (let k = 0; k < key.length; k++) if (streamStr[j + k] === key[k]) s++; if (s > bs) { bs = s; best = j; } }
+    if (bs < key.length * 0.5) throw new Error(`短语在配音里找不到：「${phrase}」`);
+    idx = best;
+  }
+  return stream[idx].t;
+}
+const fineStr = fine ? fine.map(s => s.ch).join('') : '';
+let curShotV = 0;
 function resolveT(v, s0, s1) {
   if (v == null) return s0;
   if (typeof v === 'number') return s0 + v;
   const m = String(v).trim();
+  if (m.startsWith('@')) { // "@短语" 或 "@短语+0.3"
+    const mm = m.slice(1).match(/^(.*?)([+-]\d+(?:\.\d+)?)?$/);
+    const pv = phraseV(mm[1], curShotV);
+    return pv + offsetAt(pv) + (mm[2] ? parseFloat(mm[2]) : 0);
+  }
   if (m.endsWith('%')) return s0 + (s1 - s0) * parseFloat(m) / 100;
   if (m.startsWith('end')) return s1 + parseFloat(m.slice(3) || '0');
   return s0 + parseFloat(m);
 }
 const shots = shotsIn.map((s, i) => {
   const start = outStart[i], end = i + 1 < shotsIn.length ? outStart[i + 1] : voiceEnd;
+  curShotV = vStart[i] != null ? vStart[i] : (vStart.slice(0, i).reverse().find(v => v != null) ?? 0);
   const R = v => resolveT(v, start, end);
   const o = JSON.parse(JSON.stringify(s));
   Object.assign(o, { id: s.id || `s${i}`, kind: s.kind || 'shot', start, end });
-  if (o.kind === 'hook') { o.hookText = s.text || s.script; if (o.light == null) o.light = 0.15; }
+  if (o.kind === 'hook') { o.hookText = s.text || s.script; if (o.light == null) o.light = 0.15; if (o.textAt != null) o.textAt = R(o.textAt); }
   if (o.kind === 'title') o.title = s.title || episode.title;
-  for (const m of o.cast || []) for (const a of m.actions || []) a.at = R(a.at);
-  for (const n of o.nameplates || []) n.at = R(n.at);
-  for (const n of o.numbers || []) n.at = R(n.at);
-  if (o.bigText) { o.bigText.at = R(o.bigText.at); if (typeof o.bigText.columns === 'string') o.bigText.columns = [o.bigText.columns]; }
+  // 镜头里任意层级的 at 字段都换算成成片时间（动作、名牌、数字、大字、道具关键帧、镜头、灯光、特效）
+  const walk = (x) => { if (Array.isArray(x)) x.forEach(walk); else if (x && typeof x === 'object') for (const k of Object.keys(x)) { if (k === 'at') x[k] = R(x[k]); else walk(x[k]); } };
+  for (const k of ['cast', 'nameplates', 'numbers', 'bigText', 'props', 'camera', 'lightKeys', 'effects']) if (o[k]) walk(o[k]);
+  if (o.bigText && typeof o.bigText.columns === 'string') o.bigText.columns = [o.bigText.columns];
+  for (const p of o.props || []) for (const k of ['showAt', 'hideAt']) if (p[k] != null) p[k] = R(p[k]);
   return o;
 });
 
@@ -109,7 +137,7 @@ const shots = shotsIn.map((s, i) => {
 const hookEndV = vStart.find((v, i) => i > 0 && v != null) ?? 0;
 const subtitles = [];
 for (const c of cues) {
-  if (shotsIn[0]?.kind === 'hook' && c.start < hookEndV - 0.05) continue; // 钩子句以大字呈现，不重复出字幕
+  if (shotsIn[0]?.kind === 'hook' && !shotsIn[0].subtitles && c.start < hookEndV - 0.05) continue; // 钩子句以大字呈现，不重复出字幕
   const pieces = c.text.split(/(?<=[，。！？；、：,.!?;:])/).map(p => p.replace(/[，。；、：,.;:]$/, '').trim()).filter(Boolean);
   const lines = [];
   for (const p of pieces) {
