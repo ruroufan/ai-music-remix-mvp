@@ -12,14 +12,14 @@ import { Halo } from "../../channels/backlit/parts";
 export const STRINGS = [
   { label: "工作", at: [60, 8], top: 0.5 },
   { label: "消息", at: [24, 86], top: 0.2 },
-  { label: "会议", at: [96, 86], top: 0.8 },
-  { label: "老板", at: [28, 150], top: 0.05 },
-  { label: "KPI", at: [92, 150], top: 0.95 },
+  { label: "会议", at: [96, 86], top: 0.84 },
+  { label: "老板", at: [28, 150], top: 0.0 },
+  { label: "KPI", at: [92, 150], top: 1.0 },
   { label: "群聊", at: [46, 220], top: 0.33 },
-  { label: "别人的要求", at: [74, 220], top: 0.67 },
+  { label: "别人的要求", at: [74, 220], top: 0.63 },
 ];
 export const N_STRINGS = STRINGS.length;
-const TOP_Y = 120;
+const TOP_Y = 175;
 
 // `snap[i]` 0 → 1: string i breaks (1 = gone, a limp end left hanging).
 // `jerk` 0 → 1: how hard the strings yank him around on the beat.
