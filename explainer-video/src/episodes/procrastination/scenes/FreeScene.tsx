@@ -58,7 +58,7 @@ export const FreeScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
           {t1 >= 2 * BEAT && (
             <>
               <Prick x={WALLET.x} y={WALLET.y - 80} k={Math.max(0, 1 - (t1 - 2 * BEAT) / 20)} />
-              <div style={{ position: "absolute", left: WALLET.x - 140, top: 220, width: 280, textAlign: "center", fontSize: 48, fontWeight: 900, color: palette.alert }}>−¥100 心疼！</div>
+              <div style={{ position: "absolute", left: WALLET.x - 220, top: 220, width: 440, textAlign: "center", whiteSpace: "nowrap", fontSize: 48, fontWeight: 900, color: palette.alert }}>−¥100 心疼！</div>
             </>
           )}
           {t1 >= 5 * BEAT && (
