@@ -77,7 +77,14 @@ def main():
     with open(os.path.join(ep_dir, "voice.srt"), "w", encoding="utf-8") as f:
         for i, (a, b, s) in enumerate(cues, 1):
             f.write(f"{i}\n{fmt(a)} --> {fmt(b)}\n{s}\n\n")
-    print(f"配音 {len(wav) / sr:.2f}s → {ep_dir}/voice.wav, voice.srt")
+    # 逐字时间（句内按字均分）：供 build.mjs 的「@短语」锚点使用，不必再跑 align.py
+    per_char = []
+    for a0, b0, s in cues:
+        cs = [c for c in s if re.match(r"[\u4e00-\u9fffA-Za-z0-9]", c)]
+        for k, c in enumerate(cs):
+            per_char.append([c.lower(), round(a0 + (b0 - a0) * k / max(1, len(cs)), 3)])
+    json.dump(per_char, open(os.path.join(ep_dir, "voice.chars.json"), "w", encoding="utf-8"), ensure_ascii=False)
+    print(f"配音 {len(wav) / sr:.2f}s → {ep_dir}/voice.wav, voice.srt, voice.chars.json")
 
 
 if __name__ == "__main__":

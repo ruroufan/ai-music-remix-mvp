@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""按时间线生成「卡点」背景音乐（民乐风格，全部合成，无外部素材）。
+"""按时间线生成「卡点」背景音乐（民乐风格 folk / 轻快流行 pop，全部合成，无外部素材）。
 
 卡点方式：
 - 弹性节拍网格：每个镜头按目标速度切成整数拍，镜头切换点一定落在强拍上（速度在镜头间微调）。
@@ -108,7 +108,7 @@ def ks(freq, d=1.6, bright=0.62, decay=0.995):   # 拨弦（琵琶/筝）
 
 
 NOTE = {}
-for name, semi in [('C', -9), ('D', -7), ('E', -5), ('F#', -3), ('G', -2), ('A', 0), ('B', 2)]:
+for name, semi in [('C', -9), ('D', -7), ('E', -5), ('F', -4), ('F#', -3), ('G', -2), ('A', 0), ('B', 2)]:
     for octv in range(1, 7):
         NOTE[f'{name}{octv}'] = 440 * 2 ** ((semi + 12 * (octv - 4)) / 12)
 BANK = {}
@@ -147,9 +147,151 @@ SAD = [('B', ['B3', 'D4', 'F#4', 'B4']), ('E', ['E4', 'F#4', 'B4', 'D5']), ('A',
 BPM = {'dark': 66, 'title': 96, 'calm': 92, 'tense': 112, 'bright': 104, 'epic': 120, 'sad': 70, 'ending': 76}
 
 
+# ================= 轻快流行风（生活类扁平模板） =================
+@cached
+def kick():
+    s = tt(0.35)
+    return np.sin(2 * np.pi * np.cumsum(50 + 110 * np.exp(-s * 30)) / SR) * np.exp(-s * 9)
+
+
+@cached
+def clap():
+    s = tt(0.25)
+    n = rng.standard_normal(len(s))
+    n = n - lp(n, 0.2)
+    env = sum(np.exp(-np.maximum(0, s - d) * 60) * (s >= d) for d in (0, 0.012, 0.024)) / 3
+    return n * env * 0.8
+
+
+@cached
+def hat(open_=False):
+    s = tt(0.18 if open_ else 0.06)
+    n = rng.standard_normal(len(s))
+    return (n - lp(n, 0.5)) * np.exp(-s * (18 if open_ else 70)) * 0.5
+
+
+@cached
+def marimba(note, d=0.6):
+    s = tt(d)
+    f = NOTE[note]
+    return (np.sin(2 * np.pi * f * s) + 0.35 * np.sin(2 * np.pi * f * 4 * s) * np.exp(-s * 25)) * np.exp(-s * 7) * np.minimum(1, s * 400)
+
+
+@cached
+def pbass(note, d=0.4):
+    s = tt(d)
+    f = NOTE[note]
+    ph = 2 * np.pi * f * s
+    return (np.sin(ph) + 0.25 * np.sin(2 * ph) + 0.1 * np.sin(3 * ph)) * np.exp(-s * 5) * np.minimum(1, s * 200)
+
+
+@cached
+def blip(f0=500, f1=1300, d=0.09):
+    s = tt(d)
+    return np.sin(2 * np.pi * np.cumsum(np.linspace(f0, f1, len(s))) / SR) * np.exp(-s * 25)
+
+
+@cached
+def buzz():
+    s = tt(0.22)
+    return np.sign(np.sin(2 * np.pi * 140 * s)) * np.exp(-s * 12) * 0.35
+
+
+POP_PROG = [('C', ['C4', 'E4', 'G4', 'C5', 'G4', 'E4', 'D4', 'G4']), ('A', ['A3', 'C4', 'E4', 'A4', 'E4', 'C4', 'D4', 'E4']),
+            ('F', ['F3', 'A3', 'C4', 'F4', 'C4', 'A3', 'G3', 'C4']), ('G', ['G3', 'B3', 'D4', 'G4', 'D4', 'B3', 'A3', 'D4'])]
+
+
+def main_pop(tl, out_path):
+    dur = tl['duration']
+    N = int(SR * (dur + 3))
+    mix = np.zeros((2, N))
+
+    def add(sig, t, v=1.0, pan=0.0):
+        i = int(round(t * SR))
+        if i >= N or i < 0:
+            return
+        sig = sig[:N - i] * v
+        mix[0, i:i + len(sig)] += sig * np.sqrt(0.5 * (1 - pan))
+        mix[1, i:i + len(sig)] += sig * np.sqrt(0.5 * (1 + pan))
+
+    segs = [(s['start'], s['end'], s) for s in tl['shots']] + [(tl['voiceEnd'], dur, None)]
+    bar = 0
+    for si, (a, b, shot) in enumerate(segs):
+        d = b - a
+        if d <= 0.05:
+            continue
+        if shot is None:  # 片尾：收束和弦 + 铃
+            for nt in ['C4', 'E4', 'G4', 'C5']:
+                add(marimba(nt, 1.5), a, 0.3)
+            add(chime(2093, 1.6), a + 0.05, 0.25)
+            add(kick(), a, 0.7)
+            continue
+        step = d / max(1, round(d / (60 / 112)))
+        n = int(round(d / step))
+        if si > 0:  # 卡点：每次横滑切换给一记底鼓 + 刷声
+            add(kick(), a, 0.9)
+            add(whoosh(0.35), a - 0.2, 0.35, 0.3)
+        quiet = si == 0  # 开场第一镜轻一点
+        for k in range(n):
+            t = a + k * step
+            bb = k % 4
+            if bb == 0:
+                bar += 1
+            root, arp = POP_PROG[(bar - 1) % 4]
+            if bb in (0, 2) and not (quiet and k < 4):
+                add(kick(), t, 0.55)
+            if bb in (1, 3):
+                add(clap(), t, 0.35 if not quiet else 0.2, 0.1)
+            add(hat(), t + step / 2, 0.22, -0.3)
+            add(hat(), t, 0.12, -0.3)
+            if bb in (0, 2):
+                add(pbass(root + '2', step * 0.9), t, 0.5)
+                add(pbass(root + '3', step * 0.45), t + step / 2, 0.25)
+            for h in (0, 1):
+                add(marimba(arp[(bb * 2 + h) % 8]), t + h * step / 2, 0.24 if h == 0 else 0.16, 0.25 if h else -0.15)
+    # 画面事件音效
+    for s in tl['shots']:
+        for el in s.get('els') or []:
+            t, en, ty = el.get('at'), el.get('enter', 'pop'), el.get('type')
+            if t is None or en == 'none':
+                continue
+            if ty == 'check':
+                add(chime(1568, 0.8), t, 0.3); add(chime(2093, 0.8), t + 0.09, 0.3)
+            elif ty == 'cross':
+                add(buzz(), t, 0.5)
+            elif en == 'big':
+                add(kick(), t, 0.7); add(chime(1760, 1.0), t, 0.25)
+            elif en == 'drop':
+                add(kick(), t + 0.45, 0.8); add(blip(300, 900, 0.12), t, 0.3)
+            elif en == 'fall':
+                add(whoosh(0.5), t, 0.3); add(lp(rng.standard_normal(int(SR * 0.35)), 0.35) * np.exp(-tt(0.35) * 10), t + 0.62, 0.6)
+            elif en in ('pop', 'slideR', 'slideL'):
+                add(blip(), t, 0.22, 0.2)
+            if ty == 'timer' and el.get('cd'):
+                c = el['cd']; frm = (el.get('p') or {}).get('from', 20)
+                for k in range(frm):
+                    add(block(), c['at'] + (c['until'] - c['at']) * k / frm, 0.12, 0.35)
+            if ty == 'follow' and el.get('tap'):
+                add(chime(1760, 0.8), el['tap']['at'], 0.3); add(chime(2349, 0.8), el['tap']['at'] + 0.1, 0.3)
+            for r in (el.get('k') or {}).get('ripple') or []:
+                add(lp(rng.standard_normal(int(SR * 0.3)), 0.3) * np.exp(-tt(0.3) * 12), r['at'], 0.35)
+
+    out = mix[:, :int(SR * dur)]
+    t = np.arange(out.shape[1]) / SR
+    out *= np.clip((dur - t) / 1.0, 0, 1) * np.clip(t / 0.2, 0, 1)
+    out /= max(1e-6, np.abs(out).max()) / 0.89
+    import wave
+    with wave.open(out_path, 'wb') as w:
+        w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR)
+        w.writeframes((out.T * 32767).astype(np.int16).tobytes())
+    print(f'背景音乐（轻快流行）{dur:.2f}s → {out_path}')
+
+
 def main():
     tl = json.load(open(sys.argv[1], encoding='utf-8'))
     out_path = sys.argv[2]
+    if tl.get('musicStyle') == 'pop':
+        return main_pop(tl, out_path)
     dur = tl['duration']
     N = int(SR * (dur + 4))
     mix = np.zeros((2, N))

@@ -19,6 +19,25 @@ piying/
     └── _example/      引擎示例（覆盖所有功能，也用作回归测试）
 ```
 
+## 两套模板
+
+| 模板 | 用途 | 画幅 | 渲染端 |
+|---|---|---|---|
+| `piying`（默认） | 历史故事：皮影长卷 | 1920×1080，可出竖屏 | `renderer/index.html`（rig.js + engine.js） |
+| `flat` | 生活小技巧：扁平插画 | 1080×1920 竖屏 | `renderer/flat/`（flat.js） |
+
+在 `episode.json` 写 `"template": "flat"` 即切换。两套模板共用同一条流水线：SRT/逐字对齐、`@短语` 时间锚点、卡点音乐（flat 默认轻快流行风 `"musicStyle": "pop"`）、人声避让、响度标准化。
+
+**flat 模板的分镜**：每个镜头 `{ id, script, tag, zoom, els: [...] }`
+- `tag`：招数编号，镜头开始时在标题栏弹出「第N招」并一直停留；`null` 隐藏。
+- `zoom`：整个演示区以 (540,900) 为中心缩放。
+- `els` 元素：`{ type, x, y, s, rot, z, at, enter, out, moves:[{at,x,y,s,rot,dur}], shake:{at,dur,amp,hz}, bob, p:{参数}, k:{参数:[{at,v,dur}]} }`
+  - `enter`：`pop`（弹性 0.8→1.05→1，默认）`big`（关键数字放大弹出）`drop`（落下）`fall`（坠入水中）`slideL/slideR` `fade` `draw`（✓✗ 笔画画出）`none`；`out` 为退场时刻。
+  - `type`：`garlicBulb` `clove`{peeled} `skin` `bowl`{flip,color} `timer`{from} + `cd:{at,until}` `finger` `eye` `onion` `egg` `question` `fridge`{open} `clock`{progress} `gas`{amount} `knife`{dull} `check` `cross` `label`{text,size,color,fg} `title`{text,size} `bignum`{text} `waterBowl`{level,hl} + `k.ripple:[{at}]` `eggSection`{air} `bowlSection`{peel} `follow` + `tap:{at}` `iconCircle`{icon} `divider` `impact`。
+  - `k.hl`：0~1「亮起」，未亮起的元素变暗（水碗亮起时加黄框）。
+- 顶层 `keywords`：字幕里这些词标番茄红。
+- 字幕 56px 黑体加粗，位于 1500–1750；标题栏 0–300；演示区 300–1500；镜头间横向滑动切换。
+
 ## 准备
 
 需要 Node ≥ 20、Python ≥ 3.10、ffmpeg。
@@ -156,4 +175,4 @@ node tools/build.mjs episodes/ep01 --no-music      # 不加背景音乐
 
 ## 预览配音说明
 
-`tts.py` 用离线 MeloTTS（sherpa-onnx）生成，仅供看节奏、调分镜；正式成片请用真人配音（放 `voice.wav`，有 SRT 更好）。
+`tts.py` 用离线 MeloTTS（sherpa-onnx）生成，仅供看节奏、调分镜；正式成片请用真人配音（放 `voice.wav`，有 SRT 更好）。`tts.py` 会同时写出准确的逐句 SRT 和逐字时间，不需要再跑 `align.py`。

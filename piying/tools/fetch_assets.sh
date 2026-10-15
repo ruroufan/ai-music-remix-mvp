@@ -12,6 +12,7 @@ get() { [ -s "$2" ] && { echo "已存在 $2"; return; }; echo "下载 $2"; curl 
 
 get "https://raw.githubusercontent.com/google/fonts/main/ofl/mashanzheng/MaShanZheng-Regular.ttf" "$FONTS/MaShanZheng.ttf"
 get "https://raw.githubusercontent.com/google/fonts/main/ofl/notoserifsc/NotoSerifSC%5Bwght%5D.ttf" "$FONTS/NotoSerifSC.ttf"
+get "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf" "$FONTS/NotoSansSC.ttf"
 
 want() { for a in "$@"; do for x in "${ARGS[@]}"; do [ "$x" = "$a" ] || [ "$x" = "--all" ] && return 0; done; done; return 1; }
 ARGS=("$@")

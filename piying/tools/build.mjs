@@ -138,8 +138,9 @@ const shots = shotsIn.map((s, i) => {
   if (o.kind === 'hook') { o.hookText = s.text || s.script; if (o.light == null) o.light = 0.15; if (o.textAt != null) o.textAt = R(o.textAt); }
   if (o.kind === 'title') o.title = s.title || episode.title;
   // 镜头里任意层级的 at 字段都换算成成片时间（动作、名牌、数字、大字、道具关键帧、镜头、灯光、特效）
-  const walk = (x) => { if (Array.isArray(x)) x.forEach(walk); else if (x && typeof x === 'object') for (const k of Object.keys(x)) { if (k === 'at') x[k] = R(x[k]); else walk(x[k]); } };
-  for (const k of ['cast', 'nameplates', 'numbers', 'bigText', 'props', 'camera', 'lightKeys', 'effects']) if (o[k]) walk(o[k]);
+  const TIME_KEYS = new Set(['at', 'out', 'until']);
+  const walk = (x) => { if (Array.isArray(x)) x.forEach(walk); else if (x && typeof x === 'object') for (const k of Object.keys(x)) { if (TIME_KEYS.has(k) && (typeof x[k] === 'number' || typeof x[k] === 'string')) x[k] = R(x[k]); else walk(x[k]); } };
+  for (const k of ['cast', 'nameplates', 'numbers', 'bigText', 'props', 'camera', 'lightKeys', 'effects', 'els']) if (o[k]) walk(o[k]);
   if (o.bigText && typeof o.bigText.columns === 'string') o.bigText.columns = [o.bigText.columns];
   for (const p of o.props || []) for (const k of ['showAt', 'hideAt']) if (p[k] != null) p[k] = R(p[k]);
   return o;
@@ -163,8 +164,11 @@ for (const c of cues) {
   for (const l of lines) { const d = (c.end - c.start) * [...l].length / total; subtitles.push({ start: t + off, end: t + d + off, text: l }); t += d; }
 }
 
+// 模板：piying（皮影横屏，默认）| flat（扁平插画竖屏）
+const template = episode.template || 'piying';
 const timeline = {
-  fps: FPS, vertical, duration, voiceEnd, shots, subtitles,
+  fps: FPS, vertical: vertical || template === 'flat', duration, voiceEnd, shots, subtitles, template,
+  title: episode.title, keywords: episode.keywords || [], musicStyle: episode.musicStyle || (template === 'flat' ? 'pop' : 'folk'),
   outro: outroCfg ? { text: outroCfg.text, at: voiceEnd + OUTRO_LEAD + 0.05 } : null,
   seriesLine: `${episode.series || '一分钟历史'} · 第${episode.episode ?? 1}集`
 };
@@ -199,7 +203,7 @@ if (!preview) {
 
   // 背景音乐：集目录有 bgm.wav/mp3 就用它（循环铺满），否则按时间线生成卡点音乐
   const useMusic = !noMusic && episode.music !== false;
-  if (!useMusic) fs.copyFileSync(voiceTrack, audioOut);
+  if (!useMusic) spawnSync('ffmpeg', ['-v', 'error', '-y', '-i', voiceTrack, '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000', audioOut], { stdio: 'inherit' });
   else {
     let bgm = findAudio('bgm', [epDir]), loop = !!bgm;
     if (!bgm) {
@@ -215,7 +219,7 @@ if (!preview) {
       `[0:a]aformat=sample_rates=48000:channel_layouts=stereo,asplit=2[v1][v2];` +
       `[1:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=${gain.toFixed(2)}dB[m];` +
       `[m][v2]sidechaincompress=threshold=0.05:ratio=3:attack=20:release=500[md];` +
-      `[v1][md]amix=inputs=2:normalize=0:duration=first,alimiter=limit=0.95[out]`,
+      `[v1][md]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000,alimiter=limit=0.95[out]`,
       '-map', '[out]', '-t', duration.toFixed(3), audioOut];
     r = spawnSync('ffmpeg', mixArgs, { stdio: 'inherit' });
     if (r.status !== 0) { console.error('混音失败'); process.exit(1); }
@@ -238,8 +242,8 @@ const { chromium } = loadPlaywright();
 const browser = await chromium.launch({ args: ['--allow-file-access-from-files'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 page.on('pageerror', e => console.error('页面错误:', e.message));
-await page.goto('file://' + path.join(ROOT, 'renderer/index.html'));
-await page.evaluate(async () => { await document.fonts.load('72px MSZ', '历史鸿门'); await document.fonts.load('600 44px NSerif', '历史鸿门'); });
+await page.goto('file://' + path.join(ROOT, template === 'piying' ? 'renderer/index.html' : `renderer/${template}/index.html`));
+await page.evaluate(async () => { for (const f of ['72px MSZ', '600 44px NSerif', '900 56px NSans']) await document.fonts.load(f, '历史鸿门厨房'); });
 await page.evaluate(tl => window.ENGINE.setup(tl), timeline);
 
 const f0 = Math.floor(parseFloat(opt('--from', '0')) * FPS), f1 = Math.min(Math.ceil(duration * FPS), Math.ceil(parseFloat(opt('--to', String(duration))) * FPS));
