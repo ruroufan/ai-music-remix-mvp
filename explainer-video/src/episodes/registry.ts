@@ -8,6 +8,7 @@ import { episode as inferiority, brand as inferiorityBrand } from "./inferiority
 import { episode as anxiety, brand as anxietyBrand } from "./anxiety/episode.ts";
 import { episode as regret, brand as regretBrand } from "./regret/episode.ts";
 import { episode as solitude, brand as solitudeBrand } from "./solitude/episode.ts";
+import { episode as humility, brand as humilityBrand } from "./humility/episode.ts";
 
 export const EPISODES: Record<string, { episode: EpisodeData; brand: Brand }> = {
   pride: { episode: pride, brand: prideBrand },
@@ -16,4 +17,5 @@ export const EPISODES: Record<string, { episode: EpisodeData; brand: Brand }> = 
   anxiety: { episode: anxiety, brand: anxietyBrand },
   regret: { episode: regret, brand: regretBrand },
   solitude: { episode: solitude, brand: solitudeBrand },
+  humility: { episode: humility, brand: humilityBrand },
 };
