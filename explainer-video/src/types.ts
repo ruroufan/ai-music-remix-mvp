@@ -17,7 +17,7 @@ export type EpisodeData = {
   title: string;
   bpm: number;
   script: SceneSpec[];
-  music: "ambient" | "drive" | "clockwork" | "lofi";
+  music: "ambient" | "drive" | "clockwork" | "lofi" | "cassette";
   moods: Record<string, Mood>;
   timing?: TimingOptions;
 };
