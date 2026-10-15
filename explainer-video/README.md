@@ -2,10 +2,11 @@
 
 画面全部用代码绘制（SVG/CSS 剪影、光、粒子、文字动画），字幕和动作卡在音乐拍子上，背景音乐和音效也由代码合成，没有任何第三方素材。
 
-现在有七期：
+现在有八期：
 
 | 合成 ID | 期 | 风格 | 节奏 | 时长 |
 |---|---|---|---|---|
+| `Procrastination` | **背光观察室 · 观察 No.08《拖延》**（塞涅卡《论生命之短暂》） | 同频道风格；核心意象：日历一页页被撕下，每页都写着“明天”，人物站在一堆“明天”中间；最后他撕下一页，下面写着“今天” | 120 BPM “clockwork”配乐（钟表滴答 + 拨弦 + 半拍鼓 + 钟琴），B 小调 | ~1:50 |
 | `Humility` | **背光观察室 · 观察 No.07《谦虚》**（拉罗什福科“谦虚是骄傲的计谋”） | 同频道风格；核心意象：人物戴着低头微笑的面具，面具背后的脸仰着头、墙上的影子昂着头；他把天平上属于自己的砝码拿开，面具随之脱落 | 120 BPM “drive”，G 小调 | ~1:44 |
 | `Solitude` | **背光观察室 · 观察 No.06《孤独》**（叔本华“豪猪困境”） | 同频道风格；核心意象：雪地里的豪猪靠近、刺痛、分开；热闹人群里所有人轮廓清晰，只有主角是半透明的虚线；结尾他一个人坐在窗边，轮廓重新变清晰 | 120 BPM “drive”，F 小调 | ~1:50 |
 | `Regret` | **背光观察室 · 观察 No.05《后悔》**（斯宾诺莎“后悔的人是双重的不幸”） | 同频道风格；核心意象：深夜的卧室，放映机把同一个片段循环投到墙上，片段越播越多、层层叠叠，最后放映机关掉、窗外天亮 | 120 BPM “drive”，C 小调 | ~1:54 |
@@ -20,7 +21,8 @@
 cd explainer-video
 npm install
 npm run studio          # 浏览器里预览所有期
-npm run render          # 《谦虚》→ out/humility.mp4
+npm run render          # 《拖延》→ out/procrastination.mp4
+npm run render:humility # 《谦虚》→ out/humility.mp4
 npm run render:solitude # 《孤独》→ out/solitude.mp4
 npm run render:regret   # 《后悔》→ out/regret.mp4
 npm run render:anxiety  # 《焦虑》→ out/anxiety.mp4
@@ -45,6 +47,7 @@ src/
     EndCard.tsx          片尾卡：频道名 + 逐字打出的签名
   episodes/
     registry.ts          所有期的数据登记表（配乐、配音、字体预加载都从这里读）
+    procrastination/     观察 No.08《拖延》（calendar.tsx：撕页日历、满地的“明天”）
     humility/            观察 No.07《谦虚》（mask.tsx：面具人物、墙上的影子、天平与砝码、对话气泡）
     solitude/            观察 No.06《孤独》（porcupine.tsx：雪地豪猪、人群与半透明的主角、窗边座位）
     regret/              观察 No.05《后悔》（projector.tsx：深夜卧室、放映机、循环播放的片段）
@@ -61,7 +64,8 @@ src/
   components/            通用组件：字幕、音效、剪影、石膏头像、碎裂标题…
 scripts/
   music.mjs              生成 public/music/<期>.wav 和 public/sfx/*.wav
-  audio/score-drive.mjs  “drive”配乐（《讨好》）
+  audio/score-drive.mjs  “drive”配乐（No.02–No.07）：鼓组 + 锯齿低音 + 方波琶音
+  audio/score-clockwork.mjs “clockwork”配乐（《拖延》）：滴答木鱼 + 拨弦固定音型 + 钢琴低音 + 半拍鼓 + 钟琴
   audio/score-ambient.mjs“ambient”配乐（《傲慢》）
   audio/sfx.mjs          音效：boom / shatter / rise / whoosh / glint / step / shutter / glitch / stamp
   voiceover.mjs          可选配音
@@ -71,14 +75,14 @@ scripts/
 
 1. **文案**：改 `src/episodes/<期>/script.ts`。`【】` 里的字高亮，`\n` 换行。每句的停留时间按阅读速度自动算（每秒 7 字 + 0.8 秒），取整到整拍；某句需要多停一会儿，加 `seconds`。
 2. **节拍**：`episode.ts` 里的 `bpm` 必须让一拍是整数帧（30fps 下 72 / 90 / 100 / 120 都可以）。分镜里用 `BEAT`、`HALF_BEAT`、`onBeat()` 把动作和音效对在拍上，`<Sfx>` 会自动对齐到最近的半拍。
-3. **音乐**：`episode.ts` 的 `moods` 给每个分镜写和弦进行（每小节一个和弦，循环）和能量：
+3. **音乐**：每期用一组新的配乐（不同的鼓型、低音、旋律乐器），在 `scripts/audio/` 加一个 `score-<名字>.mjs`，在 `scripts/music.mjs` 的 `SCORES` 和 `src/types.ts` 的 `music` 里登记，`episode.ts` 里写 `music: "<名字>"`。`moods` 给每个分镜写和弦进行（每小节一个和弦，循环）和能量：
    - `0` 只有铺底（留白、结尾）
    - `1` 加低音脉冲和踩镲
    - `2` 加底鼓、军鼓/拍手、16 分踩镲，进段落时有镲片
    - `3` 再加琶音和开镲（高潮）
 
    能量升到 2 以上之前的一小节自动做军鼓滚奏 + 上升音；进能量 0 之前自动“急停”。
-4. **新一期**：复制 `episodes/humility`，改文案、分镜、`episode.ts`（期号、和弦、能量），在 `src/episodes/registry.ts` 和 `src/Root.tsx` 各登记一行。文案最后一行保留 `channel.signoff`，片尾签名就会自动出现。
+4. **新一期**：复制 `episodes/procrastination`，改文案、分镜、`episode.ts`（期号、和弦、能量），在 `src/episodes/registry.ts` 和 `src/Root.tsx` 各登记一行。文案最后一行保留 `channel.signoff`，片尾签名就会自动出现。
 
 ## 可选：配音
 
