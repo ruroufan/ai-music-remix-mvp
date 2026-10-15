@@ -100,7 +100,7 @@ export const EverydayScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
               </React.Fragment>
             );
           })}
-          <div style={{ position: "absolute", left: 1460, top: 300, fontFamily: fonts.mono, fontSize: 20, letterSpacing: 4, color: palette.alert, opacity: t2 >= BEAT + 6 ? 1 : 0 }}>
+          <div style={{ position: "absolute", left: 1180, top: 560, fontFamily: fonts.mono, fontSize: 28, letterSpacing: 4, color: palette.alert, opacity: t2 >= BEAT + 6 ? 1 : 0 }}>
             [自动回复] 0.2s · ×{Math.max(0, Math.min(3, Math.floor((t2 - BEAT - 6) / (3 * BEAT)) + 1))}
           </div>
         </div>

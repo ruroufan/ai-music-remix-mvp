@@ -25,7 +25,7 @@ export const TitleScene: React.FC<SceneProps> = ({ duration }) => {
     <ObsFrame duration={duration}>
       <div style={{ position: "absolute", inset: 0, opacity: show }}>
         <Halo x={960} y={480} r={460} intensity={0.8} />
-        <div style={{ position: "absolute", left: 0, right: 0, top: 270, textAlign: "center", fontSize: 40, fontWeight: 700, letterSpacing: 24, color: palette.dim }}>伪装的</div>
+        <div style={{ position: "absolute", left: 0, right: 0, top: 220, textAlign: "center", fontSize: 40, fontWeight: 700, letterSpacing: 24, color: palette.dim }}>伪装的</div>
         {word(brand.topic ?? "", { color: "#030405", textShadow: `0 0 2px rgba(${palette.halo},0.95), 0 0 30px rgba(${palette.halo},0.5)` })}
         <div style={{ position: "absolute", inset: 0, clipPath: `ellipse(150px 170px at ${lx}px 470px)` }}>
           <div style={{ position: "absolute", inset: 0, background: "#0b0d12" }} />
