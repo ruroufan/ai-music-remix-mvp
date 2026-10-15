@@ -1,0 +1,16 @@
+{
+  "name": "piying-video",
+  "private": true,
+  "version": "0.1.0",
+  "description": "皮影戏风格历史短视频渲染引擎（Canvas 逐帧渲染 + ffmpeg 合成配音）",
+  "type": "module",
+  "scripts": {
+    "fetch": "bash tools/fetch_assets.sh",
+    "build": "node tools/build.mjs",
+    "tts": "python3 tools/tts.py",
+    "align": "python3 tools/align.py"
+  },
+  "dependencies": {
+    "playwright": "^1.56.0"
+  }
+}

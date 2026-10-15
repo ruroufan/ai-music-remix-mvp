@@ -1,0 +1,73 @@
+{
+  "series": "一分钟历史",
+  "episode": 0,
+  "title": "鸿门宴",
+  "note": "引擎示例与回归测试用，覆盖：钩子/片名/停顿镜头、平移/推/快推/拉、溶解/灯灭/幕布/卷轴转场、名牌、数字弹出、竖排大字、舞剑、片尾剪影。",
+  "ttsReplace": { "40万": "四十万", "10万": "十万" },
+  "shots": [
+    {
+      "id": "hook", "kind": "hook",
+      "script": "一场酒席，差点改写了整个中国历史。",
+      "scene": "hall",
+      "cast": [
+        { "who": "xiangyu", "x": 640, "face": 1, "pose": "kneel" },
+        { "who": "liubang", "x": 1280, "face": -1, "pose": "kneel" }
+      ]
+    },
+    { "id": "title", "kind": "title", "scene": "blank" },
+    {
+      "id": "camp",
+      "script": "项羽40万大军驻扎鸿门，刘邦只有10万人，只好亲自赴宴请罪。",
+      "scene": "camp",
+      "camera": { "x": 760, "move": "pan", "toX": 1160 },
+      "cast": [
+        { "who": "xiangyu", "x": 520, "face": 1, "pose": "stand", "actions": [{ "do": "pose", "name": "angry", "at": 0.4 }] },
+        { "who": "liubang", "x": 1900, "face": -1, "pose": "stand", "actions": [{ "do": "walk", "to": 1320, "at": "35%", "dur": 2.2 }, { "do": "pose", "name": "bow", "at": "80%" }] },
+        { "who": "zhangliang", "x": 2080, "face": -1, "pose": "stand", "actions": [{ "do": "walk", "to": 1520, "at": "40%", "dur": 2.2 }] }
+      ],
+      "nameplates": [{ "who": "xiangyu", "at": 0.3 }, { "who": "liubang", "at": "60%" }],
+      "numbers": [{ "text": "40万", "at": 0.6, "x": 820, "y": 300 }, { "text": "10万", "at": "45%", "x": 1500, "y": 300 }]
+    },
+    {
+      "id": "jade", "transition": "lights",
+      "script": "席间范增三次举起玉玦，催项羽下手，项羽却默然不应。",
+      "scene": "hall",
+      "camera": { "x": 900, "move": "push" },
+      "props": [{ "type": "table", "x": 700, "w": 220 }],
+      "cast": [
+        { "who": "xiangyu", "x": 520, "face": 1, "pose": "kneel", "actions": [{ "do": "pose", "name": "kneel_silent", "at": "70%" }] },
+        { "id": "fanzeng", "who": "fanzeng", "x": 1180, "face": -1, "pose": "kneel", "hold": "jade",
+          "actions": [{ "do": "beat", "name": "kneel_raise", "at": "15%", "dur": 0.7 }, { "do": "beat", "name": "kneel_raise", "at": "35%", "dur": 0.7 }, { "do": "beat", "name": "kneel_raise", "at": "55%", "dur": 0.7 }] }
+      ],
+      "nameplates": [{ "who": "fanzeng", "at": 0.2 }],
+      "numbers": [
+        { "text": "一", "at": "18%", "who": "fanzeng", "anchor": "jade", "dx": 70, "dy": -50, "dur": 1.0, "size": 90 },
+        { "text": "二", "at": "38%", "who": "fanzeng", "anchor": "jade", "dx": 70, "dy": -50, "dur": 1.0, "size": 90 },
+        { "text": "三", "at": "58%", "who": "fanzeng", "anchor": "jade", "dx": 70, "dy": -50, "dur": 1.0, "size": 90 }
+      ]
+    },
+    { "id": "beat", "kind": "pause", "duration": 1.2, "scene": "hall", "light": 0.6, "transition": "curtain",
+      "camera": { "x": 960, "move": "fastpush" },
+      "cast": [{ "who": "xiangzhuang", "x": 960, "face": 1, "pose": "sword_up", "hold": "sword" }] },
+    {
+      "id": "dance",
+      "script": "项庄拔剑起舞，意在沛公。",
+      "scene": "hall",
+      "camera": { "x": 1000, "move": "static" },
+      "props": [{ "type": "table", "x": 1380, "w": 200 }],
+      "cast": [
+        { "who": "liubang", "x": 1560, "face": -1, "pose": "kneel" },
+        { "who": "xiangzhuang", "x": 800, "face": 1, "pose": "stand", "hold": "sword", "actions": [{ "do": "dance", "at": 0.1, "dur": 3.2 }] }
+      ],
+      "bigText": { "columns": ["项庄舞剑", "意在沛公"], "at": "20%" }
+    },
+    {
+      "id": "end", "transition": "scroll",
+      "script": "四年后，项羽兵败垓下，自刎乌江。",
+      "scene": "field",
+      "light": 0.85,
+      "camera": { "x": 960, "move": "pull" },
+      "cast": [{ "who": "xiangyu", "x": 1080, "face": -1, "pose": "stand", "hold": "sword", "actions": [{ "do": "pose", "name": "mourn", "at": "40%", "dur": 1.0 }] }]
+    }
+  ]
+}

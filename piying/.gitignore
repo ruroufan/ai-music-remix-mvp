@@ -1,0 +1,8 @@
+node_modules/
+models/
+renderer/fonts/*.ttf
+episodes/*/voice.*
+episodes/*/out*.mp4
+episodes/*/preview*/
+episodes/*/timeline*.json
+episodes/*/.audio_build.wav
