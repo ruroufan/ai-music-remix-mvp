@@ -2,10 +2,12 @@
 
 画面全部用代码绘制（SVG/CSS 剪影、光、粒子、文字动画），字幕和动作卡在音乐拍子上，背景音乐和音效也由代码合成，没有任何第三方素材。
 
-现在有十期：
+现在有十二期：
 
 | 合成 ID | 期 | 风格 | 节奏 | 时长 |
 |---|---|---|---|---|
+| `Friction` | **背光观察室 · 观察 No.12《内耗》**（王阳明“人须在事上磨，方立得住”） | 同频道风格 + 动效层；核心意象：人物坐着不动，头顶翻滚着黑色线团和想象中的念头；他站起来伸手做事，线团一根根被抽直、理顺 | 120 BPM “guochao”配乐（古筝拨弦 + 笛子 + 锣 + 半拍鼓，段落前古筝刮奏），D 羽调式 | ~1:54 |
+| `Age` | **背光观察室 · 观察 No.11《年龄焦虑》**（海德格尔“向死而生”） | 同频道风格 + 动效层；核心意象：钉满别人里程碑的时间轴，人物在轴上奔跑；最后走下时间轴，脚下长出只属于他的小路 | 120 BPM “cinematic”配乐（断弓弦乐 + 太鼓 + 铜管轰鸣 + 谢泼德音 + 钢琴），升 C 小调 | ~1:50 |
 | `Nostalgia` | **背光观察室 · 观察 No.10《怀旧》**（克尔凯郭尔“人生只能向后理解，却必须向前生活”） | 同频道风格；核心意象：人物倒着走路，身后是一条暖黄色、清晰的来路（路边立着老照片），身前是一片灰雾；最后他转过身，灰雾里慢慢亮起暖色 | 120 BPM “cassette”配乐（八音盒旋律 + 门限混响军鼓 + 奔马低音 + 通鼓过门 + 磁带停转），A 大调 | ~1:48 |
 | `Revenge` | **背光观察室 · 观察 No.09《报复性熬夜》**（马克思《1844年经济学哲学手稿》） | 同频道风格；核心意象：白天人物被“工作、消息、会议……”的细线牵着像提线木偶；深夜细线一根根断开，他坐在手机屏幕的光里；最后阳光下他自己剪断了一根线 | 120 BPM “lofi”配乐（黑胶底噪 + 电钢琴 + 摇摆鼓 + 808 + trap 镲片），F♯ 小调 | ~1:48 |
 | `Procrastination` | **背光观察室 · 观察 No.08《拖延》**（塞涅卡《论生命之短暂》） | 同频道风格；核心意象：日历一页页被撕下，每页都写着“明天”，人物站在一堆“明天”中间；最后他撕下一页，下面写着“今天” | 120 BPM “clockwork”配乐（钟表滴答 + 拨弦 + 半拍鼓 + 钟琴），B 小调 | ~1:50 |
@@ -23,7 +25,9 @@
 cd explainer-video
 npm install
 npm run studio          # 浏览器里预览所有期
-npm run render          # 《怀旧》→ out/nostalgia.mp4
+npm run render          # 《内耗》→ out/friction.mp4
+npm run render:age      # 《年龄焦虑》
+npm run render:nostalgia # 《怀旧》
 npm run render:revenge  # 《报复性熬夜》
 npm run render:procrastination # 《拖延》
 npm run render:humility # 《谦虚》→ out/humility.mp4
@@ -51,6 +55,8 @@ src/
     EndCard.tsx          片尾卡：频道名 + 逐字打出的签名
   episodes/
     registry.ts          所有期的数据登记表（配乐、配音、字体预加载都从这里读）
+    friction/            观察 No.12《内耗》（tangle.tsx：会被抽直的线团、坐着/伸手的人）
+    age/                 观察 No.11《年龄焦虑》（timeline.tsx：别人的里程碑时间轴、自己的小路）
     nostalgia/           观察 No.10《怀旧》（road.tsx：侧身走路的人、暖色来路与灰雾、老照片）
     revenge/             观察 No.09《报复性熬夜》（puppet.tsx：提线木偶、深夜卧室、剪刀、24 小时条）
     procrastination/     观察 No.08《拖延》（calendar.tsx：撕页日历、满地的“明天”）
@@ -71,6 +77,8 @@ src/
 scripts/
   music.mjs              生成 public/music/<期>.wav 和 public/sfx/*.wav
   audio/score-drive.mjs  “drive”配乐（No.02–No.07）：鼓组 + 锯齿低音 + 方波琶音
+  audio/score-guochao.mjs “guochao”配乐（《内耗》）：Karplus–Strong 古筝 + 笛子 + 锣 + 框鼓 + 半拍鼓，古筝刮奏过门
+  audio/score-cinematic.mjs “cinematic”配乐（《年龄焦虑》）：断弓弦乐 + 太鼓 + 铜管 + 谢泼德音 + 钢琴
   audio/score-cassette.mjs “cassette”配乐（《怀旧》）：八音盒 + 80 年代门限混响军鼓 + 奔马节奏低音 + 合成器和弦 + 磁带抖动/停转
   audio/score-lofi.mjs  “lofi”配乐（《报复性熬夜》）：黑胶底噪 + FM 电钢琴 + 摇摆 boom-bap + 808 滑音 + trap 镲片滚奏
   audio/score-clockwork.mjs “clockwork”配乐（《拖延》）：滴答木鱼 + 拨弦固定音型 + 钢琴低音 + 半拍鼓 + 钟琴
@@ -81,7 +89,7 @@ scripts/
 
 ## 改文案 / 做新一期
 
-1. **文案**：改 `src/episodes/<期>/script.ts`。`【】` 里的字高亮，`\n` 换行。每句的停留时间按阅读速度自动算（每秒 7 字 + 0.8 秒），取整到整拍；某句需要多停一会儿，加 `seconds`。
+1. **文案**：改 `src/episodes/<期>/script.ts`。`【】` 里的字高亮；`【【】】` 是一句里最能引发共鸣的词，开了动效层（`look: backlitLookFx`）后它会最后入场、放大、金色、带光扫和下划线；`\n` 换行。每句的停留时间按阅读速度自动算（每秒 7 字 + 0.8 秒），取整到整拍；某句需要多停一会儿，加 `seconds`。
 2. **节拍**：`episode.ts` 里的 `bpm` 必须让一拍是整数帧（30fps 下 72 / 90 / 100 / 120 都可以）。分镜里用 `BEAT`、`HALF_BEAT`、`onBeat()` 把动作和音效对在拍上，`<Sfx>` 会自动对齐到最近的半拍。
 3. **音乐**：每期用一组新的配乐（不同的鼓型、低音、旋律乐器），在 `scripts/audio/` 加一个 `score-<名字>.mjs`，在 `scripts/music.mjs` 的 `SCORES` 和 `src/types.ts` 的 `music` 里登记，`episode.ts` 里写 `music: "<名字>"`。`moods` 给每个分镜写和弦进行（每小节一个和弦，循环）和能量：
    - `0` 只有铺底（留白、结尾）
@@ -90,7 +98,7 @@ scripts/
    - `3` 再加琶音和开镲（高潮）
 
    能量升到 2 以上之前的一小节自动做军鼓滚奏 + 上升音；进能量 0 之前自动“急停”。
-4. **新一期**：复制 `episodes/nostalgia`，改文案、分镜、`episode.ts`（期号、和弦、能量），在 `src/episodes/registry.ts` 和 `src/Root.tsx` 各登记一行。文案最后一行保留 `channel.signoff`，片尾签名就会自动出现。
+4. **新一期**：复制 `episodes/friction`，改文案、分镜、`episode.ts`（期号、和弦、能量），在 `src/episodes/registry.ts` 和 `src/Root.tsx` 各登记一行。文案最后一行保留 `channel.signoff`，片尾签名就会自动出现。
 
 ## 可选：配音
 

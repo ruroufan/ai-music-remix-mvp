@@ -13,6 +13,7 @@ import { episode as procrastination, brand as procrastinationBrand } from "./pro
 import { episode as revenge, brand as revengeBrand } from "./revenge/episode.ts";
 import { episode as nostalgia, brand as nostalgiaBrand } from "./nostalgia/episode.ts";
 import { episode as age, brand as ageBrand } from "./age/episode.ts";
+import { episode as friction, brand as frictionBrand } from "./friction/episode.ts";
 
 export const EPISODES: Record<string, { episode: EpisodeData; brand: Brand }> = {
   pride: { episode: pride, brand: prideBrand },
@@ -26,4 +27,5 @@ export const EPISODES: Record<string, { episode: EpisodeData; brand: Brand }> = 
   revenge: { episode: revenge, brand: revengeBrand },
   nostalgia: { episode: nostalgia, brand: nostalgiaBrand },
   age: { episode: age, brand: ageBrand },
+  friction: { episode: friction, brand: frictionBrand },
 };
