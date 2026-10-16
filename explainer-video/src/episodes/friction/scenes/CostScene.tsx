@@ -8,7 +8,7 @@ import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { BEAT, HALF_BEAT, type SceneProps } from "../timing";
 
-const FLOOR = 780;
+const FLOOR = 730;
 
 // 0 · the same obstacle twice: imagined — a black mountain filling the frame;
 //     real — a pebble. ×20.
