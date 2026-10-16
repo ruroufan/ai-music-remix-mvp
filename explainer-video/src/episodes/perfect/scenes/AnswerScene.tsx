@@ -32,7 +32,7 @@ export const AnswerScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
           <Sketch strokes={ME} progress={ramp(t1, 0, BEAT)} />
           <Sketch strokes={SHIELD} progress={ramp(t1, BEAT, 3 * BEAT)} />
           <Sketch strokes={BUBBLE} progress={ramp(t1, 3 * BEAT, 4.5 * BEAT)} />
-          <Write text="永远不会失败的自己" x={1180} y={790 - 40} size={40} align="center" progress={ramp(t1, 5 * BEAT, 7 * BEAT)} color={ink.blue} />
+          <Write text="永远不会失败的自己" x={1420} y={330} size={40} progress={ramp(t1, 5 * BEAT, 7 * BEAT)} color={ink.blue} />
         </>
       )}
       <Sfx name="glint" at={2 * BEAT} volume={0.2} />

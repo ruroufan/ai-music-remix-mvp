@@ -27,14 +27,17 @@ export const firstStroke = (k: number): Stroke[] =>
 // The stroke that finally stays: wobbly, imperfect.
 export const WOBBLY = rr.curve(
   [
-    [PAPER.x + 90, PAPER.y + 320],
-    [PAPER.x + 180, PAPER.y + 250],
-    [PAPER.x + 260, PAPER.y + 330],
-    [PAPER.x + 350, PAPER.y + 240],
-    [PAPER.x + 440, PAPER.y + 310],
-    [PAPER.x + 520, PAPER.y + 260],
+    [PAPER.x + 80, PAPER.y + 330],
+    [PAPER.x + 140, PAPER.y + 285],
+    [PAPER.x + 195, PAPER.y + 350],
+    [PAPER.x + 250, PAPER.y + 268],
+    [PAPER.x + 300, PAPER.y + 332],
+    [PAPER.x + 365, PAPER.y + 250],
+    [PAPER.x + 410, PAPER.y + 345],
+    [PAPER.x + 470, PAPER.y + 285],
+    [PAPER.x + 530, PAPER.y + 305],
   ],
-  { seed: 77, rough: 2.6, bow: 3, width: 7, single: true },
+  { seed: 77, rough: 2.4, bow: 4, width: 7 },
 );
 
 // A stick figure standing at (x, y = feet), h tall.
