@@ -5,7 +5,7 @@ import { EndCard } from "../../../channels/backlit/EndCard";
 import { fonts, palette } from "../../../channels/backlit/look";
 import { Walker } from "../../nostalgia/road";
 import { Axis, OwnPath } from "../timeline";
-import { STEP } from "./OwnScene";
+import { HIGH_AXIS, STEP } from "./OwnScene";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { useRamp, BEAT, HALF_BEAT, type SceneProps } from "../timing";
@@ -44,7 +44,7 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
         </>
       ) : (
         <div style={{ position: "absolute", inset: 0, opacity: 1 - card * 0.7 }}>
-          <Axis age={29.4} opacity={0.18} blur={3} />
+          <Axis age={29.4} y={HIGH_AXIS} opacity={0.18} blur={3} />
           <OwnPath x0={STEP.x} y0={STEP.y} grow={1} frame={frame} />
           <Walker x={pathPt.x} bottom={pathPt.y} height={210} face="right" walk={(t1 / (2 * HALF_BEAT)) * Math.PI} lean={2} glow={1.2} rgb="255, 200, 130" />
         </div>
