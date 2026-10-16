@@ -31,9 +31,10 @@ piying/
 **flat 模板的分镜**：每个镜头 `{ id, script, tag, zoom, els: [...] }`
 - `tag`：招数编号，镜头开始时在标题栏弹出「第N招」并一直停留；`null` 隐藏。
 - `zoom`：整个演示区以 (540,900) 为中心缩放。
-- `els` 元素：`{ type, x, y, s, rot, z, at, enter, out, moves:[{at,x,y,s,rot,dur}], shake:{at,dur,amp,hz}, bob, p:{参数}, k:{参数:[{at,v,dur}]} }`
+- `els` 元素：`{ type, x, y, s, rot, z, at, enter, out, moves:[{at,x,y,s,rot,dur}], shake:{at,dur,amp,hz,axis:'x'|'y'}, bob, p:{参数}, k:{参数:[{at,v,dur}]} }`
   - `enter`：`pop`（弹性 0.8→1.05→1，默认）`big`（关键数字放大弹出）`drop`（落下）`fall`（坠入水中）`slideL/slideR` `fade` `draw`（✓✗ 笔画画出）`none`；`out` 为退场时刻。
-  - `type`：`garlicBulb` `clove`{peeled} `skin` `bowl`{flip,color} `timer`{from} + `cd:{at,until}` `finger` `eye` `onion` `egg` `question` `fridge`{open} `clock`{progress} `gas`{amount} `knife`{dull} `check` `cross` `label`{text,size,color,fg} `title`{text,size} `bignum`{text} `waterBowl`{level,hl} + `k.ripple:[{at}]` `eggSection`{air} `bowlSection`{peel} `follow` + `tap:{at}` `iconCircle`{icon} `divider` `impact`。
+  - `type`：`garlicBulb` `clove`{peeled} `skin` `bowl`{flip,color} `timer`{from, fmt:'mmss', prefix} + `cd:{at,until}` `finger` `eye` `onion` `egg` `question` `fridge`{open} `clock`{progress} `gas`{amount,color} `knife`{dull} `check` `cross` `label`{text,size,color,fg} `title`{text,size} `bignum`{text} `waterBowl`{level,hl} + `k.ripple:[{at}]` `eggSection`{air} `bowlSection`{peel} `follow` + `tap:{at}` `iconCircle`{icon: garlic|onion|egg|microwave|faucet|board} `divider` `impact`。
+  - 清洁类（第02集起）：`microwave`{light,spin,grime,steam,open,wipe,part: body|door}（拆成 body/door 两层可把碗夹在中间；spin 按时间积分成转盘角度） `faucet`{scale,wrap,flow} `tissue`{wet} `bottle`{kind: vinegar|bleach, pour} `lemonSlice` `lemonHalf` `lemon` `toothbrush` `rag` `sparkle`（入场后闪一下） `magnifier`{react}（碳酸钙颗粒遇醋酸冒泡消失） `board`{wet}（俯视砧板） `saltFall`{rinse} `stream` `rack`（立放晾干+气流） `boardFlat`{mold} `smellBreak`{break} `arrowsLR` `forbid`（draw 画出禁止符） `warn`（⚠ 闪两下） `warnFrame`（黄黑警示边框，放在 540,900）。
   - `k.hl`：0~1「亮起」，未亮起的元素变暗（水碗亮起时加黄框）。
 - 顶层 `keywords`：字幕里这些词标番茄红。
 - 字幕 56px 黑体加粗，位于 1500–1750；标题栏 0–300；演示区 300–1500；镜头间横向滑动切换。
