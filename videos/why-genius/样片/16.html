@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>16 小黑手绘 · 没上场</title>
+<style>
+:root { --ink: #171717; --red: #d63a30; --blue: #386fc2; --orange: #ef6b1f; }
+html,body{margin:0;height:100%;overflow:hidden;background:#fff}
+svg{position:absolute;inset:0;width:100%;height:100%;display:block;background:#fff}
+.line{fill:none;stroke:var(--ink);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.thin{stroke-width:3.5}
+.paper{fill:#fff;stroke:var(--ink);stroke-width:4;stroke-linejoin:round}
+.hand{font-family:"Kaiti SC","STKaiti","KaiTi","WenQuanYi Zen Hei",serif;font-weight:700}
+.red{stroke:var(--red)} .orange{stroke:var(--orange)} .blue{stroke:var(--blue)}
+.t-red{fill:var(--red)} .t-blue{fill:var(--blue)} .t-orange{fill:var(--orange)} .t-ink{fill:var(--ink)}
+</style>
+</head>
+<body>
+<svg id="scene" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <marker id="aOrange" viewBox="0 0 20 20" refX="16" refY="10" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M2 3L17 10L2 17Z" fill="#ef6b1f"/></marker>
+    <marker id="aRed" viewBox="0 0 20 20" refX="16" refY="10" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M2 3L17 10L2 17Z" fill="#d63a30"/></marker>
+  </defs>
+  <rect width="1920" height="1080" fill="#fff"/>
+
+  <g id="world">
+    <path id="ground" class="line" d="M120 882C420 876 760 884 1100 879C1400 875 1620 882 1800 878"/>
+
+    <g id="stairs">
+      <!-- column i: x = 820 + i*150, blocks of 150 x 95 stacked from y = 880 -->
+      <path class="paper" d="M820 785L970 787L970 880L820 880Z"/>
+      <path class="paper" d="M970 785L1120 787L1120 880L970 880Z"/><path class="paper" d="M970 690L1120 692L1120 787L970 785Z"/>
+      <path class="paper" d="M1120 785L1270 787L1270 880L1120 880Z"/><path class="paper" d="M1120 690L1270 692L1270 787L1120 787Z"/><path class="paper" d="M1120 595L1270 597L1270 692L1120 690Z"/>
+      <path class="paper" d="M1270 785L1420 787L1420 880L1270 880Z"/><path class="paper" d="M1270 690L1420 692L1420 787L1270 787Z"/><path class="paper" d="M1270 595L1420 597L1420 692L1270 692Z"/><path class="paper" d="M1270 500L1420 502L1420 597L1270 595Z"/>
+    </g>
+
+    <g id="him">
+      <circle class="paper" cx="1345" cy="352" r="32"/>
+      <path class="paper" d="M1318 392C1330 384 1360 384 1372 392L1384 470L1306 470Z"/>
+      <path class="line thin" d="M1328 470L1324 500M1362 470L1366 500"/>
+      <path class="line thin" d="M1316 410C1300 395 1292 380 1290 362M1374 410C1390 395 1398 380 1400 362"/>
+    </g>
+
+    <g id="geniusCard">
+      <path class="paper" d="M1265 218L1427 214L1430 286L1262 290Z"/>
+      <text class="hand t-ink" x="1346" y="264" font-size="52" text-anchor="middle">天才</text>
+      <path class="line orange thin" d="M1240 210L1218 188M1450 210L1472 188M1346 196L1346 168"/>
+    </g>
+
+    <g id="box">
+      <path class="paper" d="M0 0L92 -2L94 70L2 72Z"/>
+      <path class="line thin" d="M12 18L80 16M12 50L60 50"/>
+    </g>
+
+    <g id="xiaohei">
+      <path fill="#050505" d="M-52 -205C-30 -244 34 -246 56 -206C74 -170 70 -92 50 -66C28 -40 -26 -40 -48 -66C-70 -96 -72 -172 -52 -205Z"/>
+      <g id="eyes"><circle cx="-20" cy="-170" r="9" fill="#fff"/><circle cx="22" cy="-168" r="9" fill="#fff"/></g>
+      <path class="line" d="M-56 -118C-82 -108 -88 -84 -100 -62"/>
+      <path id="armR" class="line" d="M56 -118C82 -112 96 -132 112 -150"/>
+      <path class="line" d="M-22 -50C-26 -30 -28 -14 -34 0M22 -50C26 -30 30 -14 36 0"/>
+    </g>
+
+    <g id="pardon">
+      <path fill="#fff" stroke="#d63a30" stroke-width="5" d="M0 -44L104 -46L106 30L2 32Z"/>
+      <text class="hand t-red" x="53" y="5" font-size="44" text-anchor="middle">赦免</text>
+    </g>
+
+    <g id="annotations">
+      <g id="annCraft">
+        <path class="line orange draw" marker-end="url(#aOrange)" d="M846 742C930 690 1060 620 1200 535"/>
+        <text class="hand t-orange" x="760" y="520" font-size="48">一块一块往上垒</text>
+      </g>
+      <g id="annHim"><text class="hand t-blue" x="1450" y="380" font-size="52">他</text></g>
+      <g id="annAbsent">
+        <text class="hand t-red" x="610" y="660" font-size="60">没上场</text>
+        <path class="line red draw" marker-end="url(#aRed)" d="M740 680C780 704 812 736 840 770"/>
+      </g>
+    </g>
+  </g>
+
+  <g id="titleG"><text class="hand t-ink" x="120" y="190" font-size="140">第一级台阶前</text></g>
+  <g id="endG">
+    <text class="hand t-ink" x="960" y="470" font-size="160" text-anchor="middle">你没有输</text>
+    <text class="hand t-red" x="960" y="690" font-size="140" text-anchor="middle">因为你根本没有上场</text>
+  </g>
+</svg>
+<script src="vendor/gsap.min.js"></script>
+<script>
+const D = 8;
+const $ = s => document.querySelector(s);
+document.querySelectorAll('.draw').forEach(p => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
+
+// proxies drive attribute transforms so every pose is a pure function of the playhead
+const xh = { x: 420, bob: 0, sx: 1, tilt: 0 };
+const eyes = { x: 0, y: 0 };
+const box = { x: 0, y: 0, attached: 1 };
+const card = { y: -420, s: 1 };
+const pardon = { a: 0, s: 0.4 };
+function apply() {
+  $('#xiaohei').setAttribute('transform', `translate(${xh.x} ${880 - xh.bob}) scale(${xh.sx} 1) rotate(${xh.tilt})`);
+  $('#eyes').setAttribute('transform', `translate(${eyes.x} ${eyes.y})`);
+  const bx = box.attached ? xh.x + 100 : box.x, by = box.attached ? 880 - 202 - xh.bob : box.y;
+  $('#box').setAttribute('transform', `translate(${bx} ${by})`);
+  $('#geniusCard').setAttribute('transform', `translate(0 ${card.y})`);
+  const px = xh.x + 112 * xh.sx - (xh.sx < 0 ? 106 : 0), py = 880 - 150 - xh.bob;
+  $('#pardon').setAttribute('transform', `translate(${px} ${py}) scale(${pardon.s})`);
+  $('#pardon').setAttribute('opacity', pardon.a);
+}
+
+gsap.set(['#annCraft', '#annHim', '#annAbsent', '#titleG', '#endG'], { opacity: 0 });
+const tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.out' } });
+tl.addLabel('context', 0)
+  .to('#titleG', { opacity: 1, duration: 0.35 }, 0.1)
+  .to('#titleG', { opacity: 0, duration: 0.3 }, 1.9)
+  // walk to the first step carrying a block
+  .to(xh, { x: 610, duration: 1.3, ease: 'none' }, 0.3)
+  .to(xh, { bob: 10, duration: 0.16, repeat: 7, yoyo: true, ease: 'sine.inOut' }, 0.3)
+  .addLabel('craft', 1.8)
+  .to('#annCraft', { opacity: 1, duration: 0.1 }, 1.8)
+  .to('#annCraft .draw', { strokeDashoffset: 0, duration: 0.5 }, 1.85)
+  .addLabel('genius', 2.4)
+  .to(card, { y: 0, duration: 0.55, ease: 'bounce.out' }, 2.4)
+  .to('#annHim', { opacity: 1, duration: 0.25 }, 2.7)
+  // look up at the top, lean back
+  .to(eyes, { y: -10, x: 6, duration: 0.3 }, 3.0)
+  .to(xh, { tilt: -6, duration: 0.3 }, 3.0)
+  // put the block down, take out the pardon card
+  .set(box, { attached: 0, x: 710, y: 678 }, 3.4)
+  .to(box, { y: 808, duration: 0.3, ease: 'power2.in' }, 3.4)
+  .to(xh, { tilt: 0, duration: 0.25 }, 3.4)
+  .to(pardon, { a: 1, s: 1, duration: 0.3, ease: 'back.out(2)' }, 3.8)
+  .addLabel('leave', 4.2)
+  .set(xh, { sx: -1 }, 4.2)
+  .set(eyes, { x: 0, y: 0 }, 4.2)
+  .to(xh, { x: 330, duration: 1.1, ease: 'none' }, 4.2)
+  .to(xh, { bob: 10, duration: 0.14, repeat: 7, yoyo: true, ease: 'sine.inOut' }, 4.2)
+  .to('#annAbsent', { opacity: 1, duration: 0.1 }, 4.8)
+  .to('#annAbsent .draw', { strokeDashoffset: 0, duration: 0.35 }, 4.85)
+  .addLabel('summary', 5.7)
+  .to('#world', { opacity: 0.06, duration: 0.4 }, 5.7)
+  .to('#endG', { opacity: 1, duration: 0.4 }, 6.0)
+  .set({}, {}, D);
+
+function render(t) { tl.seek(t, false); apply(); }
+const q = new URLSearchParams(location.search);
+if (q.has('t') || q.has('static')) render(q.has('t') ? +q.get('t') : 5.5);
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

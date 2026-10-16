@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 3D 拆解 · 拆开天才</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#101216}
+canvas{position:absolute;inset:0;margin:auto;display:block;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+</style>
+</head>
+<body>
+<canvas id="gl" width="1920" height="1080"></canvas>
+<canvas id="ui" width="1920" height="1080"></canvas>
+<script src="vendor/three.min.js"></script>
+<script>
+const W = 1920, H = 1080, D = 8;
+const SANS = '"PingFang SC","Noto Sans CJK SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = k => 1 - Math.pow(1 - k, 3);
+const eio = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+
+const glCanvas = document.getElementById('gl');
+const ui = document.getElementById('ui').getContext('2d');
+const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H, false);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.15;
+renderer.shadowMap.enabled = true;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#14161b');
+const camera = new THREE.PerspectiveCamera(34, W / H, 0.1, 100);
+
+scene.add(new THREE.HemisphereLight('#c9d4ff', '#2a2116', 0.55));
+const key = new THREE.DirectionalLight('#fff1dc', 2.2); key.position.set(-5, 8, 6); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); scene.add(key);
+const rim = new THREE.DirectionalLight('#8fb4ff', 1.4); rim.position.set(4, 5, -6); scene.add(rim);
+const fill = new THREE.PointLight('#ffd9a0', 0.6, 30); fill.position.set(5, 2, 5); scene.add(fill);
+
+const floor = new THREE.Mesh(new THREE.CircleGeometry(12, 64), new THREE.MeshStandardMaterial({ color: '#0a0b0e', roughness: 0.95 }));
+floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+
+const gold = new THREE.MeshStandardMaterial({ color: '#d4a443', metalness: 0.85, roughness: 0.28, side: THREE.DoubleSide, emissive: '#3a2600', emissiveIntensity: 0.4 });
+const stone = new THREE.MeshStandardMaterial({ color: '#3b3f48', roughness: 0.7, metalness: 0.1 });
+const wood = new THREE.MeshStandardMaterial({ color: '#8a5a33', roughness: 0.75 });
+const woodDark = new THREE.MeshStandardMaterial({ color: '#5e3c22', roughness: 0.8 });
+const skin = new THREE.MeshStandardMaterial({ color: '#c79572', roughness: 0.85 });
+const iron = new THREE.MeshStandardMaterial({ color: '#2f3238', metalness: 0.7, roughness: 0.4 });
+const bulbMat = new THREE.MeshStandardMaterial({ color: '#fff3c4', emissive: '#ffcf6a', emissiveIntensity: 0.6 });
+
+function mesh(geo, mat, x = 0, y = 0, z = 0) { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; return m; }
+
+const pedestal = mesh(new THREE.BoxGeometry(2.8, 0.7, 2.8), stone, 0, 0.35, 0); scene.add(pedestal);
+// shell halves (front faces +z)
+const shellFront = new THREE.Group(), shellBack = new THREE.Group();
+shellFront.add(mesh(new THREE.CylinderGeometry(0.85, 1.15, 2.7, 48, 1, true, Math.PI, Math.PI), gold, 0, 2.05, 0));
+shellBack.add(mesh(new THREE.CylinderGeometry(0.85, 1.15, 2.7, 48, 1, true, 0, Math.PI), gold, 0, 2.05, 0));
+const headFront = mesh(new THREE.SphereGeometry(0.58, 48, 24, Math.PI, Math.PI), gold, 0, 3.95, 0);
+const headBack = mesh(new THREE.SphereGeometry(0.58, 48, 24, 0, Math.PI), gold, 0, 3.95, 0);
+shellFront.add(headFront); shellBack.add(headBack);
+scene.add(shellFront, shellBack);
+
+// inner parts
+const bench = new THREE.Group();
+bench.add(mesh(new THREE.BoxGeometry(1.3, 0.1, 0.75), wood, 0, 0.55, 0));
+for (const [x, z] of [[-0.55, -0.28], [0.55, -0.28], [-0.55, 0.28], [0.55, 0.28]]) bench.add(mesh(new THREE.BoxGeometry(0.09, 0.55, 0.09), woodDark, x, 0.27, z));
+bench.add(mesh(new THREE.BoxGeometry(0.5, 0.06, 0.3), iron, 0.25, 0.63, 0.1));
+bench.position.set(0, 0.8, 0); scene.add(bench);
+
+const hands = new THREE.Group();
+for (const s of [-1, 1]) {
+  const h = new THREE.Group();
+  h.add(mesh(new THREE.BoxGeometry(0.34, 0.1, 0.42), skin, 0, 0, 0));
+  for (let f = 0; f < 4; f++) { const fg = mesh(new THREE.CylinderGeometry(0.035, 0.04, 0.28, 12), skin, -0.12 + f * 0.08, 0, 0.32); fg.rotation.x = Math.PI / 2 + 0.25; h.add(fg); }
+  const th = mesh(new THREE.CylinderGeometry(0.04, 0.045, 0.22, 12), skin, s * 0.2, 0, 0.06); th.rotation.z = Math.PI / 2; h.add(th);
+  h.position.set(s * 0.26, 0, 0); h.rotation.z = s * 0.25; hands.add(h);
+}
+hands.position.set(0, 2.15, 0); hands.scale.setScalar(1.5); scene.add(hands);
+
+const lamp = new THREE.Group();
+lamp.add(mesh(new THREE.CylinderGeometry(0.2, 0.24, 0.06, 24), iron, 0, 0, 0));
+const arm = mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.6, 8), iron, 0.08, 0.3, 0); arm.rotation.z = -0.3; lamp.add(arm);
+const shade = mesh(new THREE.ConeGeometry(0.2, 0.24, 24, 1, true), iron, 0.2, 0.62, 0); shade.rotation.z = 0.6; lamp.add(shade);
+const bulb = mesh(new THREE.SphereGeometry(0.08, 16, 12), bulbMat, 0.26, 0.55, 0); lamp.add(bulb);
+const lampLight = new THREE.PointLight('#ffc463', 0, 6); lampLight.position.set(0.26, 0.5, 0); lamp.add(lampLight);
+lamp.position.set(0, 2.85, 0); lamp.scale.setScalar(1.4); scene.add(lamp);
+
+const tmp = new THREE.Vector3();
+function toScreen(obj, off) { tmp.set(off[0], off[1], off[2]); obj.localToWorld(tmp); tmp.project(camera); return [(tmp.x + 1) / 2 * W, (1 - tmp.y) / 2 * H]; }
+
+function label(text, anchor, tx, ty, a, left) {
+  if (a <= 0) return;
+  ui.save(); ui.globalAlpha = a;
+  ui.strokeStyle = '#e8edf5'; ui.lineWidth = 3;
+  ui.beginPath(); ui.moveTo(anchor[0], anchor[1]); ui.lineTo(tx, ty); ui.stroke();
+  ui.fillStyle = '#e8edf5'; ui.beginPath(); ui.arc(anchor[0], anchor[1], 8, 0, 7); ui.fill();
+  ui.font = `700 58px ${SANS}`; ui.textBaseline = 'middle'; ui.textAlign = left ? 'right' : 'left';
+  ui.fillText(text, tx + (left ? -18 : 18), ty);
+  ui.restore();
+}
+
+function render(t) {
+  const ex = eio(seg(t, 1.5, 3.0)) * (1 - eio(seg(t, 5.3, 6.0)));
+  // orbit camera
+  const th = lerp(-0.35, 0.3, seg(t, 0, D)), r = 14;
+  camera.position.set(Math.sin(th) * r, 4.6, Math.cos(th) * r); camera.lookAt(0, 2.5, 0);
+  shellFront.position.set(-2.4 * ex, 0.2 * ex, -0.6 * ex); shellFront.rotation.z = 0.12 * ex;
+  shellBack.position.set(2.4 * ex, 0.2 * ex, -0.6 * ex); shellBack.rotation.z = -0.12 * ex;
+  headFront.position.y = 3.95 + 0.5 * ex; headBack.position.y = 3.95 + 0.5 * ex;
+  bench.position.set(0, 0.8 + 0.15 * ex, 1.4 * ex); bench.rotation.y = 0.5 * ex;
+  hands.position.set(0, 2.15 + 0.45 * ex, 1.4 * ex); hands.rotation.x = -0.6 * ex;
+  lamp.position.set(0.1 * ex, 2.85 + 0.75 * ex, 1.2 * ex);
+  const hi = Math.max(0, Math.sin(Math.PI * seg(t, 4.0, 5.6)));
+  bulbMat.emissiveIntensity = 0.6 + 6 * hi; lampLight.intensity = 3.5 * hi;
+  const shine = 0.4 + 0.25 * Math.sin(t * 2);
+  gold.emissiveIntensity = shine;
+  const dim = 1 - eo(seg(t, 5.7, 6.1)) * 0.8;
+  renderer.toneMappingExposure = 1.15 * dim;
+  renderer.render(scene, camera);
+
+  ui.clearRect(0, 0, W, H);
+  const ta = eo(seg(t, 0.1, 0.5)) * (1 - seg(t, 1.9, 2.2));
+  if (ta > 0) { ui.save(); ui.globalAlpha = ta; ui.fillStyle = '#f4f6fa'; ui.font = `900 140px ${SANS}`; ui.textAlign = 'center'; ui.textBaseline = 'top'; ui.fillText('拆开「天才」', 960, 60); ui.restore(); }
+  const la = k0 => eo(seg(t, k0, k0 + 0.3)) * (1 - seg(t, 5.2, 5.4));
+  label('一张旧工作台', toScreen(bench, [0.5, 0.6, 0.2]), 1440, 880, la(2.6));
+  label('一双磨坏的手', toScreen(hands, [-0.3, 0.05, 0.2]), 470, 560, la(3.0), true);
+  label('一盏亮到深夜的灯', toScreen(lamp, [0.26, 0.55, 0]), 1440, 250, la(3.4));
+  const ca = eo(seg(t, 6.0, 6.4));
+  if (ca > 0) {
+    ui.save(); ui.globalAlpha = ca; ui.textAlign = 'center'; ui.textBaseline = 'middle'; ui.font = `900 160px ${SANS}`;
+    ui.fillStyle = '#f4f6fa'; ui.fillText('不是奇迹', 960, 430);
+    ui.fillStyle = '#e6b552'; ui.fillText('是手艺', 960, 640); ui.restore();
+  }
+}
+
+const q = new URLSearchParams(location.search);
+if (q.has('t')) render(+q.get('t'));
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

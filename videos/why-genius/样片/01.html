@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 皮影戏 · 走下神龛</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#1a0d06}
+canvas{position:absolute;inset:0;margin:auto;display:block;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, D = 8;
+const ctx = document.getElementById('c').getContext('2d');
+const SERIF = '"Songti SC","Noto Serif CJK SC","STSong","SimSun","WenQuanYi Zen Hei",serif';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = k => 1 - Math.pow(1 - k, 3);
+const eio = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+function rng(s) { return () => { s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+const INK = '#2a140a';
+const RED = 'rgba(178,42,28,0.88)';
+const GREEN = 'rgba(32,112,72,0.85)';
+const GOLD = 'rgba(214,150,40,0.85)';
+
+// fabric fibres, fixed seed
+const fibres = (() => { const r = rng(7), a = []; for (let i = 0; i < 260; i++) a.push([r() * W, r() * H, 40 + r() * 160, r() < .5]); return a; })();
+const dust = (() => { const r = rng(11), a = []; for (let i = 0; i < 26; i++) a.push([r() * 2 - 1, r(), 3 + r() * 6]); return a; })();
+
+function screen(t) {
+  const flick = 1 + 0.025 * Math.sin(t * 9.1) + 0.015 * Math.sin(t * 23.7);
+  const g = ctx.createRadialGradient(W / 2, H * 0.48, 80, W / 2, H * 0.5, 1150 * flick);
+  g.addColorStop(0, '#fbe3a4'); g.addColorStop(0.45, '#f0b860'); g.addColorStop(0.8, '#a85a20'); g.addColorStop(1, '#3a1a08');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.globalAlpha = 0.05; ctx.strokeStyle = '#5a2a0a'; ctx.lineWidth = 1;
+  for (const [x, y, l, v] of fibres) { ctx.beginPath(); ctx.moveTo(x, y); v ? ctx.lineTo(x, y + l) : ctx.lineTo(x + l, y); ctx.stroke(); }
+  ctx.globalAlpha = 1;
+  // wooden frame
+  ctx.fillStyle = '#2b1408'; ctx.fillRect(0, 0, W, 34); ctx.fillRect(0, H - 34, W, 34);
+}
+
+function carved(x, y, w, h, n) { // punched-leather dots
+  ctx.fillStyle = 'rgba(255,230,170,0.55)';
+  for (let i = 0; i < n; i++) for (let j = 0; j < 2; j++) { ctx.beginPath(); ctx.arc(x + (i + .5) * w / n, y + (j + .5) * h / 2, 4, 0, 7); ctx.fill(); }
+}
+
+function shrine(alpha) {
+  ctx.save(); ctx.globalAlpha = alpha;
+  ctx.lineWidth = 5; ctx.strokeStyle = INK;
+  // roof with upturned eaves
+  ctx.fillStyle = RED;
+  ctx.beginPath();
+  ctx.moveTo(560, 268); ctx.quadraticCurveTo(640, 250, 700, 196); ctx.lineTo(1220, 196); ctx.quadraticCurveTo(1280, 250, 1360, 268);
+  ctx.quadraticCurveTo(1300, 262, 1260, 250); ctx.lineTo(660, 250); ctx.quadraticCurveTo(620, 262, 560, 268); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = GREEN; ctx.fillRect(700, 150, 520, 46); ctx.strokeRect(700, 150, 520, 46);
+  carved(712, 156, 496, 34, 18);
+  // pillars
+  ctx.fillStyle = RED;
+  for (const x of [700, 1184]) { ctx.fillRect(x, 250, 36, 390); ctx.strokeRect(x, 250, 36, 390); }
+  // lattice valance
+  ctx.fillStyle = GOLD; ctx.fillRect(736, 250, 448, 30); ctx.strokeRect(736, 250, 448, 30); carved(744, 252, 432, 26, 16);
+  // pedestal steps going down to the right
+  ctx.fillStyle = GREEN;
+  ctx.beginPath(); ctx.rect(760, 640, 400, 40); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = RED;
+  for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.rect(1160 + i * 70, 680 + i * 70, 70, 300 - i * 70); ctx.fill(); ctx.stroke(); }
+  ctx.beginPath(); ctx.rect(660, 680, 500, 300); ctx.fill(); ctx.stroke();
+  carved(680, 720, 460, 60, 14);
+  ctx.restore();
+}
+
+// jointed profile puppet facing right; x,y = hip
+function puppet(x, y, walk, armUp, glow, alpha) {
+  ctx.save(); ctx.globalAlpha = alpha; ctx.translate(x, y); ctx.scale(0.72, 0.72);
+  ctx.lineWidth = 4; ctx.strokeStyle = INK;
+  if (glow > 0) {
+    const g = ctx.createRadialGradient(0, -170, 10, 0, -170, 260);
+    g.addColorStop(0, `rgba(255,250,210,${0.85 * glow})`); g.addColorStop(1, 'rgba(255,240,180,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, -170, 260, 0, 7); ctx.fill();
+  }
+  // control rods
+  ctx.strokeStyle = 'rgba(42,20,10,0.6)'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(4, -250); ctx.lineTo(60, 520); ctx.stroke();
+  ctx.strokeStyle = INK; ctx.lineWidth = 4;
+  // legs (two segments each)
+  const leg = (ph, col) => {
+    const a = Math.sin(ph) * 0.45, b = Math.max(0, -Math.sin(ph)) * 0.6;
+    ctx.save(); ctx.rotate(a); ctx.fillStyle = col;
+    ctx.beginPath(); ctx.rect(-14, 0, 28, 92); ctx.fill(); ctx.stroke();
+    ctx.translate(0, 90); ctx.rotate(b);
+    ctx.beginPath(); ctx.rect(-12, 0, 24, 86); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-14, 86); ctx.lineTo(36, 86); ctx.lineTo(30, 100); ctx.lineTo(-14, 100); ctx.closePath(); ctx.fillStyle = INK; ctx.fill();
+    ctx.restore();
+  };
+  leg(walk + Math.PI, 'rgba(120,30,20,0.9)');
+  leg(walk, RED);
+  // robe torso
+  ctx.fillStyle = RED;
+  ctx.beginPath(); ctx.moveTo(-40, -200); ctx.lineTo(40, -200); ctx.lineTo(70, 20); ctx.lineTo(-70, 20); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = GREEN; ctx.fillRect(-58, -40, 116, 26); ctx.strokeRect(-58, -40, 116, 26); carved(-52, -38, 104, 22, 7);
+  carved(-30, -170, 60, 110, 3);
+  // head in profile + topknot
+  ctx.fillStyle = 'rgba(240,200,140,0.92)';
+  ctx.beginPath(); ctx.moveTo(-26, -206); ctx.quadraticCurveTo(-30, -290, 10, -292); ctx.quadraticCurveTo(44, -290, 42, -252);
+  ctx.lineTo(52, -238); ctx.lineTo(40, -232); ctx.quadraticCurveTo(36, -208, 14, -206); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(-4, -306, 18, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-6, -284, 34, 12, -0.2, 0, 7); ctx.fill();
+  ctx.fillStyle = INK; ctx.beginPath(); ctx.ellipse(26, -256, 6, 3, 0, 0, 7); ctx.fill();
+  // front arm: shoulder -> elbow -> palm (palm opens toward viewer when armUp)
+  ctx.save(); ctx.translate(18, -186);
+  ctx.rotate(lerp(0.25, -1.9, armUp));
+  ctx.fillStyle = RED; ctx.beginPath(); ctx.rect(-14, 0, 28, 90); ctx.fill(); ctx.stroke();
+  // dusty sleeve cuff
+  ctx.fillStyle = 'rgba(150,140,120,0.9)'; ctx.fillRect(-18, 76, 36, 18); ctx.strokeRect(-18, 76, 36, 18);
+  ctx.translate(0, 90); ctx.rotate(lerp(-0.2, 0.9, armUp));
+  ctx.fillStyle = 'rgba(240,200,140,0.92)'; ctx.beginPath(); ctx.rect(-10, 0, 20, 70); ctx.fill(); ctx.stroke();
+  ctx.translate(0, 70);
+  ctx.beginPath(); ctx.ellipse(0, 22, 26, 30, 0, 0, 7); ctx.fill(); ctx.stroke();
+  // calluses
+  if (armUp > 0.6) {
+    ctx.fillStyle = `rgba(120,60,20,${(armUp - 0.6) / 0.4})`;
+    for (const [cx, cy] of [[-10, 14], [8, 10], [0, 30], [12, 34], [-12, 36]]) { ctx.beginPath(); ctx.arc(cx, cy, 5, 0, 7); ctx.fill(); }
+  }
+  ctx.restore();
+  // hand rod
+  ctx.restore();
+}
+
+function label(s, x, y, a, size = 64) {
+  if (a <= 0) return;
+  ctx.save(); ctx.globalAlpha = a; ctx.font = `700 ${size}px ${SERIF}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.lineWidth = 10; ctx.strokeStyle = 'rgba(251,227,164,0.9)'; ctx.strokeText(s, x, y);
+  ctx.fillStyle = INK; ctx.fillText(s, x, y); ctx.restore();
+}
+
+function render(t) {
+  ctx.clearRect(0, 0, W, H);
+  screen(t);
+  const endK = eo(seg(t, 5.6, 6.1));
+  const sceneA = 1 - endK * 0.94;
+
+  // walk path: 0..1 over 2.0s, from altar to floor via three steps
+  const w = eio(seg(t, 2.0, 4.0));
+  const px = lerp(960, 1420, w);
+  const stepIdx = clamp((px - 1160) / 70, 0, 3);
+  const py = 640 - 4 + (px < 1160 ? 0 : Math.min(3, Math.floor(stepIdx + 0.5)) * 70) + (px > 1370 ? (Math.min(px, 1420) - 1370) * 2.2 : 0);
+  const hip = Math.min(py, 976) - 141;
+  const walking = t > 2.0 && t < 4.0;
+  const phase = walking ? (t - 2.0) * 9 : 0;
+  const glow = 1 - eo(seg(t, 2.0, 3.0));
+  const armUp = eio(seg(t, 4.4, 5.0));
+
+  ctx.save(); ctx.translate(0, 50);
+  shrine(sceneA);
+  // dust puffs from sleeve after landing
+  if (t > 3.8 && t < 6.2) {
+    const k = seg(t, 3.8, 5.4);
+    ctx.save(); ctx.globalAlpha = (1 - k) * 0.8 * sceneA; ctx.fillStyle = 'rgba(110,90,70,1)';
+    for (const [dx, dy, r] of dust) { ctx.beginPath(); ctx.arc(px + 40 + dx * 80 * k, hip - 50 - dy * 120 * k, r * (1 + k), 0, 7); ctx.fill(); }
+    ctx.restore();
+  }
+  puppet(px, hip, phase, armUp, glow, sceneA);
+  ctx.restore();
+
+  // title 0.3-2.2
+  const ta = eo(seg(t, 0.3, 0.8)) * (1 - seg(t, 2.0, 2.3));
+  if (ta > 0) {
+    ctx.save(); ctx.globalAlpha = ta; ctx.font = `900 140px ${SERIF}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = 16; ctx.strokeStyle = 'rgba(251,227,164,0.95)'; ctx.strokeText('神龛上的天才', 960, 96);
+    ctx.fillStyle = INK; ctx.fillText('神龛上的天才', 960, 96); ctx.restore();
+  }
+  // labels
+  const la = Math.min(1, sceneA * 1.2);
+  label('袖口沾灰', 1540, 780, eo(seg(t, 3.9, 4.3)) * (1 - seg(t, 5.5, 5.8)) * la);
+  label('掌心全是茧', 1540, 600, eo(seg(t, 4.5, 4.9)) * (1 - seg(t, 5.5, 5.8)) * la);
+
+  // conclusion alone
+  const ca = eo(seg(t, 5.9, 6.4));
+  if (ca > 0) {
+    ctx.save(); ctx.globalAlpha = ca; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = `900 150px ${SERIF}`; ctx.lineWidth = 18; ctx.strokeStyle = 'rgba(251,227,164,0.95)';
+    ctx.strokeText('神龛里供着的', 960, 430); ctx.fillStyle = INK; ctx.fillText('神龛里供着的', 960, 430);
+    ctx.fillStyle = '#9b1d12'; ctx.strokeText('从来不是奇迹', 960, 640); ctx.fillText('从来不是奇迹', 960, 640);
+    ctx.restore();
+  }
+}
+
+const q = new URLSearchParams(location.search);
+if (q.has('t')) render(+q.get('t'));
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

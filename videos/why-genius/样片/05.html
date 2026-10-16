@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 汉字演变 · 才</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#0b0705}
+canvas{position:absolute;inset:0;margin:auto;display:block;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, D = 8;
+const ctx = document.getElementById('c').getContext('2d');
+const SERIF = '"Songti SC","Noto Serif CJK SC","STSong","SimSun","WenQuanYi Zen Hei",serif';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = k => 1 - Math.pow(1 - k, 3);
+const eio = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+function rng(s) { return () => { s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+const bokeh = (() => { const r = rng(3), a = []; for (let i = 0; i < 40; i++) a.push([r() * W, r() * H, 20 + r() * 60, r()]); return a; })();
+const embers = (() => { const r = rng(9), a = []; for (let i = 0; i < 70; i++) a.push([r() * W, r(), 2 + r() * 4, 0.3 + r() * 0.7]); return a; })();
+const cracks = (() => { const r = rng(21), a = []; for (let i = 0; i < 9; i++) { let x = 960 + (r() - .5) * 600, y = 540 + (r() - .5) * 420; const p = [[x, y]]; for (let j = 0; j < 6; j++) { x += (r() - .5) * 90; y += (r() - .5) * 90; p.push([x, y]); } a.push(p); } return a; })();
+
+function fireLight(t, strength) {
+  const f = 1 + 0.06 * Math.sin(t * 11) + 0.04 * Math.sin(t * 27 + 1) + 0.03 * Math.sin(t * 5.3);
+  const g = ctx.createRadialGradient(760, 760, 50, 860, 620, 1100 * f);
+  g.addColorStop(0, `rgba(255,150,60,${0.55 * strength})`); g.addColorStop(0.5, `rgba(150,60,20,${0.35 * strength})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+}
+function background(t) {
+  ctx.fillStyle = '#0b0705'; ctx.fillRect(0, 0, W, H);
+  ctx.save(); ctx.filter = 'blur(14px)';
+  for (const [x, y, r, v] of bokeh) { ctx.fillStyle = `rgba(255,${120 + v * 80},60,${0.06 + 0.06 * Math.sin(t * 2 + v * 9)})`; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); }
+  ctx.restore();
+}
+function shell(a, t) { // tortoise plastron
+  if (a <= 0) return;
+  ctx.save(); ctx.globalAlpha *= a;
+  ctx.beginPath(); ctx.ellipse(960, 560, 360, 420, 0, 0, 7);
+  const g = ctx.createRadialGradient(900, 480, 40, 960, 560, 460);
+  g.addColorStop(0, '#e8cf9f'); g.addColorStop(0.6, '#b98f58'); g.addColorStop(1, '#5a3a1c');
+  ctx.fillStyle = g; ctx.fill();
+  ctx.clip();
+  ctx.strokeStyle = 'rgba(70,40,15,0.55)'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(960, 140); ctx.lineTo(960, 980); ctx.stroke();
+  for (const y of [360, 560, 760]) { ctx.beginPath(); ctx.moveTo(600, y + 20); ctx.quadraticCurveTo(960, y - 40, 1320, y + 20); ctx.stroke(); }
+  ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(60,30,10,0.45)';
+  for (const p of cracks) { ctx.beginPath(); p.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); }
+  ctx.restore();
+}
+function bronze(a) {
+  if (a <= 0) return;
+  ctx.save(); ctx.globalAlpha *= a;
+  ctx.beginPath(); ctx.ellipse(960, 560, 430, 430, 0, 0, 7);
+  const g = ctx.createRadialGradient(860, 450, 30, 960, 560, 480);
+  g.addColorStop(0, '#d9b46a'); g.addColorStop(0.45, '#8e6b33'); g.addColorStop(0.8, '#3f5a44'); g.addColorStop(1, '#1a2a20');
+  ctx.fillStyle = g; ctx.fill();
+  ctx.lineWidth = 14; ctx.strokeStyle = 'rgba(40,60,45,0.9)'; ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(960, 560, 380, 380, 0, 0, 7); ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(230,200,130,0.35)'; ctx.stroke();
+  ctx.restore();
+}
+// 才: a sprout piercing the ground line (一) with a bud at the top
+function caiOracle(k, col, w) { // carved lines
+  ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const a = seg(k, 0, .3), b = seg(k, .3, .7), c = seg(k, .7, 1);
+  if (a > 0) { ctx.beginPath(); ctx.moveTo(760, 470); ctx.lineTo(lerp(760, 1160, a), 470); ctx.stroke(); }
+  if (b > 0) { ctx.beginPath(); ctx.moveTo(960, 840); ctx.lineTo(960, lerp(840, 300, b)); ctx.stroke(); }
+  if (c > 0) { ctx.beginPath(); ctx.moveTo(880, 380); ctx.lineTo(lerp(880, 1040, c), 380); ctx.lineTo(lerp(880, 960, c), lerp(380, 480, c)); ctx.closePath(); ctx.stroke(); }
+  ctx.restore();
+}
+function caiBronze(k) {
+  if (k <= 0) return;
+  ctx.save(); ctx.globalAlpha *= k; ctx.fillStyle = '#2a1a0c'; ctx.strokeStyle = '#2a1a0c'; ctx.lineCap = 'round';
+  ctx.lineWidth = 46; ctx.beginPath(); ctx.moveTo(740, 480); ctx.quadraticCurveTo(960, 455, 1180, 480); ctx.stroke();
+  ctx.lineWidth = 40; ctx.beginPath(); ctx.moveTo(960, 860); ctx.quadraticCurveTo(950, 600, 962, 300); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(860, 350); ctx.quadraticCurveTo(960, 330, 1060, 350); ctx.quadraticCurveTo(1000, 420, 962, 500); ctx.quadraticCurveTo(920, 420, 860, 350); ctx.fill();
+  ctx.restore();
+}
+function caption(s, x, y, size, a, col = '#f3dcb0', align = 'left') {
+  if (a <= 0) return;
+  ctx.save(); ctx.globalAlpha *= a; ctx.font = `700 ${size}px ${SERIF}`; ctx.textAlign = align; ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0,0,0,.8)'; ctx.shadowBlur = 20; ctx.fillStyle = col; ctx.fillText(s, x, y); ctx.restore();
+}
+
+function render(t) {
+  background(t);
+  const toBronze = eo(seg(t, 3.6, 4.2));
+  const endK = eo(seg(t, 5.6, 6.0));
+  // camera: slow push in
+  const z = lerp(1.0, 1.08, seg(t, 0, 5.6));
+  ctx.save(); ctx.translate(960, 560); ctx.scale(z, z); ctx.translate(-960, -560);
+  ctx.globalAlpha = 1 - endK * 0.9;
+  shell(eo(seg(t, 0, 0.8)) * (1 - toBronze), t);
+  if (toBronze < 1) { ctx.save(); ctx.globalAlpha *= (1 - toBronze); caiOracle(eio(seg(t, 1.0, 2.6)), '#3b200c', 22); ctx.restore(); }
+  bronze(toBronze);
+  ctx.save(); ctx.globalAlpha *= 1; caiBronze(eo(seg(t, 3.9, 4.6))); ctx.restore();
+  ctx.restore();
+  // carving sparks
+  if (t > 1.0 && t < 2.6) {
+    const r = rng(Math.floor(t * 30));
+    ctx.save(); ctx.fillStyle = '#ffd27a';
+    for (let i = 0; i < 14; i++) { ctx.globalAlpha = r(); ctx.beginPath(); ctx.arc(960 + (r() - .5) * 260, 470 + (r() - .5) * 260, 2 + r() * 3, 0, 7); ctx.fill(); }
+    ctx.restore();
+  }
+  fireLight(t, 1 + 1.6 * Math.max(0, 1 - Math.abs(t - 3.9) / 0.35));
+  // embers rising
+  ctx.save();
+  for (const [x, y0, r, sp] of embers) {
+    const y = H - ((y0 * H + t * 140 * sp) % (H + 100));
+    ctx.globalAlpha = 0.5 * sp; ctx.fillStyle = '#ff9c3a'; ctx.beginPath(); ctx.arc(x + Math.sin(t * 2 + y0 * 20) * 20, y, r, 0, 7); ctx.fill();
+  }
+  ctx.restore();
+  // depth of field vignette
+  const v = ctx.createRadialGradient(960, 560, 380, 960, 560, 1150);
+  v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.85)');
+  ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+
+  // texts
+  caption('天才的「才」', 960, 110, 140, eo(seg(t, 0.2, 0.6)) * (1 - seg(t, 1.8, 2.1)), '#f6e2b8', 'center');
+  caption('甲骨文 · 商代', 1380, 300, 64, eo(seg(t, 2.3, 2.6)) * (1 - seg(t, 3.6, 3.8)));
+  caption('金文 · 西周', 1420, 300, 64, eo(seg(t, 4.2, 4.5)) * (1 - seg(t, 5.5, 5.8)));
+  caption('《说文》：才，草木之初也', 960, 1000, 60, eo(seg(t, 4.5, 4.8)) * (1 - seg(t, 5.5, 5.8)), '#f6e2b8', 'center');
+  const ca = eo(seg(t, 6.0, 6.4));
+  caption('才，是破土而出', 960, 430, 150, ca, '#f6e2b8', 'center');
+  caption('不是从天而降', 960, 640, 150, ca, '#ff9c4a', 'center');
+}
+
+const q = new URLSearchParams(location.search);
+if (q.has('t')) render(+q.get('t'));
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

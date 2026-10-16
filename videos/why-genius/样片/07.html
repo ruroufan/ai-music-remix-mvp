@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 像素典故 · 三张赦免</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#0c0a1a}
+canvas{position:absolute;inset:0;margin:auto;display:block;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, D = 8, PW = 160, PH = 90, S = 12;
+const ctx = document.getElementById('c').getContext('2d');
+const lo = document.createElement('canvas'); lo.width = PW; lo.height = PH;
+const p = lo.getContext('2d');
+const SANS = '"PingFang SC","Noto Sans CJK SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+
+const px = (x, y, w, h, c) => { p.fillStyle = c; p.fillRect(Math.round(x), Math.round(y), w, h); };
+// 10x18 sprite person; step toggles legs
+function person(x, y, shirt, hair, step, opts = {}) {
+  px(x + 2, y, 6, 2, hair); px(x + 1, y + 2, 8, 5, '#f2c39a'); px(x + 1, y + 2, 1, 3, hair); px(x + 8, y + 2, 1, 3, hair);
+  px(x + 3, y + 4, 1, 1, '#2a1a10'); px(x + 6, y + 4, 1, 1, '#2a1a10');
+  px(x + 1, y + 7, 8, 6, shirt); px(x, y + 8, 1, 4, shirt); px(x + 9, y + 8, 1, 4, shirt);
+  px(x, y + 12, 1, 1, '#f2c39a'); px(x + 9, y + 12, 1, 1, '#f2c39a');
+  const l = step ? 1 : 0;
+  px(x + 2 - l, y + 13, 2, 4, '#2c2f5a'); px(x + 6 + l, y + 13, 2, 4, '#2c2f5a');
+  px(x + 1 - l, y + 17, 3, 1, '#151515'); px(x + 6 + l, y + 17, 3, 1, '#151515');
+  if (opts.guitar) {
+    px(x + 3, y + 9, 9, 4, '#b5651d'); px(x + 4, y + 10, 2, 2, '#3a1d08'); px(x + 12, y + 10, 8, 1, '#7a4a1a'); px(x + 20, y + 9, 2, 3, '#3a1d08');
+    if (opts.blink) { px(x + 10, y + 11, 1, 1, '#ff2a2a'); px(x + 9, y + 12, 1, 1, '#ff2a2a'); }
+  }
+}
+function sparkle(x, y, t) { const on = Math.floor(t * 8) % 2; const c = on ? '#fff6a0' : '#ffd23a'; px(x, y - 1, 1, 3, c); px(x - 1, y, 3, 1, c); }
+
+function scene1(t) { // office stairs
+  px(0, 0, PW, PH, '#2b3a67'); px(0, 58, PW, 32, '#3e4a7a');
+  for (let i = 0; i < 5; i++) { px(6 + i * 32, 18, 18, 12, '#4f6bb0'); px(7 + i * 32, 19, 16, 10, '#9fc5ff'); }
+  for (let i = 0; i < 3; i++) px(84 + i * 16, 58 - (i + 1) * 6, 76 - i * 16, (i + 1) * 6, i % 2 ? '#c9a46a' : '#d8b57c');
+  person(124, 22, '#e8453c', '#3a2a1a', 0); sparkle(138, 22, t); sparkle(119, 30, t + .3);
+  person(24, 40, '#3c8de8', '#1a1a1a', Math.floor(t * 4) % 2);
+}
+function scene2(t) { // marathon finish
+  px(0, 0, PW, PH, '#7ec8f0'); px(0, 44, PW, 46, '#5aa84a'); px(0, 50, PW, 14, '#8a8a8a');
+  for (let i = 0; i < 12; i++) px(i * 16 - Math.floor(t * 40 % 16), 57, 8, 1, '#eeeeee');
+  px(112, 20, 2, 38, '#5a3a1a'); px(152, 20, 2, 38, '#5a3a1a'); px(112, 18, 42, 8, '#e8453c');
+  const x = Math.round(76 + (t % 1.7) * 18);
+  person(x, 40, '#f5a623', '#3a2a1a', Math.floor(t * 8) % 2);
+  person(16, 40, '#3c8de8', '#1a1a1a', 0);
+}
+function scene3(t) { // guitar room at night
+  px(0, 0, PW, PH, '#1d1838'); px(0, 58, PW, 32, '#3a2e52');
+  px(118, 16, 26, 20, '#0e0c22'); px(119, 17, 24, 18, '#2a2a6a'); px(132, 20, 4, 4, '#fff6c0');
+  px(12, 30, 18, 28, '#6a4a2a'); px(14, 32, 14, 5, '#8a6a4a');
+  person(62, 40, '#3c8de8', '#1a1a1a', 0, { guitar: true, blink: Math.floor(t * 6) % 2 });
+}
+function dialog(s, k) {
+  ctx.fillStyle = '#0c0a1a'; ctx.fillRect(60, 790, 1800, 230);
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 12; ctx.strokeRect(72, 802, 1776, 206);
+  const n = Math.floor(s.length * clamp(k));
+  ctx.fillStyle = '#ffffff'; ctx.font = `700 76px ${SANS}`; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+  ctx.fillText(s.slice(0, n), 140, 905);
+  if (k >= 1) { ctx.fillStyle = '#ffd23a'; ctx.fillRect(1760, 930, 30, 30); }
+}
+function cap(s) {
+  ctx.fillStyle = 'rgba(12,10,26,0.85)'; ctx.fillRect(0, 40, W, 130);
+  ctx.fillStyle = '#ffd23a'; ctx.font = `700 72px ${SANS}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s, 960, 106);
+}
+
+const SCENES = [
+  [0, 1.7, scene1, '同事三年升两级', '你：人家脑子好使。'],
+  [1.7, 3.4, scene2, '朋友跑完一场全马', '你：他天生体质好。'],
+  [3.4, 5.1, scene3, '学吉他第三周，指尖磨破了', '你：我没这根筋。'],
+];
+function render(t) {
+  ctx.imageSmoothingEnabled = false;
+  const sc = SCENES.find(s => t >= s[0] && t < s[1]);
+  if (sc) {
+    sc[2](t - sc[0]);
+    ctx.drawImage(lo, 0, 0, W, H);
+    ctx.font = '900 56px "Courier New","DejaVu Sans Mono",monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (sc === SCENES[0]) { ctx.fillStyle = '#ffd23a'; ctx.fillText('LV UP!', 1560, 210); }
+    if (sc === SCENES[1]) { ctx.fillStyle = '#ffffff'; ctx.fillText('FINISH', 1596, 264); }
+    cap(sc[3]);
+    dialog(sc[4], seg(t, sc[0] + 0.25, sc[0] + 0.9));
+    return;
+  }
+  ctx.fillStyle = '#0c0a1a'; ctx.fillRect(0, 0, W, H);
+  if (t < 6.3) { // item get
+    p.clearRect(0, 0, PW, PH);
+    const bob = Math.round(Math.sin(t * 8) * 2);
+    px(70, 18 + bob, 20, 24, '#f3e2b0'); px(67, 16 + bob, 26, 3, '#c9a46a'); px(67, 42 + bob, 26, 3, '#c9a46a');
+    px(74, 23 + bob, 12, 1, '#7a5a2a'); px(74, 27 + bob, 12, 1, '#7a5a2a'); px(74, 31 + bob, 7, 1, '#7a5a2a');
+    px(81, 33 + bob, 7, 7, '#d8262a');
+    for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + t * 2; sparkle(Math.round(80 + Math.cos(a) * 22), Math.round(30 + Math.sin(a) * 18), t + i); }
+    ctx.drawImage(lo, 0, 0, W, H);
+    ctx.fillStyle = '#ffffff'; ctx.font = `900 120px ${SANS}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('获得【赦免】×3', 960, 760);
+    return;
+  }
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `900 150px ${SANS}`;
+  ctx.fillStyle = '#ffffff'; ctx.fillText('每一句，', 960, 420);
+  ctx.fillStyle = '#ffd23a'; ctx.fillText('都是一张赦免', 960, 640);
+}
+
+const q = new URLSearchParams(location.search);
+if (q.has('t')) render(+q.get('t'));
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

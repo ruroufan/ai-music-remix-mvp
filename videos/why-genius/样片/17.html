@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>17 神龛光影 · 手艺</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#07060a}
+canvas{position:absolute;inset:0;margin:auto;display:block;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, D = 8;
+const ctx = document.getElementById('c').getContext('2d');
+const SERIF = '"Songti SC","Noto Serif CJK SC","STSong","SimSun","WenQuanYi Zen Hei",serif';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = k => 1 - Math.pow(1 - k, 3);
+const eio = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+function rng(s) { return () => { s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const GOLD = '#e9b85a';
+const motes = (() => { const r = rng(17), a = []; for (let i = 0; i < 120; i++) a.push([r(), r(), 1 + r() * 2.5, r()]); return a; })();
+
+function text(s, x, y, size, col, a = 1, align = 'center', weight = 900) {
+  if (a <= 0) return; ctx.save(); ctx.globalAlpha *= a; ctx.font = `${weight} ${size}px ${SERIF}`; ctx.textAlign = align; ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 24; ctx.fillStyle = col; ctx.fillText(s, x, y); ctx.restore();
+}
+function rays(x, y, a, t) {
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 5; i++) {
+    const sp = 0.06 + i * 0.03, off = Math.sin(t * 0.7 + i) * 20;
+    const g = ctx.createLinearGradient(x, 0, x, y + 300);
+    g.addColorStop(0, `rgba(255,214,140,${0.10 * a})`); g.addColorStop(1, 'rgba(255,214,140,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x - 40 + off, -20); ctx.lineTo(x + 40 + off, -20);
+    ctx.lineTo(x + 520 * sp * 4 + off, y + 300); ctx.lineTo(x - 520 * sp * 4 + off, y + 300); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+}
+function shrine() {
+  // stone wall + niche
+  const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#15121a'); g.addColorStop(1, '#0a080c');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#1d1820'; ctx.fillRect(560, 120, 800, 900);
+  ctx.fillStyle = '#2a2026'; ctx.beginPath(); ctx.moveTo(500, 150); ctx.lineTo(960, 40); ctx.lineTo(1420, 150); ctx.lineTo(1400, 190); ctx.lineTo(520, 190); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#0c090d'; ctx.beginPath(); ctx.moveTo(660, 960); ctx.lineTo(660, 400); ctx.arc(960, 400, 300, Math.PI, 0); ctx.lineTo(1260, 960); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#2b2228'; ctx.fillRect(620, 940, 680, 50);
+}
+function statue(a, glow) { // glowing figure in niche
+  if (a <= 0) return;
+  ctx.save(); ctx.globalAlpha *= a;
+  const g = ctx.createRadialGradient(960, 560, 30, 960, 600, 420); g.addColorStop(0, `rgba(255,220,150,${0.55 * glow})`); g.addColorStop(1, 'rgba(255,200,120,0)');
+  ctx.fillStyle = g; ctx.fillRect(560, 120, 800, 840);
+  const b = ctx.createLinearGradient(860, 300, 1060, 940); b.addColorStop(0, '#f6d48a'); b.addColorStop(1, '#8a5a22');
+  ctx.fillStyle = b;
+  ctx.beginPath(); ctx.arc(960, 400, 70, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(880, 480); ctx.quadraticCurveTo(960, 455, 1040, 480); ctx.lineTo(1100, 940); ctx.lineTo(820, 940); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+function craft(a, lamp) { // workbench, worn hands, lamp
+  if (a <= 0) return;
+  ctx.save(); ctx.globalAlpha *= a;
+  // lamp light pool
+  const lg = ctx.createRadialGradient(1080, 700, 10, 1000, 760, 380); lg.addColorStop(0, `rgba(255,190,90,${0.6 * lamp})`); lg.addColorStop(1, 'rgba(255,170,70,0)');
+  ctx.fillStyle = lg; ctx.fillRect(560, 300, 800, 700);
+  // bench
+  ctx.fillStyle = '#6a4325'; ctx.fillRect(700, 790, 520, 40);
+  ctx.fillStyle = '#4a2e18'; ctx.fillRect(730, 830, 30, 120); ctx.fillRect(1160, 830, 30, 120);
+  ctx.strokeStyle = 'rgba(30,15,5,0.6)'; ctx.lineWidth = 3; for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.moveTo(720 + i * 100, 795); ctx.lineTo(760 + i * 100, 825); ctx.stroke(); }
+  // lamp
+  ctx.strokeStyle = '#2b2b30'; ctx.lineWidth = 12; ctx.beginPath(); ctx.moveTo(1120, 790); ctx.lineTo(1150, 650); ctx.lineTo(1090, 590); ctx.stroke();
+  ctx.fillStyle = '#2b2b30'; ctx.beginPath(); ctx.moveTo(1040, 600); ctx.lineTo(1120, 560); ctx.lineTo(1130, 620); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = `rgba(255,236,170,${0.4 + 0.6 * lamp})`; ctx.beginPath(); ctx.arc(1080, 620, 16, 0, 7); ctx.fill();
+  // hands (palms up) with calluses
+  for (const [x, flip] of [[860, 1], [980, -1]]) {
+    ctx.save(); ctx.translate(x, 760); ctx.scale(flip, 1);
+    ctx.fillStyle = '#b07d58'; ctx.beginPath(); ctx.ellipse(0, 0, 58, 26, 0.15, 0, 7); ctx.fill();
+    for (let f = 0; f < 4; f++) { ctx.beginPath(); ctx.ellipse(-48 + f * 26, -26, 10, 26, -0.2, 0, 7); ctx.fill(); }
+    ctx.fillStyle = '#7a4f30'; for (const [cx, cy] of [[-30, -8], [-6, -10], [18, -6], [0, 8]]) { ctx.beginPath(); ctx.arc(cx, cy, 6, 0, 7); ctx.fill(); }
+    ctx.restore();
+  }
+  ctx.restore();
+}
+function dust(t, a) {
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  for (const [x, y, r, v] of motes) {
+    const X = 600 + x * 720 + Math.sin(t * 0.6 + v * 9) * 30, Y = 100 + ((y * 900 + t * 18 * (0.5 + v)) % 900);
+    ctx.fillStyle = `rgba(255,220,160,${a * (0.25 + 0.4 * v)})`; ctx.beginPath(); ctx.arc(X, Y, r, 0, 7); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function render(t) {
+  ctx.fillStyle = '#07060a'; ctx.fillRect(0, 0, W, H);
+  const reveal = eio(seg(t, 1.8, 2.8));
+  const z = lerp(1.0, 1.35, eio(seg(t, 1.2, 3.0)));
+  const outro = eo(seg(t, 4.9, 5.6));
+  ctx.save(); ctx.translate(960, 640); ctx.scale(z, z); ctx.translate(-960, -640);
+  ctx.globalAlpha = 1 - outro * 0.75;
+  shrine();
+  rays(960, 400, 1 - reveal * 0.6, t);
+  statue(1 - reveal, 1 + 0.08 * Math.sin(t * 6));
+  craft(reveal, eo(seg(t, 3.4, 4.0)) * (0.9 + 0.1 * Math.sin(t * 13)));
+  dust(t, 1);
+  ctx.restore();
+  // your own bench in the foreground, lamp switching on
+  if (outro > 0) {
+    ctx.save(); ctx.globalAlpha = outro;
+    const on = eo(seg(t, 5.4, 5.7)) * (1 - eo(seg(t, 6.1, 6.4)) * 0.5);
+    const lg = ctx.createRadialGradient(960, 980, 20, 960, 1000, 700); lg.addColorStop(0, `rgba(255,190,90,${0.55 * on})`); lg.addColorStop(1, 'rgba(255,170,70,0)');
+    ctx.fillStyle = lg; ctx.fillRect(0, 300, W, 780);
+    ctx.fillStyle = '#3a2414'; ctx.beginPath(); ctx.moveTo(160, 1080); ctx.lineTo(420, 900); ctx.lineTo(1500, 900); ctx.lineTo(1760, 1080); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#5a3a20'; ctx.fillRect(420, 892, 1080, 14);
+    ctx.restore();
+  }
+  // vignette
+  const v = ctx.createRadialGradient(960, 540, 400, 960, 540, 1150); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.85)');
+  ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+
+  text('神龛里供着什么', 960, 120, 140, '#f3e3c3', eo(seg(t, 0.1, 0.5)) * (1 - seg(t, 1.8, 2.1)));
+  const la = k0 => eo(seg(t, k0, k0 + 0.3)) * (1 - seg(t, 4.7, 4.9));
+  text('一张旧工作台', 420, 860, 60, '#f3e3c3', la(2.8), 'center', 700);
+  text('一双磨坏的手', 420, 640, 60, '#f3e3c3', la(3.1), 'center', 700);
+  text('一盏亮到深夜的灯', 1520, 520, 60, '#f3e3c3', la(3.4), 'center', 700);
+  text('而你面前，也摆着一张', 960, 470, 90, '#f3e3c3', eo(seg(t, 4.9, 5.2)) * (1 - seg(t, 6.1, 6.3)), 'center', 700);
+  const ca = eo(seg(t, 6.3, 6.7));
+  if (ca > 0) {
+    ctx.save(); ctx.globalAlpha = ca * 0.6; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); ctx.restore();
+    text('【手艺】', 960, 500, 300, GOLD, ca);
+  }
+}
+
+const q = new URLSearchParams(location.search);
+if (q.has('t')) render(+q.get('t'));
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

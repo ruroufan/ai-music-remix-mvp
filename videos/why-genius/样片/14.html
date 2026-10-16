@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>14 漫画分格 · 放过自己</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#f5f5f0}
+canvas{position:absolute;inset:0;margin:auto;display:block;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, D = 8;
+const ctx = document.getElementById('c').getContext('2d');
+const SANS = '"PingFang SC","Noto Sans CJK SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = k => 1 - Math.pow(1 - k, 3);
+const eio = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const INK = '#111', RED = '#e2231a';
+
+// halftone pattern
+const dot = document.createElement('canvas'); dot.width = dot.height = 14;
+{ const d = dot.getContext('2d'); d.fillStyle = '#fff'; d.fillRect(0, 0, 14, 14); d.fillStyle = '#9a9a9a'; d.beginPath(); d.arc(7, 7, 3.2, 0, 7); d.fill(); }
+const tone = ctx.createPattern(dot, 'repeat');
+
+const P = [[60, 60, 880, 460], [980, 60, 880, 460], [60, 560, 880, 460], [980, 560, 880, 460]];
+function panelFrame([x, y, w, h], bgTone) {
+  ctx.fillStyle = bgTone ? tone : '#fff'; ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = INK; ctx.lineWidth = 8; ctx.strokeRect(x, y, w, h);
+}
+function caption(s, x, y) { ctx.font = `800 40px ${SANS}`; const w = ctx.measureText(s).width; ctx.fillStyle = '#fff'; ctx.fillRect(x, y, w + 36, 64); ctx.strokeStyle = INK; ctx.lineWidth = 4; ctx.strokeRect(x, y, w + 36, 64); ctx.fillStyle = INK; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(s, x + 18, y + 33); }
+function bubble(s, x, y, tx, ty, size = 44) {
+  ctx.font = `800 ${size}px ${SANS}`; const w = ctx.measureText(s).width + 70, h = size + 50;
+  ctx.fillStyle = '#fff'; ctx.strokeStyle = INK; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.moveTo(x - 20, y + h / 2 - 6); ctx.lineTo(tx, ty); ctx.lineTo(x + 24, y + h / 2 - 6); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(x, y, w / 2, h / 2, 0, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s, x, y + 2);
+}
+function person(x, y, s = 1, opts = {}) { // feet at y
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s); ctx.strokeStyle = INK; ctx.lineWidth = 7; ctx.lineCap = 'round';
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, -190, 42, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = tone; ctx.beginPath(); ctx.roundRect(-38, -146, 76, 96, 18); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-18, -50); ctx.lineTo(-24, 0); ctx.moveTo(18, -50); ctx.lineTo(opts.run ? 50 : 24, opts.run ? -20 : 0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-36, -130); ctx.lineTo(opts.armUp ? -70 : -60, opts.armUp ? -190 : -70); ctx.moveTo(36, -130); ctx.lineTo(opts.armUp ? 70 : 60, opts.armUp ? -190 : -70); ctx.stroke();
+  ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(-14, -194, 5, 0, 7); ctx.arc(14, -194, 5, 0, 7); ctx.fill();
+  ctx.restore();
+}
+function speed(x, y, w, h, n, seed) { ctx.strokeStyle = INK; ctx.lineWidth = 3; for (let i = 0; i < n; i++) { const yy = y + (i * 37 + seed * 13) % h; ctx.beginPath(); ctx.moveTo(x, yy); ctx.lineTo(x + w * (0.4 + ((i * 7) % 5) / 8), yy); ctx.stroke(); } }
+function sfx(s, x, y, size, rot, col = INK) { ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.font = `900 ${size}px ${SANS}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 12; ctx.strokeStyle = '#fff'; ctx.strokeText(s, 0, 0); ctx.fillStyle = col; ctx.fillText(s, 0, 0); ctx.restore(); }
+
+function page(t) {
+  ctx.fillStyle = '#f5f5f0'; ctx.fillRect(0, 0, W, H);
+  // P1 promotion
+  panelFrame(P[0], false);
+  ctx.save(); ctx.beginPath(); ctx.rect(...P[0]); ctx.clip();
+  speed(560, 120, 360, 300, 9, 1);
+  ctx.strokeStyle = INK; ctx.lineWidth = 6; ctx.fillStyle = tone;
+  ctx.beginPath(); ctx.moveTo(480, 500); ctx.lineTo(480, 420); ctx.lineTo(580, 420); ctx.lineTo(580, 340); ctx.lineTo(680, 340); ctx.lineTo(680, 260); ctx.lineTo(940, 260); ctx.lineTo(940, 520); ctx.lineTo(480, 520); ctx.closePath(); ctx.fill(); ctx.stroke();
+  person(770, 260, 0.75, { armUp: true }); sfx('升!', 860, 140, 64, 0.15);
+  person(200, 500, 0.85);
+  bubble('人家脑子好使', 330, 210, 230, 300);
+  caption('同事三年升两级', 80, 80);
+  ctx.restore();
+  // P2 marathon
+  panelFrame(P[1], true);
+  ctx.save(); ctx.beginPath(); ctx.rect(...P[1]); ctx.clip();
+  speed(1000, 250, 420, 250, 8, 3);
+  ctx.fillStyle = '#fff'; ctx.fillRect(1500, 160, 14, 360); ctx.strokeStyle = INK; ctx.lineWidth = 5; ctx.strokeRect(1500, 160, 14, 360);
+  ctx.beginPath(); ctx.moveTo(1507, 330); ctx.quadraticCurveTo(1560, 360, 1640, 330); ctx.stroke();
+  person(1480, 500, 0.85, { run: true, armUp: true }); sfx('完赛!', 1560, 230, 60, -0.12);
+  person(1100, 500, 0.75);
+  bubble('他天生体质好', 1250, 210, 1130, 300);
+  caption('朋友跑完一场全马', 1000, 80);
+  ctx.restore();
+  // P3 guitar
+  panelFrame(P[2], false);
+  ctx.save(); ctx.beginPath(); ctx.rect(...P[2]); ctx.clip();
+  person(330, 1000, 1.0);
+  ctx.save(); ctx.translate(290, 920); ctx.rotate(-0.35); ctx.fillStyle = tone; ctx.strokeStyle = INK; ctx.lineWidth = 6;
+  ctx.beginPath(); ctx.ellipse(0, 0, 80, 60, 0, 0, 7); ctx.fill(); ctx.stroke(); ctx.fillRect(70, -10, 230, 20); ctx.strokeRect(70, -10, 230, 20); ctx.restore();
+  ctx.fillStyle = RED; for (const [x, y] of [[392, 872], [404, 888], [384, 892]]) { ctx.beginPath(); ctx.arc(x, y, 9, 0, 7); ctx.fill(); }
+  sfx('嘶——', 620, 950, 72, -0.1, RED);
+  bubble('我没这根筋', 660, 700, 400, 790);
+  caption('学吉他第三周', 80, 580);
+  ctx.restore();
+  // P4 relief
+  panelFrame(P[3], true);
+  ctx.save(); ctx.beginPath(); ctx.rect(...P[3]); ctx.clip();
+  ctx.fillStyle = '#fff'; ctx.fillRect(1000, 860, 840, 160);
+  person(1200, 1000, 1.0);
+  for (let i = 0; i < 3; i++) {
+    const x = 1420 + i * 130, y = 760 + (i % 2) * 40;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(-0.15 + i * 0.12);
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = INK; ctx.lineWidth = 5; ctx.fillRect(-55, -75, 110, 150); ctx.strokeRect(-55, -75, 110, 150);
+    const sk = eo(seg(t, 4.6 + i * 0.18, 4.8 + i * 0.18));
+    if (sk > 0) { ctx.globalAlpha = sk; ctx.scale(lerp(1.8, 1, sk), lerp(1.8, 1, sk)); ctx.strokeStyle = RED; ctx.lineWidth = 6; ctx.strokeRect(-42, -30, 84, 60); ctx.fillStyle = RED; ctx.font = `900 36px ${SANS}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('赦免', 0, 2); }
+    ctx.restore();
+  }
+  sfx('呼…', 1180, 700, 64, 0);
+  caption('我们以为在夸别人', 1000, 580);
+  ctx.restore();
+}
+
+// camera keyframes: [time, cx, cy, zoom]
+const CAM = [[0, 500, 290, 1.95], [1.25, 500, 290, 1.95], [1.55, 1420, 290, 1.95], [2.75, 1420, 290, 1.95], [3.05, 500, 790, 1.95], [4.25, 500, 790, 1.95], [4.55, 1420, 790, 1.95], [5.5, 1420, 790, 1.95], [5.9, 960, 540, 1.0], [8, 960, 540, 1.0]];
+function cam(t) {
+  for (let i = 0; i < CAM.length - 1; i++) {
+    const a = CAM[i], b = CAM[i + 1];
+    if (t <= b[0]) { const k = eio(seg(t, a[0], b[0])); return [lerp(a[1], b[1], k), lerp(a[2], b[2], k), lerp(a[3], b[3], k)]; }
+  }
+  return CAM[CAM.length - 1].slice(1);
+}
+
+function render(t) {
+  const [cx, cy, z] = cam(t);
+  ctx.fillStyle = '#f5f5f0'; ctx.fillRect(0, 0, W, H);
+  ctx.save(); ctx.translate(960, 540); ctx.scale(z, z); ctx.translate(-cx, -cy);
+  page(t);
+  ctx.restore();
+  const ca = eo(seg(t, 6.0, 6.4));
+  if (ca > 0) {
+    ctx.save(); ctx.globalAlpha = ca * 0.94; ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); ctx.restore();
+    ctx.save(); ctx.globalAlpha = ca; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `900 160px ${SANS}`;
+    ctx.fillStyle = INK; ctx.fillText('其实，是在', 960, 430);
+    ctx.fillStyle = RED; ctx.fillText('放过自己', 960, 650); ctx.restore();
+  }
+}
+
+const q = new URLSearchParams(location.search);
+if (q.has('t')) render(+q.get('t'));
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

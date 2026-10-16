@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 白板手绘 · 奇迹与手艺</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#fdfdfb}
+canvas{position:absolute;inset:0;margin:auto;display:block;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, D = 8;
+const ctx = document.getElementById('c').getContext('2d');
+const HAND = '"Kaiti SC","STKaiti","KaiTi","WenQuanYi Zen Hei",serif';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = k => 1 - Math.pow(1 - k, 3);
+function rng(s) { return () => { s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const INK = '#1b1b1f', RED = '#e0322b';
+
+// wobble a polyline once (fixed seed) so strokes look hand drawn
+function wob(pts, seed, amp = 3) {
+  const r = rng(seed), out = [];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x0, y0] = pts[i], [x1, y1] = pts[i + 1];
+    const n = Math.max(2, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 24));
+    for (let j = 0; j < n; j++) { const k = j / n; out.push([lerp(x0, x1, k) + (r() - .5) * amp, lerp(y0, y1, k) + (r() - .5) * amp]); }
+  }
+  out.push(pts[pts.length - 1]); return out;
+}
+function circ(cx, cy, r, a0 = 0, a1 = Math.PI * 2, n = 40) { const p = []; for (let i = 0; i <= n; i++) { const a = lerp(a0, a1, i / n); p.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); } return p; }
+// draw first k (0..1) of a polyline
+function pen(pts, k, w = 7, col = INK) {
+  if (k <= 0) return;
+  let total = 0; const L = [0];
+  for (let i = 1; i < pts.length; i++) { total += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); L.push(total); }
+  const lim = total * clamp(k);
+  ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) {
+    if (L[i] <= lim) ctx.lineTo(pts[i][0], pts[i][1]);
+    else { const f = (lim - L[i - 1]) / (L[i] - L[i - 1]); ctx.lineTo(lerp(pts[i - 1][0], pts[i][0], f), lerp(pts[i - 1][1], pts[i][1], f)); break; }
+  }
+  ctx.stroke(); ctx.restore();
+}
+// handwriting: reveal text left to right
+function write(s, x, y, size, col, k, align = 'center') {
+  if (k <= 0) return;
+  ctx.save(); ctx.font = `700 ${size}px ${HAND}`; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+  const w = ctx.measureText(s).width; const x0 = align === 'center' ? x - w / 2 : x;
+  ctx.beginPath(); ctx.rect(x0 - 10, y - size, (w + 20) * clamp(k), size * 2); ctx.clip();
+  ctx.fillStyle = col; ctx.fillText(s, x0, y); ctx.restore();
+}
+function stick(x, y, s, armUp, seed, k) { // stick figure standing at feet (x,y)
+  const parts = [circ(x, y - 150 * s, 26 * s), [[x, y - 124 * s], [x, y - 50 * s]], [[x, y - 50 * s], [x - 26 * s, y]], [[x, y - 50 * s], [x + 26 * s, y]],
+    [[x, y - 104 * s], [x - 40 * s, y - 104 * s - armUp * 40 * s]], [[x, y - 104 * s], [x + 40 * s, y - 104 * s - armUp * 40 * s]]];
+  parts.forEach((p, i) => pen(wob(p, seed + i, 2), seg(k, i / parts.length, (i + 1) / parts.length), 6));
+}
+
+// precomputed strokes
+const cloud = wob([...circ(330, 300, 60, Math.PI * .9, Math.PI * 2.05), ...circ(430, 285, 70, Math.PI * 1.1, Math.PI * 2.1), ...circ(520, 320, 50, Math.PI * 1.3, Math.PI * 2.5), [300, 350]], 3);
+const bolt = wob([[440, 360], [400, 470], [450, 470], [405, 590]], 4, 2);
+const stairs = (() => { const p = [[1100, 760]]; for (let i = 0; i < 5; i++) { p.push([1100 + i * 110, 760 - (i + 1) * 80]); p.push([1100 + (i + 1) * 110, 760 - (i + 1) * 80]); } return wob(p, 5); })();
+const divider = wob([[960, 250], [960, 820]], 6, 4);
+const underL = wob([[300, 900], [560, 896]], 7, 3);
+const ringR = wob(circ(1430, 850, 130, -0.3, Math.PI * 2 + 0.2, 60).map(([x, y]) => [x, 850 + (y - 850) * 0.5]), 8, 4);
+
+function render(t) {
+  ctx.fillStyle = '#fdfdfb'; ctx.fillRect(0, 0, W, H);
+  const wipe = eo(seg(t, 5.6, 6.0));
+  ctx.save(); ctx.globalAlpha = 1 - wipe;
+  write('伟大的两种看法', 960, 130, 140, INK, seg(t, 0.1, 1.2));
+  pen(divider, seg(t, 1.0, 1.4), 5, '#9a9a9a');
+  // left: miracle
+  pen(cloud, seg(t, 1.3, 1.9), 7);
+  pen(bolt, seg(t, 1.9, 2.2), 8, '#e8a400');
+  stick(420, 760, 1, 1, 20, seg(t, 2.0, 2.6));
+  write('奇迹', 430, 850, 96, INK, seg(t, 2.4, 2.8));
+  write('从天而降，不问来路', 430, 960, 52, '#555', seg(t, 2.7, 3.3));
+  // right: craft
+  pen(stairs, seg(t, 2.6, 3.4), 7);
+  // blocks being carried up the stairs
+  for (let i = 0; i < 3; i++) {
+    const k = seg(t, 3.0 + i * 0.35, 3.3 + i * 0.35); if (k <= 0) continue;
+    const bx = 1120 + i * 110, by = 760 - (i + 1) * 80 - 50;
+    pen(wob([[bx, by], [bx + 60, by], [bx + 60, by + 46], [bx, by + 46], [bx, by]], 30 + i, 2), k, 6);
+  }
+  const climb = seg(t, 3.0, 4.2);
+  const n = 1 + Math.min(4, Math.floor(climb * 5)), sx = 1100 + (n - 0.5) * 110, sy = 760 - n * 80;
+  stick(sx, sy, 0.8, 0.7, 40, seg(t, 2.9, 3.3));
+  write('手艺', 1430, 850, 96, INK, seg(t, 3.4, 3.8));
+  write('一块一块垒起来', 1430, 960, 52, '#555', seg(t, 3.7, 4.3));
+  // red emphasis
+  pen(underL, seg(t, 4.4, 4.7), 6, RED);
+  write('不必追', 690, 900, 56, RED, seg(t, 4.5, 4.9), 'left');
+  pen(ringR, seg(t, 4.8, 5.2), 6, RED);
+  write('逼你追', 1590, 850, 56, RED, seg(t, 5.0, 5.4), 'left');
+  ctx.restore();
+
+  // conclusion alone
+  if (t > 5.9) {
+    write('奇迹不必追', 960, 420, 150, INK, seg(t, 5.9, 6.5));
+    write('手艺却逼你追', 960, 640, 150, RED, seg(t, 6.4, 7.1));
+  }
+}
+
+const q = new URLSearchParams(location.search);
+if (q.has('t')) render(+q.get('t'));
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

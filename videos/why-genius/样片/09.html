@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 数学可视化 · 伟大 = Σ 每一块</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#0e0f14}
+canvas{position:absolute;inset:0;margin:auto;display:block;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, D = 8;
+const ctx = document.getElementById('c').getContext('2d');
+const SANS = '"PingFang SC","Noto Sans CJK SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif';
+const MATH = '"Latin Modern Math","STIX Two Math","Cambria Math","Times New Roman","DejaVu Serif",serif';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = k => 1 - Math.pow(1 - k, 3);
+const eio = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const YEL = '#f5c84c', BLU = '#58c4dd', FG = '#e8e8e8';
+
+const OX = 230, OY = 860, AW = 1460, AH = 520;
+const X = u => OX + u * AW, Y = v => OY - v * AH;
+const N = 16;
+
+function text(s, x, y, size, col, a = 1, align = 'center', font = SANS, weight = 700) {
+  if (a <= 0) return; ctx.save(); ctx.globalAlpha *= a; ctx.font = `${weight} ${size}px ${font}`; ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillStyle = col; ctx.fillText(s, x, y); ctx.restore();
+}
+function partialPath(pts, k, col, w) {
+  if (k <= 0) return; let tot = 0; const L = [0];
+  for (let i = 1; i < pts.length; i++) { tot += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); L.push(tot); }
+  const lim = tot * k; ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(...pts[0]);
+  for (let i = 1; i < pts.length; i++) { if (L[i] <= lim) ctx.lineTo(...pts[i]); else { const f = (lim - L[i - 1]) / (L[i] - L[i - 1]); ctx.lineTo(lerp(pts[i - 1][0], pts[i][0], f), lerp(pts[i - 1][1], pts[i][1], f)); break; } }
+  ctx.stroke(); ctx.restore();
+}
+
+function render(t) {
+  ctx.fillStyle = '#0e0f14'; ctx.fillRect(0, 0, W, H);
+  const endK = eo(seg(t, 5.7, 6.1));
+  ctx.save(); ctx.globalAlpha = 1 - endK * 0.95;
+  // axes
+  partialPath([[OX, OY], [OX + AW + 40, OY]], eio(seg(t, 0.3, 1.0)), FG, 4);
+  partialPath([[OX, OY], [OX, OY - AH - 60]], eio(seg(t, 0.3, 1.0)), FG, 4);
+  text('时间', OX + AW + 40, OY + 50, 44, '#9a9a9a', seg(t, 0.8, 1.1));
+  text('高度', OX - 70, OY - AH - 40, 44, '#9a9a9a', seg(t, 0.8, 1.1));
+  // miracle: flat, then a vertical jump out of nowhere
+  const mir = [[X(0), Y(0.02)], [X(0.58), Y(0.02)], [X(0.58), Y(0.82)], [X(1), Y(0.82)]];
+  partialPath(mir, eio(seg(t, 1.4, 2.6)), YEL, 7);
+  if (t > 2.0) { ctx.save(); ctx.globalAlpha *= seg(t, 2.0, 2.2) * (1 - seg(t, 2.6, 3.0)); ctx.fillStyle = YEL; ctx.beginPath(); ctx.arc(X(0.58), Y(0.82), 22, 0, 7); ctx.fill(); ctx.restore(); }
+  text('奇迹：从天而降', X(0.58) - 30, Y(0.92), 56, YEL, eo(seg(t, 2.2, 2.5)), 'right');
+  // craft: N blocks dropping one by one, forming a staircase
+  const bw = AW / N;
+  for (let i = 0; i < N; i++) {
+    const t0 = 2.9 + i * 0.11, k = eo(seg(t, t0, t0 + 0.3));
+    if (k <= 0) continue;
+    const h = (i + 1) / N * 0.82;
+    const top = Y(h), drop = (1 - k) * 220;
+    ctx.save(); ctx.globalAlpha *= k;
+    ctx.fillStyle = 'rgba(88,196,221,0.22)'; ctx.strokeStyle = BLU; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.rect(X(i / N) + 3, top - drop, bw - 6, OY - top - 2); ctx.fill(); ctx.stroke();
+    // the newest block on top highlighted
+    ctx.fillStyle = BLU; ctx.fillRect(X(i / N) + 3, top - drop, bw - 6, (0.82 / N) * AH);
+    ctx.restore();
+  }
+  text('手艺：一块一块', X(0.04), Y(0.6), 56, BLU, eo(seg(t, 3.7, 4.0)), 'left');
+  // formula
+  const fa = eo(seg(t, 4.6, 5.0));
+  if (fa > 0) {
+    ctx.save(); ctx.globalAlpha *= fa;
+    text('伟大 =', 600, 170, 84, FG, 1, 'right');
+    text('Σ', 690, 170, 130, BLU, 1, 'center', MATH, 400);
+    text('一块', 830, 175, 84, BLU, 1, 'center');
+    ctx.restore();
+  }
+  ctx.restore();
+  // title
+  text('奇迹 vs 手艺', 960, 150, 140, FG, eo(seg(t, 0.1, 0.5)) * (1 - seg(t, 1.9, 2.2)));
+  // conclusion
+  const ca = eo(seg(t, 6.0, 6.5));
+  if (ca > 0) {
+    text('伟大 =', 760, 540, 160, FG, ca, 'right');
+    text('Σ', 900, 530, 240, BLU, ca, 'center', MATH, 400);
+    text('每一块', 1260, 540, 160, BLU, ca, 'center');
+  }
+}
+
+const q = new URLSearchParams(location.search);
+if (q.has('t')) render(+q.get('t'));
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

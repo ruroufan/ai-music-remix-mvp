@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>13 卡点金句 · 尼采</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#0b0b0b}
+canvas{position:absolute;inset:0;margin:auto;display:block;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, D = 8, BEAT = 0.5; // 120 BPM
+const ctx = document.getElementById('c').getContext('2d');
+const SANS = '"PingFang SC","Noto Sans CJK SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = k => 1 - Math.pow(1 - k, 4);
+const BLK = '#0b0b0b', RED = '#ff3b2f', CRM = '#f4efe6', YEL = '#ffd400';
+
+// [start, words(to show, may be multi-line), bg, fg, size, mode]
+const BEATS = [
+  [0.0, ['尼'], BLK, CRM, 340, 'up'],
+  [0.5, ['尼采'], BLK, CRM, 340, 'right'],
+  [1.0, ['尼采说'], BLK, CRM, 320, 'right'],
+  [1.5, ['我们'], CRM, BLK, 360, 'up'],
+  [2.0, ['把天才'], YEL, BLK, 340, 'left'],
+  [2.5, ['看成'], BLK, CRM, 360, 'down'],
+  [3.0, ['奇迹'], RED, CRM, 440, 'zoom'],
+  [3.5, ['因为'], CRM, BLK, 360, 'up'],
+  [4.0, ['只有奇迹'], BLK, YEL, 300, 'left'],
+  [4.5, ['不会'], YEL, BLK, 380, 'down'],
+  [5.0, ['刺伤'], RED, BLK, 440, 'slash'],
+  [5.5, ['我们'], CRM, RED, 380, 'zoom'],
+];
+
+function word(s, x, y, size, col, k, mode) {
+  ctx.save(); ctx.font = `900 ${size}px ${SANS}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const w = ctx.measureText(s).width;
+  const e = eo(k);
+  // mask box around the word
+  ctx.beginPath(); ctx.rect(x - w / 2 - 40, y - size * 0.62, w + 80, size * 1.24); ctx.clip();
+  let dx = 0, dy = 0, sc = 1;
+  if (mode === 'up') dy = (1 - e) * size;
+  if (mode === 'down') dy = -(1 - e) * size;
+  if (mode === 'left') dx = (1 - e) * (w + 80);
+  if (mode === 'right') dx = 0;
+  if (mode === 'zoom') sc = lerp(1.6, 1, e);
+  if (mode === 'slash') { dx = (1 - e) * -(w + 80); }
+  ctx.translate(x + dx, y + dy); ctx.scale(sc, sc);
+  ctx.fillStyle = col; ctx.fillText(s, 0, 0);
+  ctx.restore();
+}
+
+function render(t) {
+  if (t < 6.0) {
+    let b = BEATS[0]; for (const x of BEATS) if (t >= x[0]) b = x;
+    const [t0, ws, bg, fg, size, mode] = b;
+    const k = seg(t, t0, t0 + 0.18);
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    // beat pulse ring
+    const pulse = seg(t, t0, t0 + 0.45);
+    ctx.save(); ctx.globalAlpha = (1 - pulse) * 0.18; ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(960, 540, 200 + pulse * 900, 0, 7); ctx.fill(); ctx.restore();
+    word(ws[0], 960, 540, size, fg, k, mode);
+    if (mode === 'slash' && k > 0.3) { ctx.save(); ctx.strokeStyle = BLK; ctx.lineWidth = 26; ctx.beginPath(); ctx.moveTo(380, 760); ctx.lineTo(lerp(380, 1540, eo(seg(t, t0 + 0.06, t0 + 0.2))), lerp(760, 320, eo(seg(t, t0 + 0.06, t0 + 0.2)))); ctx.stroke(); ctx.restore(); }
+    return;
+  }
+  // final fill: the whole quote, held 2 s
+  ctx.fillStyle = BLK; ctx.fillRect(0, 0, W, H);
+  word('只有奇迹', 960, 360, 260, CRM, seg(t, 6.0, 6.2), 'up');
+  word('不会刺伤我们', 960, 700, 260, RED, seg(t, 6.25, 6.45), 'up');
+}
+
+const q = new URLSearchParams(location.search);
+if (q.has('t')) render(+q.get('t'));
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 比例尺对比 · 三年是 1095 天</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#0d1524}
+canvas{position:absolute;inset:0;margin:auto;display:block;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, D = 8;
+const ctx = document.getElementById('c').getContext('2d');
+const SANS = '"PingFang SC","Noto Sans CJK SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif';
+const MONO = '"SF Mono","Menlo","Consolas","DejaVu Sans Mono",monospace';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = k => 1 - Math.pow(1 - k, 3);
+const eio = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+function rng(s) { return () => { s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// 3 years x 365 days = 1095 cells. Each year: 73 columns x 5 rows.
+const COLS = 73, ROWS = 5, CELL = 20, GAP = 2, P = CELL + GAP, YGAP = 34;
+const GW = COLS * P - GAP, GH = 3 * ROWS * P + 2 * YGAP - GAP;
+const GX = 960 - GW / 2, GY = 610 - GH / 2;
+const cells = [];
+{ const r = rng(42);
+  for (let y = 0; y < 3; y++) for (let i = 0; i < 365; i++) {
+    const c = Math.floor(i / ROWS), row = i % ROWS;
+    cells.push({ x: GX + c * P, y: GY + y * (ROWS * P + YGAP) + row * P, v: r(), yr: y });
+  } }
+// two promotion days (illustrative positions)
+const GOLD = [365 + 162, 730 + 288];
+const focus = cells[GOLD[0]];
+const FX = focus.x + CELL / 2, FY = focus.y + CELL / 2;
+
+function render(t) {
+  ctx.fillStyle = '#0d1524'; ctx.fillRect(0, 0, W, H);
+  const k = eio(seg(t, 2.0, 5.0));
+  const z = Math.exp(lerp(Math.log(16), 0, k));
+  const cx = lerp(FX, 960, k), cy = lerp(FY, 610, k);
+  const sx = x => 960 + (x - cx) * z, sy = y => 560 + (y - cy) * z + lerp(0, 50, k) * 0;
+  const fade = 1 - eo(seg(t, 5.5, 5.9)) * 0.9;
+
+  ctx.save(); ctx.globalAlpha = fade;
+  for (let i = 0; i < cells.length; i++) {
+    const c = cells[i];
+    const X = sx(c.x), Y = sy(c.y), S = CELL * z;
+    if (X > W || Y > H || X + S < 0 || Y + S < 0) continue;
+    const gold = GOLD.includes(i);
+    if (gold) ctx.fillStyle = '#ffcd4a';
+    else { const l = 26 + c.v * 16; ctx.fillStyle = `hsl(214 45% ${l}%)`; }
+    ctx.beginPath(); ctx.roundRect(X, Y, S, S, Math.min(6, S * 0.18)); ctx.fill();
+  }
+  // year labels
+  const ya = eo(seg(t, 4.2, 4.8));
+  if (ya > 0) {
+    ctx.globalAlpha = ya * fade; ctx.fillStyle = '#8fa6c8'; ctx.font = `600 40px ${SANS}`; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ['第一年', '第二年', '第三年'].forEach((s, y) => ctx.fillText(s, sx(GX) - 18, sy(GY + y * (ROWS * P + YGAP) + ROWS * P / 2)));
+  }
+  ctx.restore();
+
+  // "what you saw" pointer on the gold cell
+  const sa = eo(seg(t, 0.6, 1.0)) * (1 - seg(t, 2.2, 2.6));
+  if (sa > 0) {
+    ctx.save(); ctx.globalAlpha = sa; ctx.fillStyle = '#ffcd4a'; ctx.font = `700 64px ${SANS}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    const X = sx(focus.x + CELL) + 40, Y = sy(focus.y + CELL / 2);
+    ctx.fillText('你看见的：升职那天', X, Y); ctx.restore();
+  }
+  // title
+  const ta = eo(seg(t, 0.1, 0.5)) * (1 - seg(t, 5.4, 5.7));
+  if (ta > 0) {
+    ctx.save(); ctx.globalAlpha = ta; ctx.fillStyle = '#ffffff'; ctx.font = `900 140px ${SANS}`; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText('三年升两级', 110, 70); ctx.restore();
+  }
+  // day counter
+  const ca0 = eo(seg(t, 2.0, 2.3)) * (1 - seg(t, 5.4, 5.7));
+  if (ca0 > 0) {
+    const n = Math.round(Math.exp(lerp(0, Math.log(1095), eio(seg(t, 2.0, 4.8)))));
+    ctx.save(); ctx.globalAlpha = ca0; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+    ctx.fillStyle = '#ffffff'; ctx.font = `700 140px ${MONO}`; ctx.fillText(String(n), 1640, 70);
+    ctx.fillStyle = '#8fa6c8'; ctx.font = `700 64px ${SANS}`; ctx.fillText('天', 1730, 126);
+    ctx.restore();
+  }
+  const na = eo(seg(t, 3.8, 4.2)) * (1 - seg(t, 5.4, 5.7));
+  if (na > 0) {
+    ctx.save(); ctx.globalAlpha = na; ctx.fillStyle = '#8fa6c8'; ctx.font = `700 60px ${SANS}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText('你没看见的：其余每一天', 960, 900); ctx.restore();
+  }
+  // conclusion
+  const ea = eo(seg(t, 5.9, 6.3));
+  if (ea > 0) {
+    ctx.save(); ctx.globalAlpha = ea; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `900 160px ${SANS}`;
+    ctx.fillStyle = '#ffffff'; ctx.fillText('一块一块', 960, 430);
+    ctx.fillStyle = '#ffcd4a'; ctx.fillText('垒起来', 960, 640); ctx.restore();
+  }
+}
+
+const q = new URLSearchParams(location.search);
+if (q.has('t')) render(+q.get('t'));
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

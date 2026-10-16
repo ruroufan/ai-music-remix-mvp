@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 等距流程 · 一块一块垒起来</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#e9edf2}
+canvas{position:absolute;inset:0;margin:auto;display:block;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, D = 8;
+const ctx = document.getElementById('c').getContext('2d');
+const SANS = '"PingFang SC","Noto Sans CJK SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif';
+const MONO = '"SF Mono","Menlo","Consolas","DejaVu Sans Mono",monospace';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = k => 1 - Math.pow(1 - k, 3);
+const eio = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const back = k => { const c = 1.70158; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+
+let cam = { x: 960, y: 640, s: 80 };
+const C30 = Math.cos(Math.PI / 6), S30 = 0.5;
+function iso(x, y, z) { return [cam.x + (x - y) * C30 * cam.s, cam.y + (x + y) * S30 * cam.s - z * cam.s]; }
+function poly(pts, fill, stroke) {
+  ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
+  ctx.fillStyle = fill; ctx.fill(); if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); }
+}
+// box: x0..x1, y0..y1, z0..z1
+function box(x0, y0, z0, x1, y1, z1, c) {
+  poly([iso(x0, y1, z0), iso(x1, y1, z0), iso(x1, y1, z1), iso(x0, y1, z1)], c[1], 'rgba(40,40,60,.25)'); // left (front-left face y=y1)
+  poly([iso(x1, y0, z0), iso(x1, y1, z0), iso(x1, y1, z1), iso(x1, y0, z1)], c[2], 'rgba(40,40,60,.25)'); // right face x=x1
+  poly([iso(x0, y0, z1), iso(x1, y0, z1), iso(x1, y1, z1), iso(x0, y1, z1)], c[0], 'rgba(40,40,60,.25)'); // top
+}
+const STONE = ['#efd9ad', '#cfa66a', '#ab8450'];
+const STONES = [['#efd9ad', '#cfa66a', '#ab8450'], ['#ecd3a2', '#c99f62', '#a47c48'], ['#f1dcb4', '#d2aa70', '#ad8752'], ['#e9cf9c', '#c49a5d', '#9f7743'], ['#efd6a8', '#cca367', '#a8814c']];
+const BH = 0.8, HW = 0.75;
+
+function worker(x, y, z, step, a) {
+  if (a <= 0) return;
+  ctx.save(); ctx.globalAlpha = a;
+  const [sx, sy] = iso(x, y, z);
+  const s = cam.s / 80;
+  const bob = Math.abs(Math.sin(step)) * 6 * s;
+  ctx.fillStyle = 'rgba(30,40,60,.18)'; ctx.beginPath(); ctx.ellipse(sx, sy, 26 * s, 12 * s, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = '#f26b3a';
+  ctx.beginPath(); ctx.roundRect(sx - 18 * s, sy - 78 * s - bob, 36 * s, 62 * s, 16 * s); ctx.fill();
+  ctx.fillStyle = '#2d3550';
+  ctx.fillRect(sx - 14 * s, sy - 20 * s - bob, 10 * s, 20 * s + bob); ctx.fillRect(sx + 4 * s, sy - 20 * s - bob, 10 * s, 20 * s + bob);
+  ctx.fillStyle = '#ffd2b0'; ctx.beginPath(); ctx.arc(sx, sy - 96 * s - bob, 18 * s, 0, 7); ctx.fill();
+  ctx.restore();
+}
+
+function tag(no, x, y, z, a) {
+  if (a <= 0) return;
+  const [sx, sy] = iso(x, y, z);
+  ctx.save(); ctx.globalAlpha = a;
+  ctx.strokeStyle = '#1f2a44'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + 70, sy); ctx.stroke();
+  ctx.fillStyle = '#1f2a44'; ctx.beginPath(); ctx.roundRect(sx + 70, sy - 30, 96, 60, 10); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = `700 40px ${MONO}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(no, sx + 118, sy + 2);
+  ctx.restore();
+}
+
+function statue(z, a) {
+  if (a <= 0) return;
+  ctx.save(); ctx.globalAlpha = a;
+  box(-0.5, -0.5, z, 0.5, 0.5, z + 0.25, ['#fff1c2', '#e7c35a', '#c9a33c']);
+  const [hx, hy] = iso(0, 0, z + 0.25);
+  const s = cam.s / 80;
+  const g = ctx.createRadialGradient(hx, hy - 120 * s, 10, hx, hy - 120 * s, 200 * s);
+  g.addColorStop(0, 'rgba(255,230,140,.7)'); g.addColorStop(1, 'rgba(255,230,140,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(hx, hy - 120 * s, 200 * s, 0, 7); ctx.fill();
+  ctx.fillStyle = '#e2b84a';
+  ctx.beginPath(); ctx.moveTo(hx - 34 * s, hy - 6 * s); ctx.lineTo(hx + 34 * s, hy - 6 * s); ctx.lineTo(hx + 22 * s, hy - 130 * s); ctx.lineTo(hx - 22 * s, hy - 130 * s); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.arc(hx, hy - 158 * s, 28 * s, 0, 7); ctx.fill();
+  ctx.restore();
+}
+
+function ground() {
+  ctx.fillStyle = '#e9edf2'; ctx.fillRect(0, 0, W, H);
+  // tiles
+  for (let i = -16; i <= 15; i++) for (let j = -16; j <= 15; j++) {
+    const onPath = (i === 0 && j >= 1) || (i === -1 && j >= 1);
+    const c = onPath ? '#d6dde7' : ((i + j) & 1 ? '#e2e7ee' : '#dde3eb');
+    poly([iso(i, j, 0), iso(i + 1, j, 0), iso(i + 1, j + 1, 0), iso(i, j + 1, 0)], c);
+  }
+}
+
+function render(t) {
+  // camera: close on the stack, then pull back
+  const pull = eio(seg(t, 5.0, 5.9));
+  cam.s = lerp(100, 64, pull);
+  cam.x = 960; cam.y = lerp(760, 820, pull);
+  ground();
+
+  // blocks
+  const N = 5;
+  const placed = [];
+  let moving = null;
+  for (let i = 0; i < N; i++) {
+    const t0 = 0.9 + i * 0.8;
+    const k = seg(t, t0, t0 + 0.55), lift = seg(t, t0 + 0.5, t0 + 0.75);
+    const zTop = i * BH;
+    if (t >= t0 + 0.75) placed.push(i);
+    else if (t >= t0) moving = { i, k: eio(k), lift: eo(lift), t0 };
+  }
+  // shadow column + placed blocks
+  for (const i of placed) {
+    const land = seg(t, 0.9 + i * 0.8 + 0.75, 0.9 + i * 0.8 + 0.9);
+    box(-HW, -HW, i * BH, HW, HW, (i + 1) * BH, STONES[i]);
+  }
+  const stackTop = placed.length * BH;
+  statue(N * BH, eo(seg(t, 5.0, 5.6)));
+  if (moving) {
+    const { i, k, lift } = moving;
+    const y = lerp(7.5, 0, k);
+    const z = lift > 0 ? lerp(1.45, i * BH, lift) + Math.sin(lift * Math.PI) * 0.5 : 1.45;
+    const wy = lift > 0 ? 1.4 : y;
+    worker(0, wy, 0, (t - moving.t0) * 14, 1 - lift);
+    box(-HW, -HW + y, z, HW, HW + y, z + BH, STONES[i]);
+  }
+  // tags on placed blocks
+  for (const i of placed) {
+    const a = eo(seg(t, 0.9 + i * 0.8 + 0.75, 0.9 + i * 0.8 + 0.95)) * (1 - seg(t, 5.0, 5.3));
+    tag('0' + (i + 1), HW, HW, i * BH + BH / 2, a);
+  }
+
+  // title
+  const ta = eo(seg(t, 0.1, 0.5)) * (1 - seg(t, 2.3, 2.6));
+  if (ta > 0) {
+    ctx.save(); ctx.globalAlpha = ta; ctx.fillStyle = '#1f2a44'; ctx.font = `900 140px ${SANS}`;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('伟大，是手艺', 110, 90); ctx.restore();
+  }
+  // mid caption
+  const ma = eo(seg(t, 2.6, 2.9)) * (1 - seg(t, 5.4, 5.7));
+  if (ma > 0) {
+    ctx.save(); ctx.globalAlpha = ma; ctx.fillStyle = '#1f2a44'; ctx.font = `700 72px ${SANS}`;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('一块一块垒起来', 110, 110); ctx.restore();
+  }
+  // conclusion alone
+  const ca = eo(seg(t, 5.9, 6.3));
+  if (ca > 0) {
+    ctx.save(); ctx.globalAlpha = ca * 0.93; ctx.fillStyle = '#e9edf2'; ctx.fillRect(0, 0, W, H);
+    ctx.globalAlpha = ca; ctx.fillStyle = '#1f2a44'; ctx.font = `900 150px ${SANS}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('每一块', 960, 420);
+    ctx.fillStyle = '#f26b3a'; ctx.fillText('都有人在搬', 960, 620);
+    ctx.restore();
+  }
+}
+
+const q = new URLSearchParams(location.search);
+if (q.has('t')) render(+q.get('t'));
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

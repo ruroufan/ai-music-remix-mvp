@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>15 时间线 · 我不是那块料</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#f6f3ec}
+canvas{position:absolute;inset:0;margin:auto;display:block;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, D = 8;
+const ctx = document.getElementById('c').getContext('2d');
+const SANS = '"PingFang SC","Noto Sans CJK SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = k => 1 - Math.pow(1 - k, 3);
+const eio = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const INK = '#1d1d1f', HOT = '#ff5a36', GREY = '#b9b4aa';
+const AY = 640;
+
+const NODES = [
+  { x: 300, big: '第1周', ev: '开始学吉他', icon: 'circle', lit: true },
+  { x: 1000, big: '第3周', ev: '指尖磨破了', icon: 'tri', lit: true },
+  { x: 1700, big: '第3周', ev: '“我没这根筋”', icon: 'square', lit: true },
+  { x: 2400, big: '第4周', ev: '', icon: 'q', lit: false },
+  { x: 3000, big: '第10周', ev: '', icon: 'q', lit: false },
+  { x: 3600, big: '第52周', ev: '', icon: 'q', lit: false },
+];
+const CAM = [[0, 600], [1.5, 600], [2.2, 1000], [2.8, 1000], [3.4, 1500], [4.0, 1500], [5.2, 3000], [8, 3000]];
+function camX(t) { for (let i = 0; i < CAM.length - 1; i++) { const a = CAM[i], b = CAM[i + 1]; if (t <= b[0]) return lerp(a[1], b[1], eio(seg(t, a[0], b[0]))); } return 3000; }
+
+function text(s, x, y, size, col, a = 1, align = 'center', weight = 800) {
+  if (a <= 0) return; ctx.save(); ctx.globalAlpha *= a; ctx.font = `${weight} ${size}px ${SANS}`; ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillStyle = col; ctx.fillText(s, x, y); ctx.restore();
+}
+function icon(kind, x, y, on, k) {
+  ctx.save(); ctx.translate(x, y); const s = lerp(0.4, 1, eo(k));
+  ctx.scale(s, s);
+  ctx.lineWidth = 8; ctx.strokeStyle = on ? HOT : GREY; ctx.fillStyle = on ? HOT : '#f6f3ec';
+  if (!on) ctx.setLineDash([12, 10]);
+  ctx.beginPath();
+  if (kind === 'circle' || kind === 'q') ctx.arc(0, 0, 42, 0, 7);
+  if (kind === 'tri') { ctx.moveTo(0, -46); ctx.lineTo(44, 34); ctx.lineTo(-44, 34); ctx.closePath(); }
+  if (kind === 'square') ctx.rect(-38, -38, 76, 76);
+  ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+  if (kind === 'q') { ctx.fillStyle = GREY; ctx.font = `800 52px ${SANS}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('?', 0, 3); }
+  ctx.restore();
+}
+
+function render(t) {
+  ctx.fillStyle = '#f6f3ec'; ctx.fillRect(0, 0, W, H);
+  const cx = camX(t), sx = x => 960 + (x - cx);
+  const endK = eo(seg(t, 5.7, 6.1));
+  ctx.save(); ctx.globalAlpha = 1 - endK * 0.95;
+  // axis: lit part up to node 3, dashed grey afterwards
+  ctx.strokeStyle = INK; ctx.lineWidth = 8; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(sx(0), AY); ctx.lineTo(sx(1700), AY); ctx.stroke();
+  ctx.strokeStyle = GREY; ctx.setLineDash([20, 18]); ctx.beginPath(); ctx.moveTo(sx(1700), AY); ctx.lineTo(sx(4200), AY); ctx.stroke(); ctx.setLineDash([]);
+  NODES.forEach((n, i) => {
+    const X = sx(n.x); if (X < -400 || X > W + 400) return;
+    const appear = n.lit ? seg(t, [0.3, 1.9, 3.1][i], [0.3, 1.9, 3.1][i] + 0.3) : seg(cx, n.x - 900, n.x - 700);
+    icon(n.icon, X, AY, n.lit, appear);
+    const a = eo(appear);
+    text(n.big, X, AY - 190, 120, n.lit ? INK : GREY, a, 'center', 900);
+    if (n.ev) text(n.ev, X, AY + 130, 60, n.lit ? INK : GREY, a, 'center', 700);
+    else text('缺席', X, AY + 130, 60, GREY, a, 'center', 700);
+  });
+  ctx.restore();
+  text('学吉他这件事', 110, 130, 140, INK, eo(seg(t, 0.1, 0.5)) * (1 - seg(t, 1.9, 2.2)), 'left', 900);
+  const ca = eo(seg(t, 6.0, 6.4));
+  text('最后只剩一句', 960, 430, 150, INK, ca, 'center', 900);
+  text('我不是那块料', 960, 650, 150, HOT, eo(seg(t, 6.3, 6.7)), 'center', 900);
+}
+
+const q = new URLSearchParams(location.search);
+if (q.has('t')) render(+q.get('t'));
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

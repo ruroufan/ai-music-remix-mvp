@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12 扁平 MG · 撤出比较</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#ffe9c9}
+canvas{position:absolute;inset:0;margin:auto;display:block;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, D = 8;
+const ctx = document.getElementById('c').getContext('2d');
+const SANS = '"PingFang SC","Noto Sans CJK SC","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = k => 1 - Math.pow(1 - k, 3);
+const eio = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const bounce = k => { const n = 7.5625, d = 2.75; if (k < 1 / d) return n * k * k; if (k < 2 / d) return n * (k -= 1.5 / d) * k + .75; if (k < 2.5 / d) return n * (k -= 2.25 / d) * k + .9375; return n * (k -= 2.625 / d) * k + .984375; };
+const BG = '#ffe9c9', TRACK = '#e8604c', LANE = '#f4836f', NAVY = '#26315c', GOLD = '#ffc23d', BLUE = '#3f8cff', CORAL = '#ff6f61', GREEN = '#2fb589';
+
+function text(s, x, y, size, col, a = 1, align = 'center', weight = 900) {
+  if (a <= 0) return; ctx.save(); ctx.globalAlpha *= a; ctx.font = `${weight} ${size}px ${SANS}`; ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillStyle = col; ctx.fillText(s, x, y); ctx.restore();
+}
+function guy(x, y, col, bob, look = 1) { // feet at y
+  ctx.save(); ctx.translate(x, y - Math.abs(Math.sin(bob)) * 14);
+  ctx.fillStyle = col; ctx.beginPath(); ctx.roundRect(-50, -170, 100, 150, 50); ctx.fill();
+  ctx.fillStyle = NAVY; ctx.fillRect(-36, -26, 24, 26); ctx.fillRect(12, -26, 24, 26);
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(-16 + look * 8, -120, 16, 0, 7); ctx.arc(22 + look * 8, -120, 16, 0, 7); ctx.fill();
+  ctx.fillStyle = NAVY; ctx.beginPath(); ctx.arc(-12 + look * 12, -118, 7, 0, 7); ctx.arc(26 + look * 12, -118, 7, 0, 7); ctx.fill();
+  ctx.restore();
+}
+
+function render(t) {
+  ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
+  const endK = eo(seg(t, 5.7, 6.1));
+  ctx.save(); ctx.globalAlpha = 1 - endK * 0.95;
+  // sun + hills
+  ctx.fillStyle = '#ffd08a'; ctx.beginPath(); ctx.arc(1600, 260, 120, 0, 7); ctx.fill();
+  ctx.fillStyle = '#ffd9a6'; ctx.beginPath(); ctx.ellipse(400, 760, 700, 240, 0, Math.PI, 0); ctx.fill();
+  // stands (right)
+  ctx.fillStyle = NAVY; ctx.fillRect(1520, 560, 330, 340);
+  ctx.fillStyle = '#34417a'; for (let i = 0; i < 3; i++) ctx.fillRect(1520, 620 + i * 90, 330, 30);
+  text('看台', 1685, 520, 52, NAVY);
+  // track with two lanes
+  ctx.fillStyle = TRACK; ctx.fillRect(0, 760, 1480, 240);
+  ctx.fillStyle = LANE; ctx.fillRect(0, 875, 1480, 8);
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 756, 1480, 8); ctx.fillRect(0, 996, 1480, 8);
+  // "比较" sign over track
+  ctx.fillStyle = NAVY; ctx.fillRect(200, 380, 14, 380); ctx.fillRect(1240, 380, 14, 380);
+  ctx.fillStyle = GREEN; ctx.beginPath(); ctx.roundRect(170, 330, 1114, 90, 20); ctx.fill();
+  text('比较', 727, 377, 60, '#fff');
+
+  const run = t * 9;
+  // 他: genius block drops under him and lifts him
+  const drop = bounce(seg(t, 2.0, 2.8));
+  const lift = eio(seg(t, 2.6, 3.0));
+  const hx = 1000, hy = 850 - lift * 200;
+  if (drop > 0) {
+    const by = lerp(-300, 650, drop) - lift * 0;
+    const bh = 200;
+    ctx.fillStyle = GOLD; ctx.beginPath(); ctx.roundRect(hx - 140, Math.min(by, 650) , 280, bh, 18); ctx.fill();
+    text('天才', hx, Math.min(by, 650) + bh / 2, 96, NAVY);
+  }
+  guy(hx, t > 2.6 ? 650 : hy, CORAL, t < 2.0 ? run : 0, 1);
+
+  // 你: hook lifts you off the track onto the stands
+  const yx0 = 600, yy0 = 960;
+  const down = eo(seg(t, 3.0, 3.4)), up = eio(seg(t, 3.4, 4.0)), across = eio(seg(t, 3.8, 4.5)), setd = eo(seg(t, 4.4, 4.7));
+  const hookX = lerp(yx0, 1685, across), hookTop = -20;
+  const hookY = lerp(lerp(200, yy0 - 230, down), 300, up) + setd * (560 - 300 - 30) * (across >= 1 ? 1 : 0);
+  let youX = yx0, youY = yy0;
+  if (t > 3.4) { youX = hookX; youY = hookY + 230; }
+  if (t > 3.0) {
+    ctx.strokeStyle = NAVY; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(hookX, hookTop); ctx.lineTo(hookX, hookY); ctx.stroke();
+    ctx.fillStyle = NAVY; ctx.beginPath(); ctx.arc(hookX, hookY + 20, 26, 0, Math.PI); ctx.lineWidth = 14; ctx.strokeStyle = NAVY; ctx.stroke();
+  }
+  if (t > 4.4) youY = Math.min(youY, 562);
+  guy(youX, youY, BLUE, t < 3.0 ? run + 1 : 0, -1);
+  const ya = eo(seg(t, 4.0, 4.3)) * (1 - seg(t, 5.5, 5.7));
+  if (ya > 0) { ctx.save(); ctx.globalAlpha *= ya; ctx.fillStyle = BLUE; ctx.beginPath(); ctx.roundRect(1250, 260, 340, 100, 50); ctx.fill(); ctx.restore(); text('撤出比较', 1420, 312, 60, '#fff', ya); }
+  text('你', youX, youY + 44, 48, t > 4.4 ? '#fff' : NAVY, t < 2.8 || t > 4.6 ? 1 : 0);
+  text('他', hx, (t > 2.6 ? 650 : hy) + 44, 48, '#fff', t < 2.0 ? 1 : 0);
+  ctx.restore();
+  text('“天才”两个字', 960, 150, 140, NAVY, eo(seg(t, 0.1, 0.5)) * (1 - seg(t, 1.9, 2.2)));
+  const ca = eo(seg(t, 6.0, 6.4));
+  text('把你从比较里', 960, 430, 150, NAVY, ca);
+  text('撤了下来', 960, 640, 170, BLUE, eo(seg(t, 6.3, 6.7)));
+}
+
+const q = new URLSearchParams(location.search);
+if (q.has('t')) render(+q.get('t'));
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>

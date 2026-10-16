@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 绘本科普 · 那口气</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#fbf3e2}
+canvas{position:absolute;inset:0;margin:auto;display:block;width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16))}
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, D = 8;
+const ctx = document.getElementById('c').getContext('2d');
+const HAND = '"Kaiti SC","STKaiti","KaiTi","WenQuanYi Zen Hei",serif';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = k => 1 - Math.pow(1 - k, 3);
+const back = k => { const c = 1.70158; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+function rng(s) { return () => { s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const INK = '#2b2219';
+
+const grain = (() => { const r = rng(5), a = []; for (let i = 0; i < 1600; i++) a.push([r() * W, r() * H, r()]); return a; })();
+let boil = rng(1);
+// wobbly closed shape from a param function, line boils every 1/8 s
+function shapePts(fn, n = 48, amp = 3) { const pts = []; for (let i = 0; i <= n; i++) { const [x, y] = fn(i / n); pts.push([x + (boil() - .5) * amp, y + (boil() - .5) * amp]); } return pts; }
+function trace(pts) { ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); }
+function crayon(pts, col, seed, density = 1) { // scribble fill clipped to shape
+  ctx.save(); trace(pts); ctx.closePath(); ctx.clip();
+  let minx = 1e9, maxx = -1e9, miny = 1e9, maxy = -1e9; for (const [x, y] of pts) { minx = Math.min(minx, x); maxx = Math.max(maxx, x); miny = Math.min(miny, y); maxy = Math.max(maxy, y); }
+  const r = rng(seed); ctx.strokeStyle = col; ctx.lineWidth = 9; ctx.globalAlpha *= 0.55; ctx.lineCap = 'round';
+  for (let x = minx - (maxy - miny); x < maxx; x += 11 / density) { ctx.beginPath(); ctx.moveTo(x + r() * 6, maxy + 5); ctx.lineTo(x + (maxy - miny) + r() * 6, miny - 5); ctx.stroke(); }
+  ctx.restore();
+}
+function inkLine(pts, w = 5) { ctx.save(); ctx.strokeStyle = INK; ctx.lineWidth = w; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; trace(pts); ctx.stroke(); ctx.restore(); }
+const ell = (cx, cy, rx, ry) => k => [cx + Math.cos(k * Math.PI * 2) * rx, cy + Math.sin(k * Math.PI * 2) * ry];
+function blob(cx, cy, rx, ry, col, seed) { const pts = shapePts(ell(cx, cy, rx, ry)); crayon(pts, col, seed); inkLine(pts); }
+function text(s, x, y, size, col, a = 1) { if (a <= 0) return; ctx.save(); ctx.globalAlpha *= a; ctx.font = `700 ${size}px ${HAND}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = col; ctx.fillText(s, x, y); ctx.restore(); }
+
+function character(x, y, col, seed, mood, crown) { // round body with face, feet at y
+  blob(x, y - 150, 120, 140, col, seed);
+  inkLine(shapePts(k => [x - 50 + k * 10, y - 12 + k * 14], 4)); inkLine(shapePts(k => [x + 40 + k * 10, y - 12 + k * 14], 4));
+  ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(x - 38, y - 180, 9, 0, 7); ctx.arc(x + 38, y - 180, 9, 0, 7); ctx.fill();
+  if (mood === 'puff') { inkLine(shapePts(ell(x + 6, y - 128, 18, 14))); }
+  else inkLine(shapePts(k => [x - 26 + k * 52, y - 132 + Math.sin(k * Math.PI) * 10], 8));
+  if (crown) {
+    const pts = shapePts(k => { const i = Math.floor(k * 6); const tx = [-60, -60, -30, 0, 30, 60, 60][i] ?? 60; const ty = [0, -70, -30, -80, -30, -70, 0][i] ?? 0; return [x + tx, y - 290 + ty]; }, 6, 4);
+    crayon(pts, '#f4b81f', seed + 9); inkLine(pts);
+  }
+}
+
+function render(t) {
+  boil = rng(1000 + Math.floor(t * 8));
+  ctx.fillStyle = '#fbf3e2'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(160,120,70,0.10)'; for (const [x, y, v] of grain) ctx.fillRect(x, y, 2 + v * 2, 2);
+  const endK = eo(seg(t, 5.7, 6.1));
+  ctx.save(); ctx.globalAlpha = 1 - endK * 0.93;
+  // ground
+  inkLine(shapePts(k => [120 + k * 1680, 900 + Math.sin(k * 9) * 6], 30, 2), 4);
+  // 他 (crowned) and 你
+  character(1380, 900, '#f2a34a', 21, 'flat', true);
+  text('他', 1380, 960, 64, INK);
+  character(560, 900, '#6aa6d8', 31, t > 2.2 && t < 5.8 ? 'puff' : 'flat', false);
+  text('你', 560, 960, 64, INK);
+  // speech: "他是天才！"
+  const sa = eo(seg(t, 0.7, 1.0)) * (1 - seg(t, 2.6, 2.9));
+  if (sa > 0) {
+    ctx.save(); ctx.globalAlpha *= sa;
+    const pts = shapePts(ell(1020, 420, 260, 100)); crayon(pts, '#ffffff', 7, 2); inkLine(pts);
+    text('他是天才！', 1020, 420, 76, INK); ctx.restore();
+  }
+  // breath puff from 你
+  const g = back(seg(t, 2.3, 2.9));
+  if (g > 0) {
+    const cx = lerp(640, 820, g), cy = lerp(740, 470, g), rx = 290 * g, ry = 170 * g;
+    const pts = shapePts(k => { const a = k * Math.PI * 2; const w = 1 + 0.12 * Math.sin(a * 7); return [cx + Math.cos(a) * rx * w, cy + Math.sin(a) * ry * w]; }, 64);
+    crayon(pts, '#e7e1d5', 13, 1.5); inkLine(pts, 4);
+    text('呼——', cx, cy - 10, 70, '#8a7a66', seg(t, 2.6, 2.8) * (1 - seg(t, 3.5, 3.6)));
+    // 服气？ crossed out, then 开脱
+    text('服气？', cx - 80, cy - 20, 80, INK, seg(t, 3.6, 3.8));
+    const cr = seg(t, 4.3, 4.6);
+    if (cr > 0) { ctx.save(); ctx.strokeStyle = '#d8342a'; ctx.lineWidth = 12; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(cx - 200, cy - 70); ctx.lineTo(lerp(cx - 200, cx + 40, cr), lerp(cy - 70, cy + 30, cr)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx + 40, cy - 70); ctx.lineTo(lerp(cx + 40, cx - 200, cr), lerp(cy - 70, cy + 30, cr)); ctx.stroke(); ctx.restore(); }
+    text('开脱', cx + 160, cy + 50, 96, '#d8342a', eo(seg(t, 4.7, 5.0)));
+  }
+  ctx.restore();
+  // title & caption
+  text('听说“他是天才”', 960, 130, 130, INK, eo(seg(t, 0.1, 0.5)) * (1 - seg(t, 2.0, 2.3)));
+  text('你，松了一口气', 960, 130, 110, INK, eo(seg(t, 2.3, 2.6)) * (1 - seg(t, 5.5, 5.8)));
+  // conclusion
+  const ca = eo(seg(t, 6.0, 6.4));
+  text('这口气，不是服气', 960, 430, 150, INK, ca);
+  text('是开脱', 960, 650, 170, '#d8342a', eo(seg(t, 6.4, 6.8)));
+}
+
+const q = new URLSearchParams(location.search);
+if (q.has('t')) render(+q.get('t'));
+else { let t0 = null; const loop = n => { if (t0 === null) t0 = n; render(((n - t0) / 1000) % D); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script>
+</body>
+</html>
