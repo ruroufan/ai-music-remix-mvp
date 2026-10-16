@@ -21,9 +21,10 @@ import { scoreLofi } from "./audio/score-lofi.mjs";
 import { scoreCassette } from "./audio/score-cassette.mjs";
 import { scoreCinematic } from "./audio/score-cinematic.mjs";
 import { scoreGuochao } from "./audio/score-guochao.mjs";
+import { scoreStompclap } from "./audio/score-stompclap.mjs";
 
 const EPISODES = Object.fromEntries(Object.entries(REGISTRY).map(([id, e]) => [id, e.episode]));
-const SCORES = { ambient: scoreAmbient, drive: scoreDrive, clockwork: scoreClockwork, lofi: scoreLofi, cassette: scoreCassette, cinematic: scoreCinematic, guochao: scoreGuochao };
+const SCORES = { ambient: scoreAmbient, drive: scoreDrive, clockwork: scoreClockwork, lofi: scoreLofi, cassette: scoreCassette, cinematic: scoreCinematic, guochao: scoreGuochao, stompclap: scoreStompclap };
 
 const root = new URL("../public/", import.meta.url);
 mkdirSync(new URL("music/", root), { recursive: true });

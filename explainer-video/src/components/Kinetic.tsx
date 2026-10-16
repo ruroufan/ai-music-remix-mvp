@@ -30,6 +30,36 @@ export const KineticText: React.FC<{ text: string; t: number; look: EpisodeLook;
   return (
     <>
       {segs.map((sg, si) => {
+        if (sg.kind === "key" && look.board) {
+          // whiteboard: red marker, a yellow highlighter swipe behind, a wavy underline
+          const chars = [...sg.text];
+          const k0 = keyAt + ki;
+          ki += chars.length * 2 + 2;
+          const swipe = interpolate(t, [k0 - 4, k0 + 6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+          const under = interpolate(t, [k0 + chars.length * 2, k0 + chars.length * 2 + 10], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+          return (
+            <span key={si} style={{ position: "relative", display: "inline-block", margin: "0 0.06em", fontSize: "1.28em", verticalAlign: "-0.05em" }}>
+              <span style={{ position: "absolute", left: "-0.12em", right: "-0.12em", top: "0.22em", bottom: "0.02em", background: look.keyGlow, transform: `skewX(-8deg) scaleX(${swipe})`, transformOrigin: "0 50%", borderRadius: 4 }} />
+              {chars.map((c, i) => {
+                const a = k0 + i * 2;
+                const p = interpolate(t, [a, a + 5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+                const e = 1 - Math.pow(1 - p, 3);
+                return (
+                  <span key={i} style={{ position: "relative", display: "inline-block", opacity: p > 0 ? 1 : 0, transform: `scale(${1.5 - 0.5 * e}) rotate(${(1 - e) * -8}deg)`, color: look.key }}>
+                    {c}
+                  </span>
+                );
+              })}
+              {under > 0 && (
+                <span style={{ position: "absolute", left: 0, bottom: "-0.3em", height: "0.4em", width: `${under * 100}%`, overflow: "hidden" }}>
+                  <svg style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${100 / Math.max(under, 0.001)}%` }} viewBox="0 0 100 10" preserveAspectRatio="none">
+                    <path d="M1 5 Q 12 0 25 5 T 50 5 T 75 5 T 99 4" fill="none" stroke={look.key} strokeWidth={4} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+                  </svg>
+                </span>
+              )}
+            </span>
+          );
+        }
         if (sg.kind === "key") {
           const chars = [...sg.text];
           const k0 = keyAt + ki;
@@ -83,6 +113,12 @@ export const KineticText: React.FC<{ text: string; t: number; look: EpisodeLook;
               const p = interpolate(t, [a, a + 8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
               const ease = 1 - Math.pow(1 - p, 3);
               const jitter = (random(`${seed}-${si}-${i}`) - 0.5) * 6;
+              if (look.board)
+                return (
+                  <span key={i} style={{ display: "inline-block", opacity: p > 0.15 ? 1 : 0, transform: `scale(${1.15 - 0.15 * ease})`, ...(sg.kind === "hi" ? { color: look.accent } : {}) }}>
+                    {c}
+                  </span>
+                );
               return (
                 <span
                   key={i}

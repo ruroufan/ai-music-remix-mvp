@@ -15,9 +15,11 @@ import { revenge } from "./episodes/revenge";
 import { nostalgia } from "./episodes/nostalgia";
 import { age } from "./episodes/age";
 import { friction } from "./episodes/friction";
+import { perfect } from "./episodes/perfect";
 
 // One composition per episode. Render with `npx remotion render src/index.ts <id>`.
 const episodes: [string, EpisodeDef][] = [
+  ["Perfect", perfect],
   ["Friction", friction],
   ["Age", age],
   ["Nostalgia", nostalgia],

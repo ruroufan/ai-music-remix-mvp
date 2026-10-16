@@ -72,14 +72,17 @@ export const Subtitles: React.FC<Props> = ({ lines, cues, duration, position = "
         whiteSpace: "pre-line",
         opacity,
         transform: `translateY(${lift}px) scale(${1 + 0.035 * kick})`,
-        textShadow: "0 2px 10px rgba(0,0,0,0.9)",
+        textShadow: look.board ? "none" : "0 2px 10px rgba(0,0,0,0.9)",
+        ...(look.board ? { fontWeight: 400, fontSize: size * 1.12, color: "#1f2023" } : {}),
       }}
     >
       <span
         style={{
           display: "inline-block",
           padding: "18px 90px",
-          background: "radial-gradient(ellipse at center, rgba(8,7,6,0.85) 30%, rgba(8,7,6,0) 72%)",
+          background: look.board
+            ? "radial-gradient(ellipse at center, rgba(250,249,245,0.95) 35%, rgba(250,249,245,0) 72%)"
+            : "radial-gradient(ellipse at center, rgba(8,7,6,0.85) 30%, rgba(8,7,6,0) 72%)",
         }}
       >
         {look.fx ? <KineticText text={lines[idx].text} t={frame - start} look={look} beat={timeline.BEAT} seed={`l${idx}`} /> : <RichText text={lines[idx].text} />}

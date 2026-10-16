@@ -2,10 +2,11 @@
 
 画面全部用代码绘制（SVG/CSS 剪影、光、粒子、文字动画），字幕和动作卡在音乐拍子上，背景音乐和音效也由代码合成，没有任何第三方素材。
 
-现在有十二期：
+现在有十三期：
 
 | 合成 ID | 期 | 风格 | 节奏 | 时长 |
 |---|---|---|---|---|
+| `Perfect` | **背光观察室 · 观察 No.13《完美主义》**（伏尔泰“完美是好的敌人”）——**白板手绘版** | 白板 + 马克笔手绘（roughjs），一只握笔的手跟着笔尖画，手写体（站酷快乐体），重点词红笔 + 黄色荧光笔 + 波浪下划线；核心意象：白纸上反复画下又擦掉的第一笔，旁边一墙越画越好的画，最后落下一笔歪歪扭扭的线 | 120 BPM “stompclap”配乐（木吉他扫弦 + 跺脚拍手 + 响指 + 钟琴 + 低音提琴），G 大调 | ~1:46 |
 | `Friction` | **背光观察室 · 观察 No.12《内耗》**（王阳明“人须在事上磨，方立得住”） | 同频道风格 + 动效层；核心意象：人物坐着不动，头顶翻滚着黑色线团和想象中的念头；他站起来伸手做事，线团一根根被抽直、理顺 | 120 BPM “guochao”配乐（古筝拨弦 + 笛子 + 锣 + 半拍鼓，段落前古筝刮奏），D 羽调式 | ~1:54 |
 | `Age` | **背光观察室 · 观察 No.11《年龄焦虑》**（海德格尔“向死而生”） | 同频道风格 + 动效层；核心意象：钉满别人里程碑的时间轴，人物在轴上奔跑；最后走下时间轴，脚下长出只属于他的小路 | 120 BPM “cinematic”配乐（断弓弦乐 + 太鼓 + 铜管轰鸣 + 谢泼德音 + 钢琴），升 C 小调 | ~1:50 |
 | `Nostalgia` | **背光观察室 · 观察 No.10《怀旧》**（克尔凯郭尔“人生只能向后理解，却必须向前生活”） | 同频道风格；核心意象：人物倒着走路，身后是一条暖黄色、清晰的来路（路边立着老照片），身前是一片灰雾；最后他转过身，灰雾里慢慢亮起暖色 | 120 BPM “cassette”配乐（八音盒旋律 + 门限混响军鼓 + 奔马低音 + 通鼓过门 + 磁带停转），A 大调 | ~1:48 |
@@ -25,7 +26,8 @@
 cd explainer-video
 npm install
 npm run studio          # 浏览器里预览所有期
-npm run render          # 《内耗》→ out/friction.mp4
+npm run render          # 《完美主义》→ out/perfect.mp4
+npm run render:friction # 《内耗》
 npm run render:age      # 《年龄焦虑》
 npm run render:nostalgia # 《怀旧》
 npm run render:revenge  # 《报复性熬夜》
@@ -45,6 +47,7 @@ npm run render:pride    # 《傲慢》→ out/pride.mp4
 
 ```
 src/
+  channels/whiteboard/   白板手绘风格：BoardFrame（白板）、sketch.tsx（roughjs 手绘笔画逐笔画出 + 握笔的手 + 手写字 + 板擦）、BoardEndCard、BoardQuestion
   channels/backlit/      背光观察室频道共用：
     channel.ts           频道名、片尾签名「这里是背光观察室，我们观察那些不被看见的部分。」
     look.ts              配色和字体
@@ -55,6 +58,7 @@ src/
     EndCard.tsx          片尾卡：频道名 + 逐字打出的签名
   episodes/
     registry.ts          所有期的数据登记表（配乐、配音、字体预加载都从这里读）
+    perfect/             观察 No.13《完美主义》白板版（drawings.tsx：白纸、第一笔、火柴人、越画越好的猫）
     friction/            观察 No.12《内耗》（tangle.tsx：会被抽直的线团、坐着/伸手的人）
     age/                 观察 No.11《年龄焦虑》（timeline.tsx：别人的里程碑时间轴、自己的小路）
     nostalgia/           观察 No.10《怀旧》（road.tsx：侧身走路的人、暖色来路与灰雾、老照片）
@@ -77,6 +81,7 @@ src/
 scripts/
   music.mjs              生成 public/music/<期>.wav 和 public/sfx/*.wav
   audio/score-drive.mjs  “drive”配乐（No.02–No.07）：鼓组 + 锯齿低音 + 方波琶音
+  audio/score-stompclap.mjs “stompclap”配乐（《完美主义》）：Karplus–Strong 木吉他扫弦 + 跺脚 + 拍手 + 响指 + 钟琴 + 拨弦低音
   audio/score-guochao.mjs “guochao”配乐（《内耗》）：Karplus–Strong 古筝 + 笛子 + 锣 + 框鼓 + 半拍鼓，古筝刮奏过门
   audio/score-cinematic.mjs “cinematic”配乐（《年龄焦虑》）：断弓弦乐 + 太鼓 + 铜管 + 谢泼德音 + 钢琴
   audio/score-cassette.mjs “cassette”配乐（《怀旧》）：八音盒 + 80 年代门限混响军鼓 + 奔马节奏低音 + 合成器和弦 + 磁带抖动/停转
