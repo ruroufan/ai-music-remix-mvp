@@ -5,7 +5,10 @@ import { theme } from "./theme";
 
 // What shared components (subtitles, sound effects) need to know about the
 // episode they are playing in.
-export type EpisodeLook = { accent: string; accentGlow: string; font: string };
+// `fx` turns on the richer motion layer: kinetic subtitles (characters cascade
+// in), 【【key phrases】】 that hit harder, a camera that breathes and punches on
+// the beat, zoom-blur cuts, light sweeps and floating dust.
+export type EpisodeLook = { accent: string; accentGlow: string; font: string; fx?: boolean; key?: string; keyGlow?: string };
 export type EpisodeCtx = { timeline: Timeline; look: EpisodeLook; brand: Brand };
 
 export const EpisodeContext = React.createContext<EpisodeCtx | null>(null);

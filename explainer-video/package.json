@@ -9,8 +9,9 @@
     "studio": "remotion studio src/index.ts",
     "music": "node scripts/music.mjs",
     "voiceover": "node scripts/voiceover.mjs",
-    "prerender": "node scripts/music.mjs nostalgia",
-    "render": "remotion render src/index.ts Nostalgia out/nostalgia.mp4",
+    "prerender": "node scripts/music.mjs age",
+    "render": "remotion render src/index.ts Age out/age.mp4",
+    "render:nostalgia": "node scripts/music.mjs nostalgia && remotion render src/index.ts Nostalgia out/nostalgia.mp4",
     "render:revenge": "node scripts/music.mjs revenge && remotion render src/index.ts Revenge out/revenge.mp4",
     "render:procrastination": "node scripts/music.mjs procrastination && remotion render src/index.ts Procrastination out/procrastination.mp4",
     "render:humility": "node scripts/music.mjs humility && remotion render src/index.ts Humility out/humility.mp4",
@@ -20,7 +21,7 @@
     "render:inferiority": "node scripts/music.mjs inferiority && remotion render src/index.ts Inferiority out/inferiority.mp4",
     "render:pleasing": "node scripts/music.mjs pleasing && remotion render src/index.ts Pleasing out/pleasing.mp4",
     "render:pride": "node scripts/music.mjs pride && remotion render src/index.ts Pride out/pride.mp4",
-    "still": "remotion still src/index.ts Nostalgia out/still.png --frame=300",
+    "still": "remotion still src/index.ts Age out/still.png --frame=300",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -2,11 +2,13 @@ import React from "react";
 import { useCurrentFrame, interpolate } from "remotion";
 import { useEpisode } from "../EpisodeContext";
 import type { Line } from "../types";
+import { KineticText, keyLandsAt } from "./Kinetic";
 
 // "第一种，叫作【自爱心】" → plain text with the bracketed part in accent colour.
 export const RichText: React.FC<{ text: string }> = ({ text }) => {
   const { look } = useEpisode();
-  const parts = text.split(/(【[^】]*】)/g).filter(Boolean);
+  // 【【key】】 reads as a plain highlight outside the kinetic layer
+  const parts = text.replace(/【【/g, "【").replace(/】】/g, "】").split(/(【[^】]*】)/g).filter(Boolean);
   return (
     <>
       {parts.map((p, i) =>
@@ -36,6 +38,7 @@ type Props = {
 
 export const Subtitles: React.FC<Props> = ({ lines, cues, duration, position = "bottom", y, size = 46, hide = [] }) => {
   const frame = useCurrentFrame();
+  const { look, timeline } = useEpisode();
   const idx = cues.findLastIndex((c) => frame >= c);
   if (idx < 0 || hide.includes(idx)) return null;
   const start = cues[idx];
@@ -45,6 +48,8 @@ export const Subtitles: React.FC<Props> = ({ lines, cues, duration, position = "
     extrapolateRight: "clamp",
   });
   const lift = interpolate(frame, [start, start + 10], [10, 0], { extrapolateRight: "clamp" });
+  const keyAt = look.fx ? keyLandsAt(lines[idx].text, timeline.BEAT) : -1;
+  const kick = keyAt >= 0 && frame - start >= keyAt ? Math.exp(-(frame - start - keyAt) / 4) * Math.cos((frame - start - keyAt) * 1.3) : 0;
 
   return (
     <div
@@ -66,7 +71,7 @@ export const Subtitles: React.FC<Props> = ({ lines, cues, duration, position = "
         letterSpacing: 2,
         whiteSpace: "pre-line",
         opacity,
-        transform: `translateY(${lift}px)`,
+        transform: `translateY(${lift}px) scale(${1 + 0.035 * kick})`,
         textShadow: "0 2px 10px rgba(0,0,0,0.9)",
       }}
     >
@@ -77,7 +82,7 @@ export const Subtitles: React.FC<Props> = ({ lines, cues, duration, position = "
           background: "radial-gradient(ellipse at center, rgba(8,7,6,0.85) 30%, rgba(8,7,6,0) 72%)",
         }}
       >
-        <RichText text={lines[idx].text} />
+        {look.fx ? <KineticText text={lines[idx].text} t={frame - start} look={look} beat={timeline.BEAT} seed={`l${idx}`} /> : <RichText text={lines[idx].text} />}
       </span>
     </div>
   );

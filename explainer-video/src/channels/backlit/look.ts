@@ -19,3 +19,7 @@ export const fonts = {
 
 // The accent the shared subtitles use for 【highlighted】 words.
 export const backlitLook = { accent: palette.accent, accentGlow: `rgba(${palette.accentRgb},0.6)`, font: fonts.sans };
+
+// The same look with the motion layer on, and a warm gold for 【【key phrases】】
+// (the backlight colour, so the words that matter most are the ones "lit from behind").
+export const backlitLookFx = { ...backlitLook, fx: true, key: "#ffc77a", keyGlow: `rgba(${palette.halo},0.85)` };
