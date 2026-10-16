@@ -140,7 +140,7 @@ const shots = shotsIn.map((s, i) => {
   // 镜头里任意层级的 at 字段都换算成成片时间（动作、名牌、数字、大字、道具关键帧、镜头、灯光、特效）
   const TIME_KEYS = new Set(['at', 'out', 'until']);
   const walk = (x) => { if (Array.isArray(x)) x.forEach(walk); else if (x && typeof x === 'object') for (const k of Object.keys(x)) { if (TIME_KEYS.has(k) && (typeof x[k] === 'number' || typeof x[k] === 'string')) x[k] = R(x[k]); else walk(x[k]); } };
-  for (const k of ['cast', 'nameplates', 'numbers', 'bigText', 'props', 'camera', 'lightKeys', 'effects', 'els']) if (o[k]) walk(o[k]);
+  for (const k of ['cast', 'nameplates', 'numbers', 'bigText', 'props', 'camera', 'lightKeys', 'effects', 'els', 'shake']) if (o[k]) walk(o[k]);
   if (o.bigText && typeof o.bigText.columns === 'string') o.bigText.columns = [o.bigText.columns];
   for (const p of o.props || []) for (const k of ['showAt', 'hideAt']) if (p[k] != null) p[k] = R(p[k]);
   return o;

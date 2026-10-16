@@ -71,7 +71,9 @@
       band: [[polyD(H([[-16, -30], [-8, -44], [4, -42], [4, -30]])), 'black'], [polyD(H([[-25, -20], [20, -26], [21, -19], [-23, -12]])), 'red']],
       mianliu: [[polyD(H([[-12, -27], [14, -30], [14, -42], [-10, -40]])), 'black'], [polyD(H([[-32, -40], [36, -47], [37, -42], [-31, -35]])), 'black']],
       kerchief: [[smoothD(H([[-26, -10], [-23, -30], [0, -39], [20, -31], [24, -19], [0, -25]])), 'cloth'], [smoothD(H([[-26, -16], [-40, -8], [-36, 4], [-24, -6]])), 'cloth']],
-      bun: [[smoothD(H([[-14, -30], [-16, -42], [-4, -46], [4, -38]])), 'black']]
+      bun: [[smoothD(H([[-14, -30], [-16, -42], [-4, -46], [4, -38]])), 'black']],
+      gaoji: [[smoothD(H([[-18, -28], [-24, -48], [-14, -70], [4, -68], [10, -50], [4, -30]])), 'black'], [smoothD(H([[-6, -66], [2, -80], [12, -76], [8, -64]])), 'black']],
+      douli: [[polyD(H([[-48, -24], [0, -52], [48, -24], [44, -19], [-44, -19]])), 'cloth']]
     }
   };
 
@@ -88,6 +90,12 @@
     shangyang: { name: '商鞅', s: 1.0, robe: '#6B3E26', trim: 'black', face: 'light', hat: 'tall', beard: 'short', skirt: 'long', pattern: 'lattice', sleeve: 'wide', legs: 'black' },
     porter: { name: '扛木人', s: 0.96, wx: 0.84, robe: '#A88A5C', trim: '#6B4A2A', face: 'light', hat: 'kerchief', cloth: '#7A6040', beard: 'none', skirt: 'short', pattern: 'dots', sleeve: 'tight', legs: '#5A4630' },
     villager: { name: '百姓', s: 0.72, robe: '#5E7183', trim: '#3E4A56', face: 'light', hat: 'kerchief', cloth: '#4A5866', beard: 'none', skirt: 'short', pattern: 'dots', sleeve: 'tight', legs: '#3E4A56' },
+    linxiangru: { name: '蔺相如', s: 1.02, wx: 0.88, robe: '#3F6B5E', trim: '#C9A24A', face: 'light', hat: 'tall', beard: 'long', skirt: 'long', pattern: 'lattice', sleeve: 'wide', legs: 'black' },
+    zhaowang: { name: '赵王', s: 1.03, robe: '#2F5D50', trim: '#C9A24A', face: 'light', hat: 'mianliu', beard: 'long', skirt: 'long', pattern: 'huiwen', sleeve: 'wide', legs: 'black' },
+    qinwang: { name: '秦王', s: 1.16, robe: '#1F1A18', trim: '#9E2B25', face: 'light', hat: 'mianliu', beard: 'long', skirt: 'long', pattern: 'scale', sleeve: 'wide', legs: 'black' },
+    meiren: { name: '美人', s: 0.94, robe: '#D98C8C', trim: '#C9A24A', face: 'light', hat: 'gaoji', pin: true, beard: 'none', skirt: 'long', pattern: 'dots', sleeve: 'wide', legs: '#B06A6A' },
+    minister: { name: '大臣', s: 0.98, robe: '#4A3426', trim: 'black', face: 'light', hat: 'crown', beard: 'short', skirt: 'long', pattern: 'huiwen', sleeve: 'wide', legs: 'black' },
+    suicong: { name: '随从', s: 0.95, robe: '#A88A5C', trim: '#6B4A2A', face: 'light', hat: 'douli', cloth: '#C8A86A', beard: 'none', skirt: 'short', pattern: 'dots', sleeve: 'tight', legs: '#5A4630' },
     soldier: { name: '士卒', s: 0.94, robe: 'brown', trim: 'black', face: 'light', hat: 'helmetS', beard: 'none', skirt: 'short', pattern: 'scale', sleeve: 'tight', legs: 'black' }
   };
 
@@ -125,7 +133,15 @@
     carry: { torso: 0.08, head: -0.02, aN: [2.75, -2.55], aF: [2.6, -2.4], ...STAND_L },
     give: { torso: 0.06, head: 0.05, aN: [1.55, 0.05], aF: [-0.1, 0.15], ...STAND_L },
     receive: { torso: 0.1, head: 0.12, aN: [1.3, 0.35], aF: [1.2, 0.45], ...STAND_L },
-    knock: { torso: 0.02, head: 0, aN: [1.65, 0.75], aF: [-0.1, 0.2], ...STAND_L }
+    knock: { torso: 0.02, head: 0, aN: [1.65, 0.75], aF: [-0.1, 0.2], ...STAND_L },
+    raise_both: { torso: -0.08, head: -0.18, aN: [2.95, 0.15], aF: [2.85, 0.25], lN: [0.25, 0], lF: [-0.25, -0.05] },
+    present: { torso: 0.05, head: 0.05, aN: [1.45, 0.35], aF: [1.3, 0.45], ...STAND_L },
+    reach: { torso: 0.1, head: 0.05, aN: [1.65, 0.05], aF: [-0.1, 0.2], ...STAND_L },
+    clutch: { torso: 0.12, head: 0.05, aN: [0.75, 2.0], aF: [0.55, 1.9], ...STAND_L },
+    worried: { torso: 0.06, head: 0.18, aN: [0.9, 1.7], aF: [0.7, 1.8], ...STAND_L },
+    kneel_proud: { torso: -0.2, head: -0.22, aN: [0.9, 1.3], aF: [0.42, 1.05], ...KNEEL_L, kneel: 1 },
+    kneel_hold: { torso: -0.04, head: 0.08, aN: [1.35, 0.6], aF: [0.42, 1.05], ...KNEEL_L, kneel: 1 },
+    hold_out: { torso: 0, head: 0.04, aN: [1.4, 0.45], aF: [-0.1, 0.2], ...STAND_L }
   };
   function blendPose(a, b, k) {
     const out = {}, keys = ['torso', 'head', 'kneel'];
@@ -171,6 +187,12 @@
       out.jade = toScreen(ctx, x, y);
     } else if (kind === 'cup') {
       fillPart(ctx, polyD([[-12, F + 4], [12, F + 4], [9, F + 18], [-9, F + 18]]), COLORS.red[1], null, null, 1.4);
+    } else if (kind === 'bi') { // 和氏璧：圆形玉璧，中心有孔
+      const r = 40, cy = F + 30;
+      ctx.beginPath(); ctx.arc(0, cy, r, 0, TAU); ctx.arc(0, cy, r * 0.32, 0, TAU, true);
+      ctx.fillStyle = 'rgba(127,200,169,0.98)'; ctx.fill('evenodd'); ctx.strokeStyle = LINE; ctx.lineWidth = 2; ctx.stroke();
+      ctx.strokeStyle = 'rgba(220,255,236,0.8)'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(0, cy, r * 0.7, 0, TAU); ctx.stroke();
+      out.bi = toScreen(ctx, 0, cy); out.biScale = Math.hypot(...(() => { const m = ctx.getTransform(); return [m.a, m.b]; })());
     } else if (kind === 'gold') { // 金饼
       fillPart(ctx, smoothD([[-14, F + 12], [14, F + 12], [16, F + 20], [0, F + 26], [-16, F + 20]]), 'rgba(232,194,90,0.97)', null, null, 1.5);
       out.gold = toScreen(ctx, 0, F + 18);
@@ -280,9 +302,11 @@
       fillPart(ctx, PART.beard[def.beard], def.beard === 'white' ? COLORS.white[0] : COLORS.black[0]);
       if (def.beard === 'white') for (let k = 0; k < 3; k++) strokeLine(ctx, H([[17 + k * 5, 32], [20 + k * 4, 70]]), 1, LINE);
     }
+    ctx.save(); ctx.translate(0, -(def._hatLift || 0));
     for (const [d, col] of PART.hat[def.hat] || []) fillPart(ctx, d, hatCol(col), def.hat === 'helmet' ? 'dots' : null, [-40, -110, 40, -40]);
     if (def.hat === 'crown' || def.hat === 'tall' || def.pin) strokeLine(ctx, H([[-24, -38], [28, -43]]), 2.8, COLORS.yellow[0]);
     if (def.hat === 'liu') strokeLine(ctx, H([[-4, -28], [-8, 4], [6, 26]]), 1.4, LINE);
+    ctx.restore();
     if (def.hat === 'mianliu') { // 冕旒：平顶冠前后垂珠，随头轻摆
       const sw = Math.sin(t * 2.2) * 1.5;
       for (const [x0, y0] of [...[30, 33, 36].map(x => [x, -46]), ...[-24, -27, -30].map(x => [x, -38])]) {

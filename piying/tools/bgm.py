@@ -469,6 +469,18 @@ def main():
         for e in s.get('effects') or []:
             if e['type'] == 'pass': ev(e['at'] + e.get('dur', 0.7), 'chime')
             if e['type'] == 'sparkle': ev(e['at'], 'gliss')
+        for sk in s.get('shake') or []:
+            ev(sk['at'], 'boom'); ev(sk['at'], 'stamp')
+        for p in s.get('props') or []:
+            if p.get('lit'):
+                for k in range(15):
+                    ev(p['lit']['at'] + k * p['lit'].get('dur', 1.5) / 15, 'char')
+            if p.get('open'): ev(p['open']['at'], 'swish')
+            for k in p.get('glowKeys') or []:
+                ev(k['at'], 'gliss')
+        for m in s.get('cast') or []:
+            for a in m.get('actions') or []:
+                if a.get('do') == 'hatpop': ev(a['at'], 'pop')
 
     # 混响 + 收尾淡出
     def ir(seed):

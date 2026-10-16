@@ -129,11 +129,14 @@ node tools/build.mjs episodes/ep01 --no-music      # 不加背景音乐
 - `move`：`static`、`pan`（x→toX）、`push`（1.0→1.15）、`fastpush`（0.4 秒推到 1.35）、`pull`（1.15→1.0），可组合如 `"pan+push"`。
 - 自定义：`x`/`y`/`zoom` 为起点，`toX`/`toY`/`toZoom` 为终点，`at`/`dur` 指定这段运动的时间（默认整个镜头）。如「推近告示牌 1.0→1.3」。
 - 跟随：`follow: { who, dx, at }` 镜头 x 跟着某个人物走。
+- 多段：`keys: [{ at, x, y, zoom, dur }]` 依次过渡（如镜头跟着玉璧一路传过去）。
+- 震动：镜头顶层 `shake: [{ at, frames: 3, amp: 14 }]` 画面抖动几帧。
+- 帷幔颜色：镜头顶层 `valance: "#3A1512"`（如秦殿黑红、赵殿青绿）。
 
-**角色 `who`**：`qinxiaogong` 秦孝公（冕旒）、`shangyang` 商鞅、`porter` 扛木人、`villager` 百姓（小号 260px）、`xiangyu` 项羽、`liubang` 刘邦、`zhangliang` 张良、`fankuai` 樊哙、`fanzeng` 范增、`xiangzhuang` 项庄、`xiangbo` 项伯、`soldier` 士卒。新角色在 `rig.js` 的 `CHARS` 里加一行：配色（色名或 `#RRGGBB`）、帽子（helmet/crown/tall/liu/scholar/band/mianliu/kerchief/bun/helmetS）、胡须、脸色（light/black/red）、下摆（long/short）、镂空纹样（dots/scale/lattice/huiwen）、袖子（wide/tight）。
-单个镜头里还可以：`look` 覆盖外观（如 `{"robe":"#B08F4A","s":0.95}`）；`layer` 调前后层次；`behindDoor: true` 站在客栈门后（身体被门挡住，只有手伸到门外）。同一镜头出现同一角色多次时用 `"id"` 区分（名牌、特效、镜头跟随都用 `id`）。
+**角色 `who`**：`linxiangru` 蔺相如、`zhaowang` 赵王、`qinwang` 秦王、`meiren` 美人（高髻）、`minister` 大臣/侍臣（用 `look` 换袍色）、`suicong` 随从（斗笠）、`qinxiaogong` 秦孝公（冕旒）、`shangyang` 商鞅、`porter` 扛木人、`villager` 百姓（小号 260px）、`xiangyu` 项羽、`liubang` 刘邦、`zhangliang` 张良、`fankuai` 樊哙、`fanzeng` 范增、`xiangzhuang` 项庄、`xiangbo` 项伯、`soldier` 士卒。新角色在 `rig.js` 的 `CHARS` 里加一行：配色（色名或 `#RRGGBB`）、帽子（helmet/crown/tall/liu/scholar/band/mianliu/kerchief/bun/helmetS）、胡须、脸色（light/black/red）、下摆（long/short）、镂空纹样（dots/scale/lattice/huiwen）、袖子（wide/tight）。
+单个镜头里还可以：`dy` 竖直偏移（如坐在高台上 `-90`）；`look` 覆盖外观（如 `{"robe":"#B08F4A","s":0.95}`）；`layer` 调前后层次；`behindDoor: true` 站在客栈门后（身体被门挡住，只有手伸到门外）。同一镜头出现同一角色多次时用 `"id"` 区分（名牌、特效、镜头跟随都用 `id`）。
 
-**姿势 `pose`**：`stand` `kneel` `bow` `kneel_bow` `point` `kneel_point` `angry` `kneel_angry` `raise` `kneel_raise` `kneel_drink` `kneel_silent` `kneel_talk` `kneel_lowhead` `talk` `cheer` `point_up` `carry` `give` `receive` `knock` `shield` `sword_up` `sword_low` `sneak` `mourn` `order` `smash_up` `smash_down` `fist`。新姿势在 `rig.js` 的 `POSES` 里用关节角度定义。
+**姿势 `pose`**：`stand` `kneel` `bow` `kneel_bow` `point` `kneel_point` `angry` `kneel_angry` `raise` `kneel_raise` `kneel_drink` `kneel_silent` `kneel_talk` `kneel_lowhead` `kneel_proud` `kneel_hold` `talk` `cheer` `point_up` `carry` `give` `receive` `knock` `raise_both` `present` `reach` `clutch` `worried` `hold_out` `shield` `sword_up` `sword_low` `sneak` `mourn` `order` `smash_up` `smash_down` `fist`。新姿势在 `rig.js` 的 `POSES` 里用关节角度定义。
 
 **动作 `actions[].do`**：
 - `pose` {name, dur=0.4}：换姿势（ease-in-out 过渡）
@@ -144,6 +147,7 @@ node tools/build.mjs episodes/ep01 --no-music      # 不加背景音乐
 - `hold` {item, hand: near|far}：换手持道具 `sword` `jade` `cup` `dipper`(玉斗) `spear`，`null` 为空手
 - `dance` {dur, dx}：舞剑；`lunge` {dur, dx}：前刺
 - `carry` {len, on}：把长木横扛在肩上（`on:false` 放下）；`wave` {dur, times}：挥手
+- `shakehead` {dur, times}：摇头（±8°）；`hatpop` {dur, h}：帽子弹起再落下（怒发冲冠）
 
 **道具 `props[].type`**：`table` `lamp`(油灯，带闪烁) `lampSmall`(案上小灯) `banner`{text,color} `tent` `screen`(屏风) `rack`(兵器架) `hill` `moon` `waves` `reeds`，以及：
 - `gate` 城门 {x, w, plaque:"南门", plaqueTo:{text:"北门", at, dur}, alpha}
@@ -151,6 +155,10 @@ node tools/build.mjs episodes/ep01 --no-music      # 不加背景音乐
 - `board` 告示牌 {x, cols:[竖排各列], strike:{at,dur} 红线划掉「十金」, stamp:{at,text} 盖红字}
 - `map` 七国地图 {x,y,w,h, hang, qin:{at,dur} 秦由灰变黑红, conquer:[{state:"韩",at}, …] 逐块吞并}
 - `inn` 客栈 {x, door:[{at, v 0~1, dur}] 门缝开合（带暖光）}
+- `bi` 和氏璧 {x, y, size=80, bob, glowKeys:[{at,v,dur}]}：玉璧发光（呼吸式明暗，画在亮度遮罩之后，暗场里也是最亮的点）；手持用 `hold: "bi"`，传递用 `effects` 的 `{type:"pass", item:"bi"}`
+- `pillar` 红色大柱 {x, w}（常配 `front:true` 做前景）；`dais` 高台 {x0, x1, h}（带台阶）
+- `cityMap` 地图卷轴 {x,y,w,h, open:{at,dur} 展开, lit:{at,dur} 十五个城标依次亮起, off:{at} 全部熄灭}
+- `ridge` 一层山峰剪影 {x, w, h, seed, peaks, color}，多层配不同 `parallax` 做远慢近快的视差
 
 通用字段：`front: true` 画在人物前；`parallax: 0~1` 跟随镜头的程度（背景慢移）；`showAt`/`hideAt` 出现/消失时刻。
 

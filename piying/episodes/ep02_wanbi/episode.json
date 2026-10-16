@@ -1,0 +1,916 @@
+{
+  "series": "一分钟历史",
+  "episode": 2,
+  "title": "完璧归赵",
+  "note": "第02集 完璧归赵：一块玉，十五座城（约公元前283年）。配音 Haoran 三段（621833bd → e8978545 → a48ffaee）拼接。",
+  "shots": [
+    {
+      "id": "1_hook",
+      "kind": "hook",
+      "script": "秦王说，愿意拿十五座城，换赵国一块玉。这块玉，就是天下闻名的和氏璧。",
+      "text": "十五座城，换一块玉",
+      "textAt": "@十五座城",
+      "subtitles": true,
+      "light": 0.15,
+      "camera": {
+        "x": 960,
+        "y": 540,
+        "move": "push"
+      },
+      "props": [
+        {
+          "type": "bi",
+          "x": 960,
+          "y": 340,
+          "size": 110
+        }
+      ]
+    },
+    {
+      "id": "2_title",
+      "kind": "title",
+      "transition": "cut",
+      "light": 0.15,
+      "lightKeys": [
+        {
+          "at": 0,
+          "to": 1,
+          "dur": 0.8
+        }
+      ],
+      "props": [
+        {
+          "type": "bi",
+          "x": 900,
+          "y": 470,
+          "size": 120,
+          "bob": {
+            "amp": 10,
+            "period": 2.4
+          }
+        }
+      ]
+    },
+    {
+      "id": "3_zhao",
+      "script": "赵王很为难。给吧，秦国十有八九不会给城；不给吧，又怕秦国借机出兵。这时有人推荐了一个门客出身的小人物——蔺相如。",
+      "valance": "#2F5D50",
+      "camera": {
+        "x": 960,
+        "keys": [
+          {
+            "at": "@蔺相如",
+            "x": 1300,
+            "dur": 0.9
+          }
+        ]
+      },
+      "props": [
+        {
+          "type": "screen",
+          "x": 960,
+          "w": 900
+        },
+        {
+          "type": "banner",
+          "x": 170,
+          "text": "赵",
+          "color": "green"
+        },
+        {
+          "type": "lamp",
+          "x": 440
+        },
+        {
+          "type": "lamp",
+          "x": 1460
+        }
+      ],
+      "cast": [
+        {
+          "who": "minister",
+          "id": "m1",
+          "x": 640,
+          "face": 1,
+          "look": {
+            "robe": "#4A5A3A"
+          },
+          "actions": [
+            {
+              "do": "shakehead",
+              "at": "@给吧",
+              "dur": 1.2
+            },
+            {
+              "do": "shakehead",
+              "at": "@不给吧",
+              "dur": 1.2
+            }
+          ]
+        },
+        {
+          "who": "zhaowang",
+          "x": 960,
+          "face": 1,
+          "pose": "worried",
+          "actions": [
+            {
+              "do": "walk",
+              "to": 1080,
+              "at": 0.3,
+              "dur": 1.3
+            },
+            {
+              "do": "turn",
+              "at": 1.7
+            },
+            {
+              "do": "walk",
+              "to": 840,
+              "at": 2.0,
+              "dur": 1.8
+            },
+            {
+              "do": "turn",
+              "at": 3.9
+            },
+            {
+              "do": "walk",
+              "to": 960,
+              "at": 4.2,
+              "dur": 1.2
+            }
+          ]
+        },
+        {
+          "who": "minister",
+          "id": "m2",
+          "x": 1260,
+          "face": -1,
+          "look": {
+            "robe": "#3E4A56"
+          },
+          "actions": [
+            {
+              "do": "shakehead",
+              "at": "@给吧+0.2",
+              "dur": 1.2
+            },
+            {
+              "do": "shakehead",
+              "at": "@不给吧+0.2",
+              "dur": 1.2
+            }
+          ]
+        },
+        {
+          "who": "linxiangru",
+          "x": 1620,
+          "face": -1,
+          "pose": "stand",
+          "actions": [
+            {
+              "do": "walk",
+              "to": 1490,
+              "at": "@蔺相如",
+              "dur": 0.6
+            },
+            {
+              "do": "pose",
+              "name": "bow",
+              "at": "@蔺相如+0.6",
+              "dur": 0.5
+            }
+          ]
+        }
+      ],
+      "nameplates": [
+        {
+          "who": "zhaowang",
+          "at": "@赵王很为难"
+        },
+        {
+          "who": "linxiangru",
+          "at": "@蔺相如+0.3"
+        }
+      ]
+    },
+    {
+      "id": "4_qin",
+      "transition": "curtain",
+      "script": "蔺相如捧着玉到了秦国。秦王接过和氏璧，传给美人和左右看，满脸得意，却绝口不提城池的事。",
+      "valance": "#3A1512",
+      "camera": {
+        "x": 900,
+        "keys": [
+          {
+            "at": "@秦王接过",
+            "x": 1120,
+            "dur": 0.8
+          },
+          {
+            "at": "@传给美人",
+            "x": 1420,
+            "dur": 0.8
+          },
+          {
+            "at": "@和左右看",
+            "x": 1600,
+            "dur": 0.8
+          },
+          {
+            "at": "@满脸得意",
+            "x": 1700,
+            "dur": 0.8
+          }
+        ]
+      },
+      "props": [
+        {
+          "type": "screen",
+          "x": 1150,
+          "w": 760
+        },
+        {
+          "type": "banner",
+          "x": 640,
+          "text": "秦",
+          "color": "red"
+        },
+        {
+          "type": "dais",
+          "x0": 920,
+          "x1": 1380,
+          "h": 90
+        },
+        {
+          "type": "lamp",
+          "x": 1460
+        },
+        {
+          "type": "lamp",
+          "x": 2100
+        }
+      ],
+      "cast": [
+        {
+          "who": "linxiangru",
+          "x": 560,
+          "face": 1,
+          "pose": "present",
+          "hold": "bi",
+          "actions": [
+            {
+              "do": "walk",
+              "to": 720,
+              "at": 0.2,
+              "dur": 1.2
+            },
+            {
+              "do": "hold",
+              "item": null,
+              "at": "@秦王接过"
+            },
+            {
+              "do": "pose",
+              "name": "stand",
+              "at": "@秦王接过+0.4"
+            }
+          ]
+        },
+        {
+          "who": "qinwang",
+          "x": 1150,
+          "face": -1,
+          "pose": "kneel",
+          "dy": -90,
+          "actions": [
+            {
+              "do": "pose",
+              "name": "kneel_hold",
+              "at": "@秦王接过",
+              "dur": 0.4
+            },
+            {
+              "do": "hold",
+              "item": "bi",
+              "at": "@秦王接过+0.7"
+            },
+            {
+              "do": "hold",
+              "item": null,
+              "at": "@传给美人"
+            },
+            {
+              "do": "pose",
+              "name": "kneel_proud",
+              "at": "@满脸得意",
+              "dur": 0.6
+            }
+          ]
+        },
+        {
+          "who": "meiren",
+          "x": 1520,
+          "face": -1,
+          "pose": "stand",
+          "actions": [
+            {
+              "do": "pose",
+              "name": "hold_out",
+              "at": "@传给美人",
+              "dur": 0.4
+            },
+            {
+              "do": "hold",
+              "item": "bi",
+              "at": "@传给美人+0.7"
+            },
+            {
+              "do": "hold",
+              "item": null,
+              "at": "@和左右看"
+            }
+          ]
+        },
+        {
+          "who": "minister",
+          "id": "c1",
+          "x": 1690,
+          "face": -1,
+          "look": {
+            "robe": "#3B2A20"
+          },
+          "actions": [
+            {
+              "do": "pose",
+              "name": "hold_out",
+              "at": "@和左右看",
+              "dur": 0.4
+            },
+            {
+              "do": "hold",
+              "item": "bi",
+              "at": "@和左右看+0.7"
+            },
+            {
+              "do": "hold",
+              "item": null,
+              "at": "@满脸得意"
+            }
+          ]
+        },
+        {
+          "who": "minister",
+          "id": "c2",
+          "x": 1860,
+          "face": -1,
+          "look": {
+            "robe": "#2E241E",
+            "beard": "none"
+          },
+          "actions": [
+            {
+              "do": "pose",
+              "name": "hold_out",
+              "at": "@满脸得意",
+              "dur": 0.4
+            },
+            {
+              "do": "hold",
+              "item": "bi",
+              "at": "@满脸得意+0.7"
+            }
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "type": "pass",
+          "item": "bi",
+          "from": "linxiangru",
+          "to": "qinwang",
+          "at": "@秦王接过",
+          "dur": 0.7
+        },
+        {
+          "type": "pass",
+          "item": "bi",
+          "from": "qinwang",
+          "to": "meiren",
+          "at": "@传给美人",
+          "dur": 0.7
+        },
+        {
+          "type": "pass",
+          "item": "bi",
+          "from": "meiren",
+          "to": "c1",
+          "at": "@和左右看",
+          "dur": 0.7
+        },
+        {
+          "type": "pass",
+          "item": "bi",
+          "from": "c1",
+          "to": "c2",
+          "at": "@满脸得意",
+          "dur": 0.7
+        }
+      ],
+      "nameplates": [
+        {
+          "who": "qinwang",
+          "at": "@秦王接过+0.2"
+        }
+      ]
+    },
+    {
+      "id": "5_flaw",
+      "script": "蔺相如看明白了。他上前说：这块玉上有个小瑕疵，我指给大王看。",
+      "valance": "#3A1512",
+      "camera": {
+        "x": 1150,
+        "keys": [
+          {
+            "at": "@他上前",
+            "x": 1500,
+            "dur": 1.2
+          },
+          {
+            "at": "@小瑕疵",
+            "x": 1740,
+            "y": 560,
+            "zoom": 1.3,
+            "dur": 1.0
+          }
+        ]
+      },
+      "props": [
+        {
+          "type": "screen",
+          "x": 1150,
+          "w": 760
+        },
+        {
+          "type": "banner",
+          "x": 640,
+          "text": "秦",
+          "color": "red"
+        },
+        {
+          "type": "dais",
+          "x0": 920,
+          "x1": 1380,
+          "h": 90
+        },
+        {
+          "type": "lamp",
+          "x": 1460
+        },
+        {
+          "type": "lamp",
+          "x": 2100
+        }
+      ],
+      "cast": [
+        {
+          "who": "qinwang",
+          "x": 1150,
+          "face": -1,
+          "pose": "kneel_proud",
+          "dy": -90
+        },
+        {
+          "who": "meiren",
+          "x": 1520,
+          "face": -1,
+          "pose": "stand"
+        },
+        {
+          "who": "minister",
+          "id": "c1",
+          "x": 1690,
+          "face": -1,
+          "look": {
+            "robe": "#3B2A20"
+          }
+        },
+        {
+          "who": "minister",
+          "id": "c2",
+          "x": 1880,
+          "face": -1,
+          "look": {
+            "robe": "#2E241E",
+            "beard": "none"
+          },
+          "pose": "hold_out",
+          "hold": "bi",
+          "actions": [
+            {
+              "do": "hold",
+              "item": null,
+              "at": "@指给大王看"
+            },
+            {
+              "do": "pose",
+              "name": "stand",
+              "at": "@指给大王看+0.5"
+            }
+          ]
+        },
+        {
+          "who": "linxiangru",
+          "x": 720,
+          "face": 1,
+          "pose": "stand",
+          "layer": 1,
+          "actions": [
+            {
+              "do": "walk",
+              "to": 1690,
+              "at": "@他上前",
+              "dur": 1.4
+            },
+            {
+              "do": "pose",
+              "name": "reach",
+              "at": "@小瑕疵",
+              "dur": 0.5
+            },
+            {
+              "do": "hold",
+              "item": "bi",
+              "at": "@指给大王看+0.7"
+            }
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "type": "pass",
+          "item": "bi",
+          "from": "c2",
+          "to": "linxiangru",
+          "at": "@指给大王看",
+          "dur": 0.7
+        }
+      ]
+    },
+    {
+      "id": "6_pillar",
+      "script": "玉一回到手里，他立刻退到柱子边，怒发冲冠：大王若是逼我，我的头和这块玉，今天一起撞碎在柱子上！",
+      "valance": "#3A1512",
+      "camera": {
+        "x": 1000,
+        "keys": [
+          {
+            "at": "@怒发冲冠",
+            "x": 820,
+            "y": 520,
+            "zoom": 1.35,
+            "dur": 0.4
+          }
+        ]
+      },
+      "shake": [
+        {
+          "at": "@怒发冲冠",
+          "frames": 3,
+          "amp": 14
+        }
+      ],
+      "props": [
+        {
+          "type": "dais",
+          "x0": 1360,
+          "x1": 1820,
+          "h": 90
+        },
+        {
+          "type": "lamp",
+          "x": 1180
+        },
+        {
+          "type": "pillar",
+          "x": 420,
+          "w": 300,
+          "front": true
+        }
+      ],
+      "cast": [
+        {
+          "who": "qinwang",
+          "x": 1580,
+          "face": -1,
+          "pose": "kneel_proud",
+          "dy": -90
+        },
+        {
+          "who": "linxiangru",
+          "x": 1250,
+          "face": 1,
+          "pose": "hold_out",
+          "hold": "bi",
+          "actions": [
+            {
+              "do": "run",
+              "to": 760,
+              "at": "@立刻退到",
+              "dur": 0.7
+            },
+            {
+              "do": "pose",
+              "name": "raise_both",
+              "at": "@怒发冲冠",
+              "dur": 0.3
+            },
+            {
+              "do": "hatpop",
+              "at": "@怒发冲冠",
+              "dur": 0.5
+            }
+          ]
+        }
+      ],
+      "bigText": {
+        "columns": [
+          "怒发冲冠"
+        ],
+        "at": "@怒发冲冠"
+      }
+    },
+    {
+      "id": "7_map",
+      "script": "秦王怕玉碎，只好假装答应，还拿地图比画要割哪些城。蔺相如说：献玉这么大的事，大王应当斋戒五天。",
+      "valance": "#3A1512",
+      "camera": {
+        "x": 820,
+        "y": 520,
+        "zoom": 1.35,
+        "keys": [
+          {
+            "at": 0,
+            "x": 1160,
+            "y": 540,
+            "zoom": 1.0,
+            "dur": 0.9
+          }
+        ]
+      },
+      "props": [
+        {
+          "type": "dais",
+          "x0": 1360,
+          "x1": 1820,
+          "h": 90
+        },
+        {
+          "type": "lamp",
+          "x": 1980
+        },
+        {
+          "type": "cityMap",
+          "x": 1040,
+          "y": 560,
+          "w": 380,
+          "h": 240,
+          "open": {
+            "at": "@拿地图",
+            "dur": 0.7
+          },
+          "lit": {
+            "at": "@比画",
+            "dur": 1.6
+          },
+          "off": {
+            "at": "@蔺相如说"
+          }
+        },
+        {
+          "type": "pillar",
+          "x": 420,
+          "w": 300,
+          "front": true
+        }
+      ],
+      "cast": [
+        {
+          "who": "qinwang",
+          "x": 1580,
+          "face": -1,
+          "pose": "kneel_proud",
+          "dy": -90,
+          "actions": [
+            {
+              "do": "pose",
+              "name": "stand",
+              "at": "@秦王怕玉碎",
+              "dur": 0.6
+            },
+            {
+              "do": "wave",
+              "at": "@只好假装答应",
+              "dur": 1.2,
+              "times": 2
+            }
+          ]
+        },
+        {
+          "who": "minister",
+          "id": "c1",
+          "x": 1270,
+          "face": -1,
+          "look": {
+            "robe": "#3B2A20"
+          },
+          "actions": [
+            {
+              "do": "beat",
+              "name": "point",
+              "at": "@比画",
+              "dur": 1.4
+            }
+          ],
+          "pose": "present"
+        },
+        {
+          "who": "linxiangru",
+          "x": 760,
+          "face": 1,
+          "pose": "raise_both",
+          "hold": "bi",
+          "actions": [
+            {
+              "do": "pose",
+              "name": "hold_out",
+              "at": "@只好假装答应",
+              "dur": 0.6
+            },
+            {
+              "do": "pose",
+              "name": "talk",
+              "at": "@蔺相如说",
+              "dur": 0.4
+            }
+          ]
+        }
+      ],
+      "numbers": [
+        {
+          "text": "五天",
+          "at": "@斋戒五天",
+          "x": 960,
+          "y": 300,
+          "dur": 2.0
+        }
+      ]
+    },
+    {
+      "id": "8_night",
+      "transition": "lights",
+      "script": "就在这五天里，他让随从换上粗布衣服，揣着玉，从小路悄悄送回了赵国。",
+      "tint": {
+        "color": "#1F3550",
+        "opacity": 0.38
+      },
+      "light": 0.85,
+      "camera": {
+        "x": 1500,
+        "follow": {
+          "who": "suicong",
+          "dx": -140,
+          "at": 0
+        }
+      },
+      "props": [
+        {
+          "type": "moon",
+          "x": 1400,
+          "y": 220,
+          "parallax": 0.95
+        },
+        {
+          "type": "ridge",
+          "x": 960,
+          "w": 7000,
+          "h": 400,
+          "seed": 1,
+          "peaks": 11,
+          "color": "rgba(96,124,156,0.5)",
+          "parallax": 0.85
+        },
+        {
+          "type": "ridge",
+          "x": 960,
+          "w": 7000,
+          "h": 280,
+          "seed": 4,
+          "peaks": 15,
+          "color": "rgba(56,80,108,0.8)",
+          "parallax": 0.5
+        },
+        {
+          "type": "ridge",
+          "x": 960,
+          "w": 7000,
+          "h": 150,
+          "seed": 7,
+          "peaks": 22,
+          "color": "rgba(28,40,56,0.94)",
+          "parallax": 0.12
+        }
+      ],
+      "cast": [
+        {
+          "who": "suicong",
+          "x": 1900,
+          "face": -1,
+          "pose": "clutch",
+          "hold": "bi",
+          "layer": 1,
+          "actions": [
+            {
+              "do": "walk",
+              "to": 160,
+              "at": 0.3,
+              "dur": 6.2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9_end",
+      "script": "秦王一座城没给，赵国一块玉也没丢。这就是“完璧归赵”。一个没有兵、没有权的人，靠胆量和脑子，赢下了一场国与国的较量。",
+      "valance": "#2F5D50",
+      "camera": {
+        "x": 1040,
+        "move": "push"
+      },
+      "lightKeys": [
+        {
+          "at": "@一个没有兵",
+          "to": 0.15,
+          "dur": 1.6
+        }
+      ],
+      "props": [
+        {
+          "type": "screen",
+          "x": 960,
+          "w": 900
+        },
+        {
+          "type": "lamp",
+          "x": 560
+        },
+        {
+          "type": "lamp",
+          "x": 1480
+        },
+        {
+          "type": "table",
+          "x": 960,
+          "w": 260
+        },
+        {
+          "type": "bi",
+          "x": 960,
+          "y": 768,
+          "size": 80,
+          "glowKeys": [
+            {
+              "at": "@秦王一座城",
+              "v": 1.9,
+              "dur": 1.4
+            }
+          ]
+        }
+      ],
+      "cast": [
+        {
+          "who": "linxiangru",
+          "x": 1250,
+          "face": -1,
+          "pose": "stand",
+          "actions": [
+            {
+              "do": "pose",
+              "name": "bow",
+              "at": "@这就是",
+              "dur": 0.6
+            }
+          ]
+        }
+      ],
+      "bigText": {
+        "columns": [
+          "完璧归赵"
+        ],
+        "at": "@这就是完璧归赵"
+      }
+    }
+  ]
+}

@@ -57,6 +57,11 @@
     else if (move.includes('fastpush')) z = lerp(z, 1.35, ease((t - shot.start) / 0.4));
     else if (move.includes('push')) z = lerp(z, 1.15, ease(u));
     else if (move.includes('pull')) z = lerp(1.15, 1.0, ease(u));
+    // 多段关键帧：keys: [{ at, x, y, zoom, dur }]，依次 ease-in-out 过渡
+    for (const kf of (c.keys || []).slice().sort((p, q) => p.at - q.at)) if (t >= kf.at) {
+      const kk = ease((t - kf.at) / (kf.dur || 0.8));
+      if (kf.x != null) x = lerp(x, kf.x, kk); if (kf.y != null) y = lerp(y, kf.y, kk); if (kf.zoom != null) z = lerp(z, kf.zoom, kk);
+    }
     if (c.follow && states) {
       const s = states.find(o => (o.m.id || o.m.who) === c.follow.who);
       if (s) { const fa = c.follow.at != null ? c.follow.at : shot.start; x = lerp(x, s.st.x + (c.follow.dx || 0), ease((t - fa) / 0.6)); }
@@ -97,6 +102,14 @@
       else if (a.do === 'hide') alpha = lerp(alpha, 0, ease((t - a.at) / (a.dur || 0.3)));
       else if (a.do === 'hold') { if (a.hand === 'far') holdFar = a.item || null; else hold = a.item || null; }
       else if (a.do === 'carry') carry = a.on === false ? null : { len: a.len || 520 };
+      else if (a.do === 'shakehead') { // 摇头：头部左右转 ±8°
+        const dur = a.dur || 1.2, u = (t - a.at) / dur;
+        if (u < 1) pose = Object.assign({}, pose, { head: (pose.head || 0) + 0.14 * Math.sin(TAU * (a.times || 2) * u) * Math.sin(Math.PI * u) });
+      }
+      else if (a.do === 'hatpop') { // 怒发冲冠：帽子向上弹起 20px 再落下
+        const u = (t - a.at) / (a.dur || 0.5);
+        if (u < 1) def._hatLift = (a.h || 20) * Math.sin(Math.PI * u);
+      }
       else if (a.do === 'wave') { // 挥手：近侧手臂抬起，前臂左右摆 times 次
         const dur = a.dur || 1.2, u = (t - a.at) / dur;
         if (u < 1) { const e = sstep(0, 0.12, u) * (1 - sstep(0.88, 1, u)); pose = blendPose(pose, Object.assign({}, pose, { aN: [1.75, 0.25 + 0.75 * Math.sin(TAU * (a.times || 2) * u)] }), e); }
@@ -124,7 +137,7 @@
     }
     // 待机晃动 ±2°，周期 1.5 秒
     if (!moving) rot += (2 * Math.PI / 180) * Math.sin(TAU * t / 1.5 + (m.x || 0) * 0.013);
-    return { def, x, y: FLOOR + yOff, face, alpha: clamp(alpha, 0, 1), pose, hold, holdFar, swordAng, rot, t, carry, layer: m.layer || 0 };
+    return { def, x, y: FLOOR + yOff + (m.dy || 0), face, alpha: clamp(alpha, 0, 1), pose, hold, holdFar, swordAng, rot, t, carry, layer: m.layer || 0 };
   }
 
   // ---------- 布景道具 ----------
@@ -270,6 +283,42 @@
       ctx.strokeStyle = COL.ink; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(x, FLOOR - 22); ctx.lineTo(x, FLOOR - 210); ctx.stroke();
       fillPart(ctx, polyD([[x - 26, FLOOR - 212], [x + 26, FLOOR - 212], [x + 14, FLOOR - 198], [x - 14, FLOOR - 198]]), C.yellow[1], null, null, 1.6);
       fx.push({ kind: 'flame', x, y: FLOOR - 224, seed: x });
+    } else if (p.type === 'bi') { // 和氏璧（道具形态：悬空/放在案上）
+      const r = (p.size || 80) / 2, y = p.y + (p.bob ? Math.sin(t * TAU / (p.bob.period || 2.4)) * (p.bob.amp || 8) : 0);
+      ctx.beginPath(); ctx.arc(p.x, y, r, 0, TAU); ctx.arc(p.x, y, r * 0.32, 0, TAU, true);
+      ctx.fillStyle = 'rgba(127,200,169,0.98)'; ctx.fill('evenodd'); ctx.strokeStyle = COL.ink; ctx.lineWidth = 2; ctx.stroke();
+      ctx.strokeStyle = 'rgba(220,255,236,0.8)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(p.x, y, r * 0.7, 0, TAU); ctx.stroke();
+      let g = p.glow || 1; for (const k of p.glowKeys || []) if (t >= k.at) g = lerp(g, k.v, ease((t - k.at) / (k.dur || 0.6)));
+      fx.push({ kind: 'bi', x: p.x, y, r, g, world: true });
+    } else if (p.type === 'pillar') { // 红色大柱
+      const x = p.x, w = p.w || 260, top = p.top != null ? p.top : -700;
+      fillPart(ctx, polyD([[x - w / 2, top], [x + w / 2, top], [x + w / 2, FLOOR], [x - w / 2, FLOOR]]), 'rgba(158,43,37,0.96)', 'huiwen', [x - w / 2 + 20, top, x + w / 2 - 20, FLOOR - 60], 2.4);
+      for (const yy of [FLOOR - 70, 120]) fillPart(ctx, polyD([[x - w / 2 - 14, yy], [x + w / 2 + 14, yy], [x + w / 2 + 14, yy + 40], [x - w / 2 - 14, yy + 40]]), 'rgba(201,162,74,0.96)', 'dots', [x - w / 2, yy, x + w / 2, yy + 40], 2);
+    } else if (p.type === 'dais') { // 高台（带台阶）
+      const x0 = p.x0, x1 = p.x1, h = p.h || 90;
+      fillPart(ctx, polyD([[x0, FLOOR - h], [x1, FLOOR - h], [x1, FLOOR], [x0, FLOOR]]), 'rgba(70,40,30,0.95)', 'huiwen', [x0, FLOOR - h, x1, FLOOR]);
+      for (let k = 1; k <= 3; k++) fillPart(ctx, polyD([[x0 - k * 40, FLOOR - h + k * h / 3.5], [x0, FLOOR - h + k * h / 3.5], [x0, FLOOR], [x0 - k * 40, FLOOR]]), 'rgba(90,56,40,0.95)');
+    } else if (p.type === 'cityMap') { // 地图卷轴：展开，十五个城标依次亮起又熄灭
+      const { x, y } = p, w = p.w || 520, h = p.h || 300;
+      const k = p.open ? ease((t - p.open.at) / (p.open.dur || 0.7)) : 1, hw = Math.max(8, w * k / 2);
+      fillPart(ctx, polyD([[x - hw, y - h / 2], [x + hw, y - h / 2], [x + hw, y + h / 2], [x - hw, y + h / 2]]), 'rgba(226,200,150,0.94)', null, null, 2);
+      ctx.save(); ctx.beginPath(); ctx.rect(x - hw, y - h / 2, hw * 2, h); ctx.clip();
+      ctx.strokeStyle = 'rgba(90,60,30,0.6)'; ctx.lineWidth = 2;
+      for (let i = 0; i < 4; i++) { ctx.beginPath(); for (let j = 0; j <= 10; j++) { const xx = x - w / 2 + j * w / 10, yy = y - h / 2 + 40 + i * 70 + Math.sin(j * 1.3 + i) * 14; j ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); } ctx.stroke(); }
+      for (let i = 0; i < 15; i++) {
+        const cx = x - w / 2 + 40 + hash(i * 3.7) * (w - 80), cy = y - h / 2 + 30 + hash(i * 9.1) * (h - 60);
+        const on = p.lit ? sstep(p.lit.at + i * (p.lit.dur || 1.5) / 15, p.lit.at + i * (p.lit.dur || 1.5) / 15 + 0.12, t) : 0;
+        const off = p.off ? sstep(p.off.at, p.off.at + 0.4, t) : 0, lv = on * (1 - off);
+        fillPart(ctx, polyD([[cx - 9, cy - 9], [cx + 9, cy - 9], [cx + 9, cy + 9], [cx - 9, cy + 9]]), lv > 0.5 ? 'rgba(232,194,90,0.97)' : 'rgba(120,80,50,0.9)', null, null, 1.6);
+        if (lv > 0.05 && Math.abs(cx - x) < hw) fx.push({ kind: 'spark', x: cx, y: cy, v: lv });
+      }
+      ctx.restore();
+      for (const sx of [x - hw, x + hw]) fillPart(ctx, polyD([[sx - 10, y - h / 2 - 16], [sx + 10, y - h / 2 - 16], [sx + 10, y + h / 2 + 16], [sx - 10, y + h / 2 + 16]]), COLORS.brown[1], null, null, 1.8);
+    } else if (p.type === 'ridge') { // 山峰剪影一层（配合 parallax 做视差）
+      const w = p.w || 4000, base = p.base || FLOOR, h = p.h || 300, seed = p.seed || 1, pts = [[p.x - w / 2, base + 10]];
+      for (let k = 0; k <= 60; k++) { const u = k / 60, xx = p.x - w / 2 + u * w; pts.push([xx, base - h * (0.35 + 0.65 * Math.pow(Math.abs(Math.sin(u * (p.peaks || 9) + seed)), 0.7) * (0.6 + 0.4 * noise1(u * 20 + seed)))]); }
+      pts.push([p.x + w / 2, base + 10]);
+      fillPart(ctx, smoothD(pts), p.color || 'rgba(40,56,78,0.9)', p.pattern || null, [p.x - w / 2, base - h, p.x + w / 2, base], 2);
     } else if (p.type === 'lampSmall') { // 案上小油灯
       const x = p.x, y = p.y || FLOOR - 62;
       fillPart(ctx, polyD([[x - 16, y], [x + 16, y], [x + 6, y - 30], [x - 6, y - 30]]), C.yellow[1], null, null, 1.6);
@@ -320,11 +369,11 @@
       for (let x = p.x0; x < p.x1; x += 26) { const h = 120 + 80 * hash(x), sw = Math.sin(t * 1.6 + x * 0.05) * 8; ctx.strokeStyle = 'rgba(60,48,24,0.85)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x, FLOOR); ctx.quadraticCurveTo(x + sw * 0.5, FLOOR - h * 0.6, x + sw, FLOOR - h); ctx.stroke(); }
     }
   }
-  function drawValance(ctx, x0, x1, t) {
+  function drawValance(ctx, x0, x1, t, color) {
     const a0 = Math.floor(x0 / 120) * 120 - 120, a1 = x1 + 240;
     const pts = [[a0, -600], [a1, -600], [a1, 46]];
     for (let x = a1; x >= a0; x -= 120) { pts.push([x, 46]); pts.push([x - 60, 70]); }
-    ctx.fillStyle = COL.valance; const p = P2(polyD(pts)); ctx.fill(p); ctx.strokeStyle = COL.ink; ctx.lineWidth = 2; ctx.stroke(p);
+    ctx.fillStyle = color || COL.valance; const p = P2(polyD(pts)); ctx.fill(p); ctx.strokeStyle = COL.ink; ctx.lineWidth = 2; ctx.stroke(p);
     ctx.save(); ctx.globalCompositeOperation = 'destination-out'; ctx.lineWidth = 2;
     for (let x = a0 + 30; x < a1; x += 60) { ctx.beginPath(); ctx.arc(x, 24, 8, 0.4, TAU * 0.85); ctx.stroke(); }
     ctx.restore();
@@ -354,6 +403,10 @@
   function renderShot(ctx, shot, t, lightMul) {
     const states = (shot.cast || []).map(m => ({ m, st: castState(m, t, shot) }));
     const cam = camera(shot, t, states), light = clamp(lightAt(shot, t) * lightMul, 0, 1);
+    for (const sk of shot.shake || []) { // 画面震动 N 帧
+      const fr = Math.floor((t - sk.at) * TL.fps);
+      if (fr >= 0 && fr < (sk.frames || 3)) { cam.x += (hash(fr * 7.3 + 1) - 0.5) * 2 * (sk.amp || 14) / cam.z; cam.y += (hash(fr * 3.1 + 5) - 0.5) * 2 * (sk.amp || 14) / cam.z; }
+    }
     const flick = 1 + 0.06 * (noise1(t * 7) * 2 - 1);  // 油灯闪烁 ±6%
     // 幕布
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; ctx.filter = 'none';
@@ -386,7 +439,7 @@
         continue;
       }
       const out = drawPuppet(plg, st.def, st);
-      heads[m.id || m.who] = { p: out.head, face: st.face, alpha: st.alpha, hands: out.hands };
+      heads[m.id || m.who] = { p: out.head, face: st.face, alpha: st.alpha, hands: out.hands, bi: out.bi, biR: out.bi ? 40 * (out.biScale || 1) : 0 };
       for (const r of out.rods) rods.push({ p: r, a: st.alpha });
       if (out.sword) fx.push({ kind: 'sword', key: shot.id + ':' + (m.id || m.who), ...out.sword });
       if (out.jade) heads[(m.id || m.who) + ':jade'] = { p: out.jade };
@@ -395,7 +448,7 @@
     plg.restore();
     for (const p of props.filter(p => p.front)) drawProp(plg, p, t, fx, cam);
     drawFloor(plg, vx0, vx1);
-    drawValance(plg, vx0, vx1, t);
+    drawValance(plg, vx0, vx1, t, shot.valance);
     // 操纵杆：颈与双手各一根，直线延伸到画面底部
     plg.setTransform(1, 0, 0, 1, 0, 0); plg.strokeStyle = 'rgba(30,18,10,0.85)'; plg.lineWidth = Math.max(1, cam.z);
     for (const r of rods) { plg.globalAlpha = r.a; plg.beginPath(); plg.moveTo(r.p[0], r.p[1]); plg.lineTo(r.p[0], H + 4); plg.stroke(); }
@@ -409,7 +462,7 @@
     // 灯焰与剑光
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
     for (const e of fx) {
-      if (e.kind === 'flame') continue; // 灯焰在亮度遮罩之后单独画
+      if (e.kind === 'flame' || e.kind === 'bi' || e.kind === 'spark') continue; // 在亮度遮罩之后单独画
       if (e.kind === 'warm') { // 门缝透出的暖光
         const [a0, b0] = toS(cam, e.x0, e.y0), [a1, b1] = toS(cam, e.x1, e.y1), cx = (a0 + a1) / 2;
         const wg = ctx.createRadialGradient(cx, (b0 + b1) / 2, 10, cx, (b0 + b1) / 2, 360 * cam.z);
@@ -439,6 +492,19 @@
       ctx.fillStyle = COL.flame; ctx.beginPath(); ctx.ellipse(sx, sy - r * 0.2, r * 0.32, r * 0.6, 0, 0, TAU); ctx.fill();
     }
     ctx.restore();
+    // 和氏璧的光晕：手持（屏幕坐标）或道具（世界坐标），呼吸式明暗（周期 2 秒），始终是画面最亮的点
+    const breath = 0.78 + 0.22 * Math.sin(TAU * t / 2);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    const glows = fx.filter(e => e.kind === 'bi').map(e => ({ p: toS(cam, e.x, e.y), r: e.r * cam.z, g: e.g }));
+    for (const h of Object.values(heads)) if (h.bi) glows.push({ p: h.bi, r: h.biR || 40 * cam.z, g: 1 });
+    for (const gl of glows) {
+      const R = gl.r * (2.6 + 1.6 * gl.g) * breath;
+      const gg = ctx.createRadialGradient(gl.p[0], gl.p[1], gl.r * 0.3, gl.p[0], gl.p[1], R);
+      gg.addColorStop(0, `rgba(190,255,220,${0.75 * Math.min(1.4, gl.g) * breath})`); gg.addColorStop(0.35, `rgba(127,200,169,${0.35 * Math.min(1.4, gl.g)})`); gg.addColorStop(1, 'rgba(127,200,169,0)');
+      ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(gl.p[0], gl.p[1], R, 0, TAU); ctx.fill();
+    }
+    for (const e of fx) if (e.kind === 'spark') { const [sx, sy] = toS(cam, e.x, e.y), r = 26 * cam.z; const sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, r); sg.addColorStop(0, `rgba(255,220,130,${0.8 * e.v})`); sg.addColorStop(1, 'rgba(255,200,100,0)'); ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(sx, sy, r, 0, TAU); ctx.fill(); }
+    ctx.restore();
     drawEffects(ctx, shot, t, cam, heads);
     drawShotOverlays(ctx, shot, t, cam, heads, light);
   }
@@ -452,9 +518,17 @@
         const a = heads[e.from], b = heads[e.to]; if (!a || !b || !a.hands || !b.hands) continue;
         const pa = a.hands[e.fromHand || 'near'], pb = b.hands[e.toHand || 'near'], k = ease(u / (e.dur || 0.7));
         const x = lerp(pa[0], pb[0], k), y = lerp(pa[1], pb[1], k) - Math.sin(Math.PI * k) * 90 * cam.z;
-        ctx.save(); ctx.translate(x, y); ctx.scale(cam.z, cam.z); ctx.rotate(k * 4);
-        ctx.fillStyle = 'rgba(232,194,90,0.98)'; ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.8;
-        ctx.beginPath(); ctx.ellipse(0, 0, 17, 10, 0, 0, TAU); ctx.fill(); ctx.stroke(); ctx.restore();
+        if (e.item === 'bi') {
+          const r = 40 * cam.z;
+          ctx.save(); ctx.globalCompositeOperation = 'lighter';
+          const gg = ctx.createRadialGradient(x, y, r * 0.3, x, y, r * 3.4); gg.addColorStop(0, 'rgba(190,255,220,0.75)'); gg.addColorStop(1, 'rgba(127,200,169,0)');
+          ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(x, y, r * 3.4, 0, TAU); ctx.fill(); ctx.restore();
+          ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.arc(x, y, r * 0.32, 0, TAU, true); ctx.fillStyle = 'rgba(127,200,169,0.98)'; ctx.fill('evenodd'); ctx.strokeStyle = COL.ink; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+        } else {
+          ctx.save(); ctx.translate(x, y); ctx.scale(cam.z, cam.z); ctx.rotate(k * 4);
+          ctx.fillStyle = 'rgba(232,194,90,0.98)'; ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.8;
+          ctx.beginPath(); ctx.ellipse(0, 0, 17, 10, 0, 0, TAU); ctx.fill(); ctx.stroke(); ctx.restore();
+        }
       }
       if (e.type === 'sparkle' && u >= 0 && u <= (e.dur || 1.6)) {
         const h = heads[e.who]; if (!h) continue;
