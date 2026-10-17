@@ -7,6 +7,7 @@
   const C = {
     bg: '#FFF8EE', red: '#F05A3C', mint: '#3CB58A', ink: '#2B2B2B', white: '#FFFFFF', yellow: '#F6B93B',
     garlic: '#F7EBD3', garlicSkin: '#E8D3B0', onion: '#A2577F', onionLight: '#C97BA6', egg: '#F8E3C3', yolk: '#FFC23D',
+    shirt: '#8EC5E8', stain: '#E8C76A', sweater: '#C89B6D', pill: '#A87B4F', sweaterIn: '#E2C6A2', tile: '#DCEFF5',
     lemon: '#FFD24A', warn: '#FFC53D', mold: '#7E9A74', woodBoard: '#D9A066',
     water: 'rgba(120,200,230,0.35)', waterLine: '#5DB7DA', skin: '#F9D2B0', tear: '#5DB7DA', steel: '#D9DEE3', wood: '#9A6440',
     fridge: '#E6F3EE', gas: '#8C9AA3', gray: '#B9B2A8'
@@ -215,6 +216,7 @@
       const none = () => 0;
       if (ic === 'garlic') { ctx.scale(0.42, 0.42); DRAW.garlicBulb(ctx); } else if (ic === 'onion') { ctx.scale(0.42, 0.42); DRAW.onion(ctx); }
       else if (ic === 'microwave') { ctx.scale(0.2, 0.2); DRAW.microwave(ctx, none, 0, {}); } else if (ic === 'faucet') { ctx.scale(0.36, 0.36); ctx.translate(30, 20); DRAW.faucet(ctx, none, 0, {}); }
+      else if (ic === 'shirt') { ctx.scale(0.21, 0.21); DRAW.shirt(ctx, (k, d) => d, 0, {}); } else if (ic === 'tshirt') { ctx.scale(0.21, 0.21); DRAW.tshirt(ctx, (k, d) => d); } else if (ic === 'sweater') { ctx.scale(0.18, 0.18); DRAW.sweater(ctx, (k, d) => d, 0, {}); }
       else if (ic === 'board') { ctx.scale(0.2, 0.2); DRAW.board(ctx, none, 0, {}); ctx.translate(40, 0); ctx.scale(0.9, 0.9); DRAW.lemonHalf(ctx, none); }
       else { ctx.scale(0.62, 0.62); DRAW.egg(ctx); }
       ctx.restore();
@@ -284,12 +286,13 @@
     bottle(ctx, P, t, el) { // 白醋瓶 / 84 消毒液瓶；pour=1 时瓶口流出液体
       const kind = P('kind', 'vinegar'), pour = P('pour', 0);
       ctx.beginPath(); ctx.moveTo(-60, -60); ctx.lineTo(-60, 130); ctx.quadraticCurveTo(-60, 150, -40, 150); ctx.lineTo(40, 150); ctx.quadraticCurveTo(60, 150, 60, 130); ctx.lineTo(60, -60); ctx.quadraticCurveTo(60, -90, 26, -110); ctx.lineTo(26, -150); ctx.lineTo(-26, -150); ctx.lineTo(-26, -110); ctx.quadraticCurveTo(-60, -90, -60, -60); ctx.closePath();
-      paint(ctx, kind === 'vinegar' ? 'rgba(235,245,250,0.95)' : '#FFFFFF');
-      rr(ctx, -30, -186, 60, 40, 10); paint(ctx, kind === 'vinegar' ? C.red : '#3A78C2');
-      rr(ctx, -52, -10, 104, 100, 14); paint(ctx, kind === 'vinegar' ? C.lemon : '#3A78C2', 3);
+      paint(ctx, kind === 'vinegar' ? 'rgba(235,245,250,0.95)' : kind === 'soap' ? '#BFEBD9' : '#FFFFFF');
+      rr(ctx, -30, -186, 60, 40, 10); paint(ctx, kind === 'vinegar' ? C.red : kind === 'soap' ? C.mint : '#3A78C2');
+      rr(ctx, -52, -10, 104, 100, 14); paint(ctx, kind === 'vinegar' ? C.lemon : kind === 'soap' ? C.white : '#3A78C2', 3);
       if (kind === 'vinegar') text(ctx, '白醋', 0, 40, 38, C.ink, 900);
+      else if (kind === 'soap') { text(ctx, '洗洁精', 0, 40, 30, C.mint, 900); }
       else { text(ctx, '84', 0, 22, 44, C.white, 900); text(ctx, '消毒液', 0, 66, 24, C.white, 800); }
-      if (pour > 0.02) { ctx.save(); ctx.globalAlpha = pour; ctx.strokeStyle = 'rgba(150,200,230,0.95)'; ctx.lineWidth = 10; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(0, -190); ctx.quadraticCurveTo(-10, -260, -30 + Math.sin(t * 20) * 3, -340); ctx.stroke(); ctx.restore(); }
+      if (pour > 0.02) { ctx.save(); ctx.globalAlpha = pour; ctx.strokeStyle = kind === 'soap' ? 'rgba(60,181,138,0.75)' : 'rgba(150,200,230,0.95)'; ctx.lineWidth = 10; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(0, -190); ctx.quadraticCurveTo(-10, -260, -30 + Math.sin(t * 20) * 3, -340); ctx.stroke(); ctx.restore(); }
     },
     lemonSlice(ctx) {
       ctx.beginPath(); ctx.arc(0, 0, 60, 0, TAU); paint(ctx, C.lemon);
@@ -320,6 +323,8 @@
       ctx.save(); ctx.rotate(0.7); rr(ctx, 200, -24, 190, 48, 22); paint(ctx, C.wood); ctx.restore();
       ctx.beginPath(); ctx.arc(0, 0, 250, 0, TAU); paint(ctx, '#F3FAFC', 6);
       ctx.save(); ctx.beginPath(); ctx.arc(0, 0, 244, 0, TAU); ctx.clip();
+      const mode = P('mode', 'scale');
+      if (mode !== 'scale') { LENS[mode](ctx, P, t); ctx.restore(); ctx.beginPath(); ctx.arc(0, 0, 250, 0, TAU); paint(ctx, null, 10); return; }
       ctx.fillStyle = '#C9CED3'; ctx.fillRect(-260, 120, 520, 140); ctx.strokeStyle = C.ink; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(-260, 120); ctx.lineTo(260, 120); ctx.stroke();
       for (let i = 0; i < 9; i++) { // 碳酸钙颗粒
         const gx = -180 + i * 45, gy = 96 - (i % 3) * 30, r = (22 + hash(i) * 10) * (1 - clamp((react - hash(i * 3) * 0.3) / 0.7, 0, 1));
@@ -391,8 +396,167 @@
       ctx.fillStyle = C.ink; for (let k = -40; k < 40; k++) { ctx.beginPath(); ctx.moveTo(k * 60 - 600, -650); ctx.lineTo(k * 60 - 570, -650); ctx.lineTo(k * 60 + 730, 650); ctx.lineTo(k * 60 + 700, 650); ctx.closePath(); ctx.fill(); }
       ctx.restore();
     },
+    // ---------- 衣物护理 ----------
+    shirt(ctx, P, t) { // 衬衫（正面）：wrinkle=折线多少；hanger=1 挂在衣架上
+      const wr = P('wrinkle', 1), col = P('color', C.shirt);
+      if (P('hanger', 0) > 0.5) { ctx.beginPath(); ctx.moveTo(0, -214); ctx.lineTo(0, -250); ctx.arc(14, -250, 14, Math.PI, 1.6 * Math.PI + 0.6); ctx.lineWidth = 7; ctx.strokeStyle = C.ink; ctx.stroke(); ctx.beginPath(); ctx.moveTo(-190, -170); ctx.lineTo(0, -214); ctx.lineTo(190, -170); ctx.lineWidth = 10; ctx.stroke(); }
+      ctx.beginPath(); ctx.moveTo(-50, -212); ctx.lineTo(-150, -190); ctx.lineTo(-262, -60); ctx.lineTo(-208, -20); ctx.lineTo(-150, -90); ctx.lineTo(-150, 230); ctx.quadraticCurveTo(-150, 246, -134, 246); ctx.lineTo(134, 246); ctx.quadraticCurveTo(150, 246, 150, 230); ctx.lineTo(150, -90); ctx.lineTo(208, -20); ctx.lineTo(262, -60); ctx.lineTo(150, -190); ctx.lineTo(50, -212); ctx.lineTo(0, -150); ctx.closePath(); paint(ctx, col);
+      ctx.beginPath(); ctx.moveTo(0, -150); ctx.lineTo(0, 246); ctx.lineWidth = 3; ctx.stroke();
+      for (let k = 0; k < 5; k++) { ctx.beginPath(); ctx.arc(0, -110 + k * 70, 7, 0, TAU); paint(ctx, C.white, 3); }
+      ctx.beginPath(); ctx.moveTo(-52, -214); ctx.lineTo(-6, -146); ctx.lineTo(-74, -170); ctx.closePath(); paint(ctx, C.white, 3);
+      ctx.beginPath(); ctx.moveTo(52, -214); ctx.lineTo(6, -146); ctx.lineTo(74, -170); ctx.closePath(); paint(ctx, C.white, 3);
+      const lines = [[-120, -60, 0.9], [20, -30, -1], [-110, 60, -0.8], [30, 100, 1], [-120, 170, 0.7], [20, 190, -1], [-230, -60, 0.6], [180, -50, -0.6]];
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      lines.forEach(([x, y, d], i) => { const v = clamp(wr * lines.length - i, 0, 1); if (v <= 0) return; ctx.globalAlpha = v; ctx.beginPath(); for (let k = 0; k <= 4; k++) { const xx = x + k * 22, yy = y + (k % 2 ? 14 : -10) * d; k ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); } ctx.stroke(); });
+      ctx.globalAlpha = 1;
+    },
+    tshirt(ctx, P) { // 白 T 恤：stain=领口黄渍
+      const st = P('stain', 1);
+      ctx.beginPath(); ctx.moveTo(-70, -210); ctx.lineTo(-160, -190); ctx.lineTo(-262, -110); ctx.lineTo(-212, -40); ctx.lineTo(-150, -80); ctx.lineTo(-150, 230); ctx.quadraticCurveTo(-150, 246, -134, 246); ctx.lineTo(134, 246); ctx.quadraticCurveTo(150, 246, 150, 230); ctx.lineTo(150, -80); ctx.lineTo(212, -40); ctx.lineTo(262, -110); ctx.lineTo(160, -190); ctx.lineTo(70, -210); ctx.quadraticCurveTo(0, -130, -70, -210); ctx.closePath(); paint(ctx, C.white);
+      ctx.beginPath(); ctx.moveTo(-70, -210); ctx.quadraticCurveTo(0, -130, 70, -210); ctx.lineWidth = 16; ctx.strokeStyle = st > 0.02 ? `rgba(232,199,106,${st})` : C.white; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-82, -206); ctx.quadraticCurveTo(0, -112, 82, -206); ctx.lineWidth = 3; ctx.strokeStyle = C.ink; ctx.stroke();
+    },
+    collarClose(ctx, P, t) { // 领口特写：stain 黄渍、gel 洗洁精液线长度、spread 抹开
+      const st = P('stain', 1), gel = P('gel', 0), sp = P('spread', 0), washed = P('washed', 0);
+      rr(ctx, -400, -300, 800, 600, 40); paint(ctx, C.white);
+      ctx.save(); rr(ctx, -400, -300, 800, 600, 40); ctx.clip();
+      ctx.beginPath(); ctx.ellipse(0, -300, 260, 190, 0, 0, TAU); ctx.fillStyle = C.bg; ctx.fill();
+      ctx.beginPath(); ctx.ellipse(0, -300, 300, 230, 0, 0, Math.PI); ctx.lineWidth = 64; ctx.strokeStyle = C.ink; ctx.stroke(); ctx.lineWidth = 56; ctx.strokeStyle = '#F6F6F6'; ctx.stroke();
+      ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(43,43,43,0.25)'; for (let k = 1; k < 16; k++) { const a = k / 16 * Math.PI; ctx.beginPath(); ctx.moveTo(Math.cos(a) * 272, -300 + Math.sin(a) * 202); ctx.lineTo(Math.cos(a) * 328, -300 + Math.sin(a) * 258); ctx.stroke(); }
+      if (st > 0.01) { ctx.globalAlpha = st; ctx.fillStyle = C.stain; for (let k = 0; k < 22; k++) { const a = (k + 0.5) / 22 * Math.PI; ctx.beginPath(); ctx.ellipse(Math.cos(a) * 300, -300 + Math.sin(a) * 230, 30 + hash(k) * 16, 20 + hash(k * 3) * 10, a, 0, TAU); ctx.fill(); } ctx.globalAlpha = 1; }
+      if (gel > 0.01) { ctx.beginPath(); ctx.ellipse(0, -300, 300, 230, 0, Math.PI * (1 - gel) * 0.9 + 0.05, Math.PI * 0.95); ctx.lineWidth = lerp(12, 56, sp); ctx.strokeStyle = `rgba(60,181,138,${lerp(0.75, 0.35, sp) * (1 - washed)})`; ctx.lineCap = 'round'; ctx.stroke(); }
+      ctx.restore();
+      rr(ctx, -400, -300, 800, 600, 40); paint(ctx, null);
+    },
+    sweater(ctx, P, t) { // 俯视平铺毛衣：pills 毛球密度，shave 0~3 三刀刮过的进度，hole 破洞，flip 翻面
+      const pills = P('pills', 1), shave = P('shave', 0), hole = P('hole', 0), flip = P('flip', 0);
+      ctx.save(); ctx.scale(Math.cos(Math.PI * flip) || 0.001, 1);
+      const inside = flip > 0.5, col = inside ? C.sweaterIn : C.sweater;
+      ctx.beginPath(); ctx.moveTo(-60, -230); ctx.lineTo(-170, -205); ctx.lineTo(-300, -20); ctx.lineTo(-290, 170); ctx.lineTo(-230, 170); ctx.lineTo(-215, 0); ctx.lineTo(-180, -90); ctx.lineTo(-180, 230); ctx.lineTo(180, 230); ctx.lineTo(180, -90); ctx.lineTo(215, 0); ctx.lineTo(230, 170); ctx.lineTo(290, 170); ctx.lineTo(300, -20); ctx.lineTo(170, -205); ctx.lineTo(60, -230); ctx.quadraticCurveTo(0, -180, -60, -230); ctx.closePath(); paint(ctx, col);
+      rr(ctx, -180, 196, 360, 40, 10); paint(ctx, col, 3);
+      ctx.beginPath(); for (let x = -160; x < 180; x += 20) { ctx.moveTo(x, 200); ctx.lineTo(x, 232); } ctx.lineWidth = 2; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-64, -228); ctx.quadraticCurveTo(0, -164, 64, -228); ctx.lineWidth = 10; ctx.strokeStyle = C.ink; ctx.stroke(); ctx.lineWidth = 5; ctx.strokeStyle = col; ctx.stroke();
+      if (!inside && pills > 0.01) {
+        const cols = [-120, 0, 120], heaps = [0, 0, 0];
+        for (let i = 0; i < 70; i++) {
+          const x = -165 + hash(i * 1.3) * 330, y = -170 + hash(i * 2.7) * 360;
+          if (hash(i * 9.1) > pills) continue;
+          const c = x < -60 ? 0 : x < 60 ? 1 : 2, d = clamp(shave - c, 0, 1), cut = lerp(-200, 200, d);
+          if (y < cut) { heaps[c]++; continue; }
+          ctx.beginPath(); ctx.arc(x, y, 7, 0, TAU); ctx.fillStyle = C.pill; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = C.ink; ctx.stroke();
+        }
+        heaps.forEach((n, c) => { // 刮下来的毛球被推成一小堆（金字塔形），跟着刀头往下走
+          const d = clamp(shave - c, 0, 1); if (!n) return; const hy = lerp(-200, 200, d) + 20;
+          let base = 1; const tri = b => { let m = 0; for (let q = b; q > 0; q -= 2) m += q; return m; }; while (tri(base) < n) base += 2;
+          let idx = 0, row = 0, cnt = base;
+          for (let k = 0; k < n; k++) {
+            if (idx >= cnt) { idx = 0; row++; cnt = Math.max(1, cnt - 2); }
+            const x = cols[c] + (idx - (cnt - 1) / 2) * 11 + (hash(k * 5.1 + c) - 0.5) * 4, y = hy - row * 9 + (hash(k * 2.3) - 0.5) * 3;
+            ctx.beginPath(); ctx.arc(x, y, 6.5, 0, TAU); ctx.fillStyle = C.pill; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = C.ink; ctx.stroke(); idx++;
+          }
+        });
+      }
+      if (hole > 0.01) { ctx.save(); ctx.translate(40, 20); ctx.scale(hole, hole); ctx.beginPath(); ctx.ellipse(0, 0, 34, 22, 0.3, 0, TAU); paint(ctx, C.bg, 4); ctx.beginPath(); for (let k = 0; k < 8; k++) { const a = k * TAU / 8; ctx.moveTo(Math.cos(a) * 34, Math.sin(a) * 22); ctx.lineTo(Math.cos(a) * 46, Math.sin(a) * 32); } ctx.lineWidth = 3; ctx.stroke(); ctx.restore(); }
+      ctx.restore();
+    },
+    razor(ctx) { // 剃须刀：原点在刀头
+      rr(ctx, -20, 10, 40, 210, 18); paint(ctx, '#C9CED3');
+      rr(ctx, -86, -34, 172, 48, 14); paint(ctx, C.white);
+      ctx.beginPath(); ctx.moveTo(-70, -12); ctx.lineTo(70, -12); ctx.moveTo(-70, 0); ctx.lineTo(70, 0); ctx.lineWidth = 3; ctx.stroke();
+    },
+    arrowDown(ctx) { ctx.strokeStyle = C.red; ctx.lineWidth = 14; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(0, -120); ctx.lineTo(0, 120); ctx.moveTo(-44, 76); ctx.lineTo(0, 120); ctx.lineTo(44, 76); ctx.stroke(); },
+    bathroom(ctx, P) { // 浴室墙砖 + 右侧门（door=1 关上）
+      const door = P('door', 0);
+      rr(ctx, -480, -560, 960, 1120, 30); paint(ctx, C.tile);
+      ctx.save(); rr(ctx, -480, -560, 960, 1120, 30); ctx.clip(); ctx.strokeStyle = 'rgba(43,43,43,0.18)'; ctx.lineWidth = 3;
+      for (let x = -480; x < 480; x += 96) { ctx.beginPath(); ctx.moveTo(x, -560); ctx.lineTo(x, 560); ctx.stroke(); }
+      for (let y = -560; y < 560; y += 96) { ctx.beginPath(); ctx.moveTo(-480, y); ctx.lineTo(480, y); ctx.stroke(); }
+      ctx.restore();
+      rr(ctx, 270, -380, 190, 820, 8); paint(ctx, '#FFF8EE');
+      const w = lerp(26, 182, ease(door)); rr(ctx, 456 - w, -376, w, 812, 8); paint(ctx, '#E9B98A');
+      if (door > 0.6) { ctx.beginPath(); ctx.arc(456 - w + 28, 40, 12, 0, TAU); paint(ctx, C.gray, 3); }
+      rr(ctx, -480, 440, 960, 120, 0); paint(ctx, '#EDE6DA');
+    },
+    showerhead(ctx, P, t) { // 淋浴喷头（原点在喷头），flow 出水
+      const flow = P('flow', 1);
+      ctx.beginPath(); ctx.moveTo(-200, -200); ctx.lineTo(-200, -120); ctx.quadraticCurveTo(-200, -80, -150, -80); ctx.lineTo(-40, -80); ctx.lineWidth = 18; ctx.strokeStyle = C.ink; ctx.lineCap = 'round'; ctx.stroke(); ctx.lineWidth = 10; ctx.strokeStyle = C.steel; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-70, -90); ctx.lineTo(70, -90); ctx.lineTo(50, -40); ctx.lineTo(-50, -40); ctx.closePath(); paint(ctx, C.steel);
+      if (flow > 0.02) { ctx.globalAlpha = flow; ctx.strokeStyle = '#5DB7DA'; ctx.lineWidth = 6; for (let k = 0; k < 9; k++) { const x = -40 + k * 10, ph = (t * 2.2 + hash(k)) % 1; for (let j = 0; j < 3; j++) { const y = -30 + ((ph + j / 3) % 1) * 360; ctx.beginPath(); ctx.moveTo(x + (x * (y + 30)) / 300, y); ctx.lineTo(x + (x * (y + 60)) / 300, y + 30); ctx.stroke(); } } ctx.globalAlpha = 1; }
+    },
+    steam(ctx, P, t) { // 白色蒸汽波浪线向上升腾；amount 0~1，w/h 范围
+      const am = P('amount', 1), w = P('w', 700), h = P('h', 900);
+      if (am <= 0.01) return;
+      ctx.lineCap = 'round';
+      const n = Math.round(4 + am * 14);
+      for (let i = 0; i < n; i++) {
+        const x0 = -w / 2 + hash(i * 3.7) * w, ph = (t * 0.35 + hash(i * 1.9)) % 1, y0 = h / 2 - ph * h * am;
+        ctx.globalAlpha = Math.sin(Math.PI * ph) * clamp(am * 1.5, 0, 1);
+        ctx.beginPath(); for (let k = 0; k <= 10; k++) { const y = y0 - k * 18, x = x0 + Math.sin(k * 0.9 + t * 3 + i) * 14; k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+        ctx.lineWidth = 14; ctx.strokeStyle = 'rgba(43,43,43,0.55)'; ctx.stroke(); ctx.lineWidth = 9; ctx.strokeStyle = '#FFFFFF'; ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    },
+    hand(ctx, P) { // 简化手掌（圆角色块），flip=1 镜像
+      if (P('flip', 0) > 0.5) ctx.scale(-1, 1);
+      rr(ctx, -50, -70, 100, 140, 40); paint(ctx, C.skin);
+      rr(ctx, 30, -40, 46, 26, 13); paint(ctx, C.skin);
+      ctx.beginPath(); for (const y of [-30, 0, 30]) { ctx.moveTo(-50, y); ctx.lineTo(-24, y); } ctx.lineWidth = 3; ctx.stroke();
+    },
+    laundryBag(ctx, P, t, el) { // 网格洗衣袋；spin 随滚筒转
+      const a = el && el.k && el.k.spin ? integ(el, 'spin', t) * 4 : 0; ctx.rotate(a);
+      rr(ctx, -120, -140, 240, 280, 40); paint(ctx, 'rgba(255,255,255,0.9)');
+      ctx.save(); rr(ctx, -120, -140, 240, 280, 40); ctx.clip(); ctx.strokeStyle = 'rgba(43,43,43,0.35)'; ctx.lineWidth = 2; for (let k = -12; k < 12; k++) { ctx.beginPath(); ctx.moveTo(k * 24 - 140, -150); ctx.lineTo(k * 24 + 140, 150); ctx.stroke(); ctx.beginPath(); ctx.moveTo(k * 24 + 140, -150); ctx.lineTo(k * 24 - 140, 150); ctx.stroke(); } ctx.restore();
+      ctx.globalAlpha *= 0.85; rr(ctx, -80, -60, 160, 150, 30); ctx.fillStyle = C.sweaterIn; ctx.fill(); ctx.globalAlpha = 1;
+      rr(ctx, -120, -140, 240, 280, 40); paint(ctx, null);
+      rr(ctx, -110, -150, 220, 26, 12); paint(ctx, C.mint, 3);
+    },
+    washer(ctx, P, t, el) { // 滚筒洗衣机；spin 滚筒转动
+      const a = el && el.k && el.k.spin ? integ(el, 'spin', t) * 5 : 0;
+      rr(ctx, -220, -260, 440, 520, 36); paint(ctx, C.white);
+      ctx.beginPath(); ctx.moveTo(-220, -170); ctx.lineTo(220, -170); ctx.stroke();
+      rr(ctx, -190, -236, 120, 40, 10); paint(ctx, '#E3DED3', 3); ctx.beginPath(); ctx.arc(150, -216, 20, 0, TAU); paint(ctx, C.mint, 3);
+      ctx.beginPath(); ctx.arc(0, 40, 170, 0, TAU); paint(ctx, '#C9CED3');
+      ctx.beginPath(); ctx.arc(0, 40, 140, 0, TAU); paint(ctx, 'rgba(150,205,235,0.55)');
+      ctx.save(); ctx.translate(0, 40); ctx.rotate(a); ctx.strokeStyle = 'rgba(43,43,43,0.45)'; ctx.lineWidth = 6; ctx.lineCap = 'round'; for (let k = 0; k < 3; k++) { const an = k * TAU / 3; ctx.beginPath(); ctx.moveTo(Math.cos(an) * 90, Math.sin(an) * 90); ctx.lineTo(Math.cos(an) * 132, Math.sin(an) * 132); ctx.stroke(); } ctx.restore();
+    },
+    washerGlass(ctx) { ctx.beginPath(); ctx.arc(0, 40, 140, 0, TAU); ctx.fillStyle = 'rgba(190,225,240,0.3)'; ctx.fill(); ctx.lineWidth = 8; ctx.strokeStyle = C.ink; ctx.stroke(); ctx.beginPath(); ctx.arc(-40, 0, 60, Math.PI * 1.1, Math.PI * 1.45); ctx.lineWidth = 8; ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.stroke(); },
     divider(ctx) { ctx.setLineDash([18, 14]); ctx.beginPath(); ctx.moveTo(0, -520); ctx.lineTo(0, 520); ctx.lineWidth = 5; ctx.strokeStyle = C.gray; ctx.stroke(); ctx.setLineDash([]); },
     impact(ctx) { ctx.strokeStyle = C.red; ctx.lineWidth = 6; ctx.lineCap = 'round'; for (let k = 0; k < 6; k++) { const a = k * TAU / 6; ctx.beginPath(); ctx.moveTo(Math.cos(a) * 30, Math.sin(a) * 30); ctx.lineTo(Math.cos(a) * 60, Math.sin(a) * 60); ctx.stroke(); } }
+  };
+
+  // 放大镜内的画面（magnifier 的 mode）
+  const LENS = {
+    fiber(ctx, P, t) { // 纤维：锯齿折线 → 平滑波浪（smooth 0~1）
+      const sm = P('smooth', 0);
+      ctx.fillStyle = '#EAF4FB'; ctx.fillRect(-260, -260, 520, 520);
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      for (let r = 0; r < 6; r++) {
+        const base = -175 + r * 70;
+        ctx.beginPath();
+        for (let k = 0; k <= 20; k++) { const x = -250 + k * 25, zig = (k % 2 ? 1 : -1) * 22 * (0.6 + hash(r * 40 + k) * 0.6), wav = Math.sin(k * 0.8 + r) * 10; const y = base + lerp(zig, wav, ease(sm)); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+        ctx.lineWidth = 16; ctx.strokeStyle = C.ink; ctx.stroke(); ctx.lineWidth = 9; ctx.strokeStyle = C.shirt; ctx.stroke();
+      }
+    },
+    oil(ctx, P, t) { // 领口纤维上的油滴，洗洁精分子包围并带走（react 0~1）
+      const re = P('react', 0);
+      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(-260, -260, 520, 520);
+      ctx.lineCap = 'round';
+      for (let r = 0; r < 5; r++) { const y = -120 + r * 70; ctx.beginPath(); for (let k = 0; k <= 26; k++) { const x = -250 + k * 20; const yy = y + Math.sin(k * 0.7 + r) * 6; k ? ctx.lineTo(x, yy) : ctx.moveTo(x, yy); } ctx.lineWidth = 14; ctx.strokeStyle = C.ink; ctx.stroke(); ctx.lineWidth = 8; ctx.strokeStyle = '#EDEDED'; ctx.stroke(); }
+      const drops = [[-120, -60], [40, -110], [130, 30], [-40, 60], [-150, 110], [90, 140]];
+      const a = ease(clamp(re / 0.55, 0, 1)), b = ease(clamp((re - 0.6) / 0.4, 0, 1));
+      drops.forEach(([dx, dy], i) => {
+        ctx.save(); ctx.globalAlpha = 1 - b; ctx.translate(0, -b * (320 + i * 20));
+        ctx.beginPath(); ctx.arc(dx, dy, 24, 0, TAU); paint(ctx, C.stain, 3);
+        for (let k = 0; k < 7; k++) {
+          const an = k * TAU / 7 + i, dirx = Math.cos(an), diry = Math.sin(an), far = lerp(260, 0, a);
+          const hx = dx + dirx * (44 + far), hy = dy + diry * (44 + far);
+          if (re <= 0.01) continue;
+          ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(hx - dirx * 22, hy - diry * 22); ctx.lineWidth = 4; ctx.strokeStyle = C.ink; ctx.stroke();
+          ctx.beginPath(); ctx.arc(hx, hy, 8, 0, TAU); paint(ctx, C.mint, 3);
+        }
+        ctx.restore();
+      });
+    },
   };
 
   // ---------- 元素状态 ----------
