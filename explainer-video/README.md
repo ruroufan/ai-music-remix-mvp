@@ -2,10 +2,11 @@
 
 画面全部用代码绘制（SVG/CSS 剪影、光、粒子、文字动画），字幕和动作卡在音乐拍子上，背景音乐和音效也由代码合成，没有任何第三方素材。
 
-现在有十三期：
+现在有十四期：
 
 | 合成 ID | 期 | 风格 | 节奏 | 时长 |
 |---|---|---|---|---|
+| `Doubt` | **背光观察室 · 观察 No.14《自我怀疑》**（罗素“愚蠢的人总是很确信，聪明的人却满是怀疑”） | 同频道风格 + 动效层；核心意象：两个人物各自站在一个光圈里——小光圈里的人昂着头，大光圈的边缘外是更大的黑暗和一圈问号，里面的人微微低头；最后大光圈里的人抬起头，继续往外走，问号变成星光 | 120 BPM “afrohouse”配乐（四拍底鼓 + 康加鼓 + 3-2 克拉维 + 沙锤 + 卡林巴琴 + 反拍低音 + “ooh”人声和声），A 小调 → C 大调 | ~1:50 |
 | `Perfect` | **背光观察室 · 观察 No.13《完美主义》**（伏尔泰“完美是好的敌人”）——**白板手绘版** | 白板 + 马克笔手绘（roughjs），一只握笔的手跟着笔尖画，手写体（站酷快乐体），重点词红笔 + 黄色荧光笔 + 波浪下划线；核心意象：白纸上反复画下又擦掉的第一笔，旁边一墙越画越好的画，最后落下一笔歪歪扭扭的线 | 120 BPM “stompclap”配乐（木吉他扫弦 + 跺脚拍手 + 响指 + 钟琴 + 低音提琴），G 大调 | ~1:46 |
 | `Friction` | **背光观察室 · 观察 No.12《内耗》**（王阳明“人须在事上磨，方立得住”） | 同频道风格 + 动效层；核心意象：人物坐着不动，头顶翻滚着黑色线团和想象中的念头；他站起来伸手做事，线团一根根被抽直、理顺 | 120 BPM “guochao”配乐（古筝拨弦 + 笛子 + 锣 + 半拍鼓，段落前古筝刮奏），D 羽调式 | ~1:54 |
 | `Age` | **背光观察室 · 观察 No.11《年龄焦虑》**（海德格尔“向死而生”） | 同频道风格 + 动效层；核心意象：钉满别人里程碑的时间轴，人物在轴上奔跑；最后走下时间轴，脚下长出只属于他的小路 | 120 BPM “cinematic”配乐（断弓弦乐 + 太鼓 + 铜管轰鸣 + 谢泼德音 + 钢琴），升 C 小调 | ~1:50 |
@@ -26,7 +27,8 @@
 cd explainer-video
 npm install
 npm run studio          # 浏览器里预览所有期
-npm run render          # 《完美主义》→ out/perfect.mp4
+npm run render          # 《自我怀疑》→ out/doubt.mp4
+npm run render:perfect  # 《完美主义》
 npm run render:friction # 《内耗》
 npm run render:age      # 《年龄焦虑》
 npm run render:nostalgia # 《怀旧》
@@ -58,6 +60,7 @@ src/
     EndCard.tsx          片尾卡：频道名 + 逐字打出的签名
   episodes/
     registry.ts          所有期的数据登记表（配乐、配音、字体预加载都从这里读）
+    doubt/               观察 No.14《自我怀疑》（circles.tsx：地上的光圈与圈外的问号、俯视的知识圆、能从低头慢慢抬起头的人）
     perfect/             观察 No.13《完美主义》白板版（drawings.tsx：白纸、第一笔、火柴人、越画越好的猫）
     friction/            观察 No.12《内耗》（tangle.tsx：会被抽直的线团、坐着/伸手的人）
     age/                 观察 No.11《年龄焦虑》（timeline.tsx：别人的里程碑时间轴、自己的小路）
@@ -81,6 +84,7 @@ src/
 scripts/
   music.mjs              生成 public/music/<期>.wav 和 public/sfx/*.wav
   audio/score-drive.mjs  “drive”配乐（No.02–No.07）：鼓组 + 锯齿低音 + 方波琶音
+  audio/score-afrohouse.mjs “afrohouse”配乐（《自我怀疑》）：深沉四拍底鼓 + 康加/通巴鼓 + 3-2 克拉维 + 沙锤 + 卡林巴琴固定音型 + 反拍低音 + 共振峰“ooh”人声
   audio/score-stompclap.mjs “stompclap”配乐（《完美主义》）：Karplus–Strong 木吉他扫弦 + 跺脚 + 拍手 + 响指 + 钟琴 + 拨弦低音
   audio/score-guochao.mjs “guochao”配乐（《内耗》）：Karplus–Strong 古筝 + 笛子 + 锣 + 框鼓 + 半拍鼓，古筝刮奏过门
   audio/score-cinematic.mjs “cinematic”配乐（《年龄焦虑》）：断弓弦乐 + 太鼓 + 铜管 + 谢泼德音 + 钢琴
@@ -103,7 +107,7 @@ scripts/
    - `3` 再加琶音和开镲（高潮）
 
    能量升到 2 以上之前的一小节自动做军鼓滚奏 + 上升音；进能量 0 之前自动“急停”。
-4. **新一期**：复制 `episodes/friction`，改文案、分镜、`episode.ts`（期号、和弦、能量），在 `src/episodes/registry.ts` 和 `src/Root.tsx` 各登记一行。文案最后一行保留 `channel.signoff`，片尾签名就会自动出现。
+4. **新一期**：复制 `episodes/doubt`（背光动效版）或 `episodes/perfect`（白板版），改文案、分镜、`episode.ts`（期号、和弦、能量），在 `src/episodes/registry.ts` 和 `src/Root.tsx` 各登记一行。文案最后一行保留 `channel.signoff`，片尾签名就会自动出现。
 
 ## 可选：配音
 
