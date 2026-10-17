@@ -14,7 +14,7 @@ export const TitleScene: React.FC<SceneProps> = ({ duration }) => {
   const show = useRamp(0, 6);
   const step = Math.floor(frame / BEAT);
   const ph = (frame % BEAT) / BEAT;
-  const r = 180 + step * 22 + 22 * (1 - Math.exp(-ph * 6));
+  const r = 170 + step * 18 + 18 * (1 - Math.exp(-ph * 6));
   const n = 6 + step * 4;
   return (
     <ObsFrame duration={duration}>

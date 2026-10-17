@@ -34,7 +34,7 @@ export const HookScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
           </div>
         );
       })}
-      <div style={{ position: "absolute", left: 1010, top: FLOOR_Y - 380, opacity: think, padding: "12px 26px", borderRadius: 30, background: "rgba(232,238,242,0.12)", border: "2px dashed rgba(232,238,242,0.5)", fontSize: 36, fontWeight: 800, color: palette.ink }}>他们看错了…</div>
+      <div style={{ position: "absolute", left: 960, top: FLOOR_Y - 400, transform: "translateX(-50%)", whiteSpace: "nowrap", opacity: think, padding: "12px 26px", borderRadius: 30, background: "rgba(232,238,242,0.12)", border: "2px dashed rgba(232,238,242,0.5)", fontSize: 36, fontWeight: 800, color: palette.ink }}>他们看错了…</div>
       {PRAISE.map((_, i) => (
         <Sfx key={i} name="glint" at={BEAT + i * BEAT} volume={0.22} />
       ))}
