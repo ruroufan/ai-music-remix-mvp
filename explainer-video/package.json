@@ -1,0 +1,47 @@
+{
+  "name": "explainer-video",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Remotion template for code-drawn explainer videos with beat-synced subtitles and a synthesized score",
+  "scripts": {
+    "prestudio": "node scripts/music.mjs",
+    "studio": "remotion studio src/index.ts",
+    "music": "node scripts/music.mjs",
+    "voiceover": "node scripts/voiceover.mjs",
+    "prerender": "node scripts/music.mjs doubt",
+    "render": "remotion render src/index.ts Doubt out/doubt.mp4",
+    "render:perfect": "node scripts/music.mjs perfect && remotion render src/index.ts Perfect out/perfect.mp4",
+    "render:friction": "node scripts/music.mjs friction && remotion render src/index.ts Friction out/friction.mp4",
+    "render:age": "node scripts/music.mjs age && remotion render src/index.ts Age out/age.mp4",
+    "render:nostalgia": "node scripts/music.mjs nostalgia && remotion render src/index.ts Nostalgia out/nostalgia.mp4",
+    "render:revenge": "node scripts/music.mjs revenge && remotion render src/index.ts Revenge out/revenge.mp4",
+    "render:procrastination": "node scripts/music.mjs procrastination && remotion render src/index.ts Procrastination out/procrastination.mp4",
+    "render:humility": "node scripts/music.mjs humility && remotion render src/index.ts Humility out/humility.mp4",
+    "render:solitude": "node scripts/music.mjs solitude && remotion render src/index.ts Solitude out/solitude.mp4",
+    "render:regret": "node scripts/music.mjs regret && remotion render src/index.ts Regret out/regret.mp4",
+    "render:anxiety": "node scripts/music.mjs anxiety && remotion render src/index.ts Anxiety out/anxiety.mp4",
+    "render:inferiority": "node scripts/music.mjs inferiority && remotion render src/index.ts Inferiority out/inferiority.mp4",
+    "render:pleasing": "node scripts/music.mjs pleasing && remotion render src/index.ts Pleasing out/pleasing.mp4",
+    "render:pride": "node scripts/music.mjs pride && remotion render src/index.ts Pride out/pride.mp4",
+    "still": "remotion still src/index.ts Doubt out/still.png --frame=300",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fontsource/caveat": "5.2.6",
+    "@fontsource/jetbrains-mono": "5.3.0",
+    "@fontsource/noto-sans-sc": "5.3.0",
+    "@fontsource/noto-serif-sc": "5.3.0",
+    "@fontsource/zcool-kuaile": "5.2.5",
+    "@remotion/cli": "4.0.529",
+    "@remotion/paths": "4.0.529",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.529",
+    "roughjs": "4.6.6"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.8",
+    "typescript": "5.8.3"
+  }
+}
