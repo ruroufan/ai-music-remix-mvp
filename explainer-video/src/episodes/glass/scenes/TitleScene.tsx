@@ -27,8 +27,8 @@ export const TitleScene: React.FC<SceneProps> = ({ duration }) => {
             {brand.topic}
           </div>
           {/* the glint */}
-          <div style={{ position: "absolute", left: 0, right: 0, top: 360, height: 260, overflow: "hidden", mixBlendMode: "screen" }}>
-            <div style={{ position: "absolute", top: 0, bottom: 0, left: `${glint * 100}%`, width: 160, background: "linear-gradient(100deg, transparent, rgba(255,255,255,0.55), transparent)" }} />
+          <div style={{ position: "absolute", left: 0, right: 0, top: 360, textAlign: "center", fontSize: 190, fontWeight: 900, letterSpacing: 36, paddingLeft: 36, color: "transparent", backgroundImage: `linear-gradient(100deg, transparent ${glint * 100 - 8}%, rgba(255,255,255,0.85) ${glint * 100}%, transparent ${glint * 100 + 8}%)`, WebkitBackgroundClip: "text", backgroundClip: "text" }}>
+            {brand.topic}
           </div>
           <svg width={1920} height={1080} style={{ position: "absolute", inset: 0 }}>
             <path d="M560 420 L700 470 L760 440 L900 520 L980 480 L1120 560 L1200 520 L1360 590" fill="none" stroke="#fff" strokeWidth={3} pathLength={1} strokeDasharray={1} strokeDashoffset={1 - crack} style={{ filter: `drop-shadow(0 0 8px rgba(${GLASS},1))` }} />

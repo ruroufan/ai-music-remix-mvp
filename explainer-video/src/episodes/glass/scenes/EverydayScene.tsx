@@ -46,7 +46,7 @@ export const EverydayScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
         {seg === 0 && (
           <div style={{ position: "absolute", inset: 0 }}>
             <Stander x={460} bottom={720} height={300} lift={1.3} glow={0.5} rgb={palette.accentRgb} />
-            <div style={{ position: "absolute", left: 560, top: 260, opacity: said, transform: `scale(${0.8 + 0.2 * said})`, padding: "12px 24px", borderRadius: 24, background: "rgba(232,238,242,0.92)", color: "#14181e", fontSize: 34, fontWeight: 800 }}>你今天气色不好</div>
+            <div style={{ position: "absolute", left: 300, top: 210, opacity: said, transform: `scale(${0.8 + 0.2 * said})`, padding: "12px 24px", borderRadius: 24, background: "rgba(232,238,242,0.92)", color: "#14181e", fontSize: 34, fontWeight: 800 }}>你今天气色不好</div>
             <Stander x={1200} bottom={720} height={300} lift={0.3} glow={0.8} />
             <GlassHeart x={1200} y={720 - 145 * (300 / 260)} size={62} crack={spiral > 2 ? 0.4 : 0} pain={spiral > 2 ? 0.5 : 0} />
             {SPIRAL.slice(0, spiral).map((s, i) => {
@@ -54,7 +54,7 @@ export const EverydayScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
               const r = 150 + i * 34;
               const p = ramp(frame, 2 * BEAT + i * HALF_BEAT, 5);
               return (
-                <div key={s} style={{ position: "absolute", left: 1200 + Math.cos(a) * r * 1.4, top: 420 + Math.sin(a) * r * 0.75, transform: `translate(-50%, -50%) scale(${0.7 + 0.3 * p})`, opacity: p * (i < spiral - 3 ? 0.5 : 1), padding: "8px 18px", borderRadius: 20, background: "rgba(232,238,242,0.08)", border: "2px dashed rgba(232,238,242,0.45)", fontSize: 26, fontWeight: 700, color: palette.ink, whiteSpace: "nowrap" }}>
+                <div key={s} style={{ position: "absolute", left: 1260 + Math.cos(a) * r * 1.25, top: 430 + Math.sin(a) * r * 0.7, transform: `translate(-50%, -50%) scale(${0.7 + 0.3 * p})`, opacity: p * (i < spiral - 3 ? 0.5 : 1), padding: "8px 18px", borderRadius: 20, background: "rgba(232,238,242,0.08)", border: "2px dashed rgba(232,238,242,0.45)", fontSize: 26, fontWeight: 700, color: palette.ink, whiteSpace: "nowrap" }}>
                   {s}
                 </div>
               );
