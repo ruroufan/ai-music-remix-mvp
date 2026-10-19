@@ -43,7 +43,7 @@ export const CostScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
           <Lamp x={960} aimX={960} on={1} />
           <Stander x={960 + bob} bottom={FLOOR} height={300} lift={0.5 + 0.1 * Math.sin(frame / 4)} glow={1.2} rgb={GLARE} />
           {Array.from({ length: 9 }, (_, k) => (
-            <div key={k} style={{ position: "absolute", left: 470 + k * 110, top: 780, width: 80, height: 60, borderRadius: "14px 14px 4px 4px", background: "#1a1f28", border: `1px solid ${palette.faint}` }} />
+            <div key={k} style={{ position: "absolute", left: 470 + k * 110, top: 766, width: 80, height: 44, borderRadius: "14px 14px 4px 4px", background: "#1a1f28", border: `1px solid ${palette.faint}` }} />
           ))}
           <div style={{ position: "absolute", right: 340, top: 130, fontFamily: fonts.mono, fontSize: 28, color: palette.ink, opacity: ramp(frame, 3 * BEAT, 8) }}>
             观众：<span style={{ color: palette.alert }}>0</span>

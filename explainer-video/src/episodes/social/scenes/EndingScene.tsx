@@ -33,7 +33,7 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
   const card = useRamp(c2, 12);
   return (
     <ObsFrame duration={duration}>
-      <Daylight k={day * 0.9} />
+      <Daylight k={day * 0.9 * (1 - 0.7 * card)} />
       <div style={{ position: "absolute", inset: 0, opacity: 1 - 0.75 * card, transform: `scale(${zoom})`, transformOrigin: `${me.x}px ${me.b - me.h / 2}px` }}>
         <Field
           frame={frame}

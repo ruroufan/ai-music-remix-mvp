@@ -69,11 +69,11 @@ export const DiagnosisScene: React.FC<SceneProps> = ({ lines, cues, duration }) 
           <div style={{ position: "absolute", left: 0, right: 0, top: 190, textAlign: "center", fontSize: 72, fontWeight: 900, letterSpacing: 6 }}>
             <KineticText text="我们总是【【高估】】" t={t1} look={look} beat={BEAT} seed="d0" />
           </div>
-          <div style={{ position: "absolute", left: 0, right: 0, top: 300, textAlign: "center", fontSize: 56, fontWeight: 800, letterSpacing: 4, color: palette.dim }}>
+          <div style={{ position: "absolute", left: 0, right: 0, top: 340, textAlign: "center", fontSize: 56, fontWeight: 800, letterSpacing: 4, color: palette.dim }}>
             <KineticText text="别人对自己的关注。" t={t1 - BEAT} look={look} beat={BEAT} seed="d1" />
           </div>
-          {bar("你以为的关注", think, palette.alert, 470, "高")}
-          {bar("实际上的关注", real, palette.accent, 620, "低")}
+          {bar("你以为的关注", think, palette.alert, 500, "高")}
+          {bar("实际上的关注", real, palette.accent, 640, "低")}
         </div>
       )}
       <Sfx name="whoosh" at={0} volume={0.3} />
