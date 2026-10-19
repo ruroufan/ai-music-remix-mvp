@@ -18,9 +18,11 @@ import { friction } from "./episodes/friction";
 import { perfect } from "./episodes/perfect";
 import { doubt } from "./episodes/doubt";
 import { appearance } from "./episodes/appearance";
+import { social } from "./episodes/social";
 
 // One composition per episode. Render with `npx remotion render src/index.ts <id>`.
 const episodes: [string, EpisodeDef][] = [
+  ["Social", social],
   ["Appearance", appearance],
   ["Doubt", doubt],
   ["Perfect", perfect],
