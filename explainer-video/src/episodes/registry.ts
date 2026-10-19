@@ -16,6 +16,7 @@ import { episode as age, brand as ageBrand } from "./age/episode.ts";
 import { episode as friction, brand as frictionBrand } from "./friction/episode.ts";
 import { episode as perfect, brand as perfectBrand } from "./perfect/episode.ts";
 import { episode as doubt, brand as doubtBrand } from "./doubt/episode.ts";
+import { episode as appearance, brand as appearanceBrand } from "./appearance/episode.ts";
 
 export const EPISODES: Record<string, { episode: EpisodeData; brand: Brand }> = {
   pride: { episode: pride, brand: prideBrand },
@@ -32,4 +33,5 @@ export const EPISODES: Record<string, { episode: EpisodeData; brand: Brand }> = 
   friction: { episode: friction, brand: frictionBrand },
   perfect: { episode: perfect, brand: perfectBrand },
   doubt: { episode: doubt, brand: doubtBrand },
+  appearance: { episode: appearance, brand: appearanceBrand },
 };
