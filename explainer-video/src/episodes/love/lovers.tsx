@@ -42,7 +42,7 @@ export const Couple: React.FC<{ cx: number; floor?: number; h?: number; frame: n
 
 // A warm pool of light on the floor (so the shadows have somewhere to fall).
 export const FloorLight: React.FC<{ x: number; floor?: number; w?: number; k?: number }> = ({ x, floor = FLOOR, w = 520, k = 1 }) => (
-  <div style={{ position: "absolute", left: x - w, top: floor - w * 0.12, width: w * 2, height: w * 0.5, borderRadius: "50%", background: `radial-gradient(ellipse, rgba(${palette.halo},${0.32 * k}), rgba(${palette.halo},${0.1 * k}) 55%, transparent 72%)` }} />
+  <div style={{ position: "absolute", left: x - w, top: floor - w * 0.12, width: w * 2, height: w * 0.5, borderRadius: "50%", background: `radial-gradient(ellipse, rgba(${palette.halo},${0.5 * k}), rgba(${palette.halo},${0.16 * k}) 55%, transparent 72%)` }} />
 );
 
 // Their shadows, cast toward us: one blob when `split` is 0, two apart at 1.
@@ -50,7 +50,7 @@ export const Shadows: React.FC<{ ax: number; bx: number; floor?: number; split: 
   const mid = (ax + bx) / 2;
   const s = Math.max(0, Math.min(1, split));
   const pinch = Math.sin(s * Math.PI) * 0.4;
-  const w1 = 110 * (1 - s) + 70 * s;
+  const w1 = 130 * (1 - s) + 90 * s;
   return (
     <svg width={1920} height={1080} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
       <defs>
@@ -60,11 +60,11 @@ export const Shadows: React.FC<{ ax: number; bx: number; floor?: number; split: 
         </radialGradient>
       </defs>
       {s < 0.05 ? (
-        <ellipse cx={mid} cy={floor + 26} rx={170} ry={34} fill="url(#lv-sh)" />
+        <ellipse cx={mid} cy={floor + 30} rx={200} ry={44} fill="url(#lv-sh)" />
       ) : (
         <>
-          <ellipse cx={mid + (ax - mid) * s} cy={floor + 26} rx={w1 * (1 - pinch)} ry={30} fill="url(#lv-sh)" />
-          <ellipse cx={mid + (bx - mid) * s} cy={floor + 26} rx={w1 * (1 - pinch)} ry={30} fill="url(#lv-sh)" />
+          <ellipse cx={mid + (ax - mid) * s} cy={floor + 26} rx={w1 * (1 - pinch)} ry={40} fill="url(#lv-sh)" />
+          <ellipse cx={mid + (bx - mid) * s} cy={floor + 26} rx={w1 * (1 - pinch)} ry={40} fill="url(#lv-sh)" />
         </>
       )}
     </svg>
