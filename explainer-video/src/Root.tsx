@@ -20,9 +20,11 @@ import { doubt } from "./episodes/doubt";
 import { appearance } from "./episodes/appearance";
 import { social } from "./episodes/social";
 import { glass } from "./episodes/glass";
+import { love } from "./episodes/love";
 
 // One composition per episode. Render with `npx remotion render src/index.ts <id>`.
 const episodes: [string, EpisodeDef][] = [
+  ["Love", love],
   ["Glass", glass],
   ["Social", social],
   ["Appearance", appearance],
