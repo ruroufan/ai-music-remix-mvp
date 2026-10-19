@@ -67,7 +67,7 @@ export const HookScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
             <MirrorGlass x={1310} y={450} w={380} h={520} light={0.5}>
               <Face id="hook-m" x={190} y={270} size={430} gaze={down} smile={-0.25 * down} rim={0.4} />
             </MirrorGlass>
-            <div style={{ position: "absolute", left: 1310 - 150, width: 300, top: 172, textAlign: "center", fontFamily: fonts.mono, fontSize: 18, letterSpacing: 6, color: palette.dim }}>MIRROR · 镜子</div>
+            <div style={{ position: "absolute", left: 1310 - 150, width: 300, top: 128, textAlign: "center", fontFamily: fonts.mono, fontSize: 18, letterSpacing: 6, color: palette.dim }}>MIRROR · 镜子</div>
           </div>
         )}
       </div>

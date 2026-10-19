@@ -53,8 +53,8 @@ export const AnswerScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
         <div style={{ position: "absolute", left: 960 - 100, width: 200, top: 206, textAlign: "center", fontSize: 30, fontWeight: 800, color: palette.ink, opacity: arrow * (1 - board) }}>和它比</div>
         {/* 2 · the scoreboard */}
         {board > 0 && (
-          <div style={{ position: "absolute", left: 960 - 150, top: 330, width: 300, padding: "16px 0", borderRadius: 18, background: "rgba(6,8,12,0.92)", border: `2px solid ${palette.faint}`, opacity: board, transform: `scale(${(1.2 - 0.2 * board) * (1 + 0.04 * kick)})`, textAlign: "center" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "0 26px", fontSize: 20, fontWeight: 700, color: palette.dim }}>
+          <div style={{ position: "absolute", left: 960 - 130, top: 330, width: 260, padding: "16px 0", borderRadius: 18, background: "rgba(6,8,12,0.92)", border: `2px solid ${palette.faint}`, opacity: board, transform: `scale(${(1.2 - 0.2 * board) * (1 + 0.04 * kick)})`, textAlign: "center" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "0 22px", fontSize: 20, fontWeight: 700, color: palette.dim }}>
               <span>镜子</span>
               <span style={{ color: FILTER }}>修图</span>
             </div>

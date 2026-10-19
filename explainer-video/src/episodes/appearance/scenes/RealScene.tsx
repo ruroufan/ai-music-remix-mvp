@@ -35,6 +35,8 @@ export const RealScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const age = smooth(frame, BEAT, 2 * BEAT);
   const tired = smooth(frame, 3 * BEAT, 4 * BEAT);
   const pimple = smooth(frame, 5 * BEAT, 5 * BEAT + 8);
+  // the wear eases off again when it starts to laugh
+  const relax = 1 - 0.7 * smooth(frame, c1 - 6, c1 + 6);
   const laugh = smooth(frame, c1 + HALF_BEAT, c1 + 1.5 * BEAT);
   const cry = smooth(frame, c1 + 2.5 * BEAT, c1 + 3.5 * BEAT);
   const settle = smooth(frame, c1 + 4.5 * BEAT, c1 + 5.5 * BEAT);
@@ -51,7 +53,7 @@ export const RealScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
       {out > 0 && (
         <div style={{ position: "absolute", inset: 0, opacity: show * out }}>
           <MirrorGlass x={mx} y={450} w={400} h={540} light={0.8 + 0.3 * settle}>
-            <Face id="rl-m" x={200} y={285} size={460} age={age * 0.8} tired={tired} pimple={pimple} smile={smile} tear={tear} rim={0.45} />
+            <Face id="rl-m" x={200} y={285} size={460} age={age * 0.8 * relax} tired={tired * relax} pimple={pimple} smile={smile} tear={tear} rim={0.45} />
           </MirrorGlass>
           {/* 0 · tagged, warmly */}
           <div style={{ opacity: 1 - ramp(frame, c1 - 4, 6) }}>

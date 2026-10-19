@@ -101,7 +101,7 @@ export const DiagnosisScene: React.FC<SceneProps> = ({ lines, cues, duration }) 
           <div style={{ position: "absolute", left: 0, right: 0, top: 236, textAlign: "center", fontSize: 80, fontWeight: 900, letterSpacing: 8 }}>
             <KineticText text="【拟像】比真实【【更真实】】。" t={t1 - BEAT} look={pinkLook} beat={BEAT} seed="q1" />
           </div>
-          <div style={{ position: "absolute", left: 0, right: 0, top: 376, textAlign: "center", fontFamily: fonts.mono, fontSize: 19, letterSpacing: 4, color: palette.dim, opacity: en }}>THE HYPERREAL — MORE REAL THAN THE REAL</div>
+          <div style={{ position: "absolute", left: 0, right: 0, top: 404, textAlign: "center", fontFamily: fonts.mono, fontSize: 19, letterSpacing: 4, color: palette.dim, opacity: en }}>THE HYPERREAL — MORE REAL THAN THE REAL</div>
           <div style={{ position: "absolute", inset: 0, opacity: pair }}>
             {/* the real: a printed photo, fading */}
             <div style={{ position: "absolute", left: 700 - 130, top: 520, width: 260, height: 320, background: "#e9e4da", padding: 12, paddingBottom: 46, boxShadow: "0 16px 40px rgba(0,0,0,0.6)", transform: "rotate(-3deg)", opacity: 1 - 0.6 * k }}>
