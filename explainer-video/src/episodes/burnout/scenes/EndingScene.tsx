@@ -35,7 +35,7 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
   const pace = (f: number) => interpolate(f, [go, go + 2 * BEAT], [0, 1], clamp);
   let walked = 0;
   for (let f = go; f < frame; f++) walked += pace(f);
-  const pan = walked * 2.2;
+  const pan = walked * 3.2;
   const dawn = interpolate(frame, [c1, c2], [0, 1], clamp);
   const card = useRamp(c2, 12);
   return (
@@ -53,8 +53,8 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
           )}
           {frame >= c1 && (
             <>
-              <Halo x={840} y={FLOOR - 160} r={260} intensity={0.3 * (1 - dawn) + 0.3} rgb={WARM} />
-              <Walker x={840 + 40 * down} bottom={FLOOR - 34 * (1 - down)} height={300} face="right" walk={walked * 0.09} lean={-3 * pace(frame)} glow={0.9} rgb={WARM} />
+              <Halo x={880 + walked * 2.4} y={FLOOR - 160} r={260} intensity={0.3 * (1 - dawn) + 0.3} rgb={WARM} />
+              <Walker x={840 + 40 * down + walked * 2.4} bottom={FLOOR - 34 * (1 - down)} height={300} face="right" walk={walked * 0.09} lean={-3 * pace(frame)} glow={0.9} rgb={WARM} opacity={1 - card} />
               <div style={{ position: "absolute", left: 810, top: FLOOR - 360, fontSize: 26, fontWeight: 800, color: look.key, opacity: interpolate(frame, [c1 + 12, c1 + 20, go, go + 10], [0, 1, 1, 0], clamp) }}>呼——</div>
             </>
           )}
