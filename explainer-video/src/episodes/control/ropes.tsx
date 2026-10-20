@@ -114,7 +114,7 @@ export const Grip: React.FC<{ frame: number; x?: number; h?: number; tension?: n
           const sag = 110 * (1 - tension) + 160 * f;
           const mx = (hx + tx) / 2 + shake, my = (hy + ty) / 2 + sag + shake;
           return (
-            <g key={tg.id} opacity={1 - f * 0.85}>
+            <g key={tg.id} opacity={1 - f}>
               <path d={`M${hx} ${hy} Q${mx} ${my} ${tx} ${ty}`} fill="none" stroke={col(tension * (1 - f))} strokeWidth={3 + 2 * tension} strokeLinecap="round" style={{ filter: tension > 0.7 && f < 0.5 ? `drop-shadow(0 0 6px rgba(255,77,109,${tension - 0.5}))` : undefined }} />
               <g transform={`translate(${tx + shake * 0.6} ${ty}) scale(${1 - 0.4 * f})`}>
                 <Icon id={tg.id} frame={frame} />

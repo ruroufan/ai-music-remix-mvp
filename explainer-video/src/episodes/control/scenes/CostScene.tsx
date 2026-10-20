@@ -20,7 +20,7 @@ export const CostScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const anx = interpolate(frame, [c1, duration - 10], [0.4, 1], clamp);
   const spin = interpolate(frame, [c1, duration], [0, 1], { ...clamp, easing: (t) => t * t }) * 22;
   const gauge = (label: string, v: number, y: number) => (
-    <div style={{ position: "absolute", left: 120, top: y, width: 300 }}>
+    <div style={{ position: "absolute", left: 140, top: y, width: 300 }}>
       <div style={{ fontSize: 26, fontWeight: 900, color: palette.ink }}>{label}</div>
       <div style={{ marginTop: 8, height: 16, borderRadius: 4, background: "rgba(232,238,242,0.1)" }}>
         <div style={{ width: `${v * 100}%`, height: "100%", borderRadius: 4, background: palette.alert, boxShadow: `0 0 12px ${palette.alert}` }} />
@@ -34,9 +34,9 @@ export const CostScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
         <div style={{ position: "absolute", inset: 0, transformOrigin: "960px 500px", transform: `rotate(${spin}deg)` }}>
           <Grip frame={frame} tension={1} clench={1} lift={0.2} />
         </div>
-        {gauge("心累", tired, 140)}
-        {frame >= c1 && gauge("焦虑", anx, 260)}
       </Cam>
+      {gauge("心累", tired, 140)}
+      {frame >= c1 && gauge("焦虑", anx, 260)}
       <Bokeh frame={frame} />
       <Sfx name="rise" at={0} volume={0.3} />
       <Sfx name="glitch" at={c1} volume={0.4} />
