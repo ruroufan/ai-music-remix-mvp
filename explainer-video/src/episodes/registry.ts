@@ -21,6 +21,7 @@ import { episode as social, brand as socialBrand } from "./social/episode.ts";
 import { episode as glass, brand as glassBrand } from "./glass/episode.ts";
 import { episode as love, brand as loveBrand } from "./love/episode.ts";
 import { episode as control, brand as controlBrand } from "./control/episode.ts";
+import { episode as burnout, brand as burnoutBrand } from "./burnout/episode.ts";
 
 export const EPISODES: Record<string, { episode: EpisodeData; brand: Brand }> = {
   pride: { episode: pride, brand: prideBrand },
@@ -42,4 +43,5 @@ export const EPISODES: Record<string, { episode: EpisodeData; brand: Brand }> = 
   glass: { episode: glass, brand: glassBrand },
   love: { episode: love, brand: loveBrand },
   control: { episode: control, brand: controlBrand },
+  burnout: { episode: burnout, brand: burnoutBrand },
 };
