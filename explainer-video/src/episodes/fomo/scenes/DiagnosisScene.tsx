@@ -62,8 +62,8 @@ export const DiagnosisScene: React.FC<SceneProps> = ({ lines, cues, duration }) 
               const x = 200 + random(`cp-x-${i}`) * 1520, y = 600 + random(`cp-y-${i}`) * 120;
               const sc = 0.5 + random(`cp-s-${i}`) * 0.4;
               return (
-                <div key={i} style={{ position: "absolute", inset: 0, opacity: 0.18 + 0.1 * Math.sin(frame / 9 + i) }}>
-                  <Stander x={x} bottom={y + 120 * sc} height={240 * sc} lift={0.6} glow={0.3} />
+                <div key={i} style={{ position: "absolute", inset: 0, opacity: 0.32 + 0.12 * Math.sin(frame / 9 + i) }}>
+                  <Stander x={x} bottom={y + 120 * sc} height={240 * sc} lift={0.6} glow={0.6} />
                 </div>
               );
             })}

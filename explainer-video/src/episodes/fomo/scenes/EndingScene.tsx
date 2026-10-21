@@ -34,7 +34,7 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
   return (
     <ObsFrame duration={duration}>
       <Cam frame={frame} duration={duration} push={[1.1, 1]} focus={{ x: 960, y: 560 }} hits={[down]}>
-        <div style={{ position: "absolute", inset: 0, opacity: 1 - 0.75 * card }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 1 - 0.92 * card }}>
           <Halo x={960} y={FLOOR - 220} r={360 + 200 * warm} intensity={0.25 + 0.6 * warm} rgb={WARM} />
           <Table frame={frame} phone={frame < down ? 1 : 0} fade={0.7 * (1 - clear)} other={clear} talk={clear} />
           <ScreenCloud frame={frame} count={N} on={on} />

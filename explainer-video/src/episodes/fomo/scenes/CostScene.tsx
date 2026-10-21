@@ -45,7 +45,7 @@ export const CostScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
         <div style={{ position: "absolute", left: 870, top: 470, padding: "8px 18px", borderRadius: 12, background: "rgba(10,14,20,0.9)", border: `1px solid ${palette.faint}`, fontSize: 28, fontWeight: 800, opacity: ask * (1 - away) }}>
           今晚吃的是……<span style={{ color: `rgb(${ALERT})` }}>？</span>
         </div>
-        <div style={{ position: "absolute", left: HIM_X - 180 * S, top: FLOOR - 320 * S, fontFamily: fonts.mono, fontSize: 26, letterSpacing: 4, color: `rgb(${ALERT})`, opacity: away }}>这里 · 不在</div>
+        <div style={{ position: "absolute", left: HIM_X - 180 * S, top: FLOOR - 320 * S, fontFamily: fonts.mono, fontSize: 30, fontWeight: 700, letterSpacing: 4, color: `rgb(${ALERT})`, opacity: away, padding: "6px 16px", borderRadius: 10, background: "rgba(10,14,20,0.92)", border: `1px solid rgba(${ALERT},0.6)`, zIndex: 5 }}>这里 · 不在</div>
       </Cam>
       <Bokeh frame={frame} rgb="120, 200, 255" />
       <Sfx name="glitch" at={2 * BEAT} volume={0.3} />
