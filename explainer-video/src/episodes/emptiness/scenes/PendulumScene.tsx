@@ -34,8 +34,8 @@ export const PendulumScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
   const bob = bobAt(deg);
   const catchP = interpolate(frame, [c1, c1 + 8], [0, 1], clamp);
   const crumble = interpolate(frame, [c2, c2 + BEAT * 2], [0, 1], clamp);
-  const orbX = catchP > 0 ? 960 + (bob.x - 960) * catchP : 960 + Math.sin(frame / 20) * 20;
-  const orbY = catchP > 0 ? 330 + (bob.y - 170 - 330) * catchP : 330 + Math.sin(frame / 13) * 10;
+  const orbX = catchP > 0 ? 960 + (bob.x + 20 - 960) * catchP : 960 + Math.sin(frame / 20) * 20;
+  const orbY = catchP > 0 ? 220 + (bob.y - 250 - 220) * catchP : 220 + Math.sin(frame / 13) * 10;
   const grey = catchP;
   const newOrb = interpolate(frame, [c2 + 2 * BEAT, c2 + 3 * BEAT], [0, 1], clamp);
   const passes = Math.round(interpolate(frame, [c3, duration], [1, 29200], { ...clamp, easing: (t) => t * t }));

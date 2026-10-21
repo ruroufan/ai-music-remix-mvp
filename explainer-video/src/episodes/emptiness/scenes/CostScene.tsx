@@ -23,7 +23,7 @@ export const CostScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const [, c1] = cues;
   const landAt = (i: number) => BAR / 2 + i * BAR; // as it passes the bottom
   const boosts = FILLERS.filter((_, i) => frame >= landAt(i)).length;
-  const amp = interpolate(frame, [0, landAt(0), landAt(0) + 10, landAt(1), landAt(1) + 10, landAt(2), landAt(2) + 10, c1, c1 + 20], [26, 26, 38, 38, 50, 50, 60, 60, 72], clamp);
+  const amp = interpolate(frame, [0, landAt(0), landAt(0) + 10, landAt(1), landAt(1) + 10, landAt(2), landAt(2) + 10, landAt(2) + 40], [26, 26, 38, 38, 50, 50, 62, 72], clamp);
   const deg = swing(frame, BAR, amp);
   const vel = deg - swing(frame - 1, BAR, amp);
   const bob = bobAt(deg);
@@ -47,8 +47,8 @@ export const CostScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
           if (p <= 0) return null;
           const sx = i % 2 ? 1700 : 220, sy = 250;
           const stuck = frame >= at;
-          const px = stuck ? bob.x + (i - 1) * 50 : sx + (bottom.x - sx) * p;
-          const py = stuck ? bob.y + 70 + i * 4 : sy + (bottom.y - sy) * p - 120 * Math.sin(p * Math.PI);
+          const px = stuck ? bob.x : sx + (bottom.x - sx) * p;
+          const py = stuck ? bob.y + 76 + i * 40 : sy + (bottom.y - sy) * p - 120 * Math.sin(p * Math.PI);
           return (
             <div key={f} style={{ position: "absolute", left: px - 60, top: py, width: 120, padding: "6px 0", textAlign: "center", borderRadius: 10, background: `rgba(${WARM},0.2)`, border: `2px solid ${look.key}`, fontSize: 22, fontWeight: 900, color: look.key, opacity: frame >= c1 ? 0.35 : 1 }}>{f}</div>
           );
@@ -61,7 +61,7 @@ export const CostScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
             <text x={top.x + 40} y={(top.y + bottom.y) / 2} fontSize={34} fontWeight={900} fill={`rgb(${PAIN})`} opacity={arrow} textAnchor="end">落差</text>
           </svg>
         )}
-        <div style={{ position: "absolute", left: 210, top: 160, fontFamily: fonts.mono, fontSize: 24, letterSpacing: 4, color: palette.dim }}>
+        <div style={{ position: "absolute", left: 210, top: 770, fontFamily: fonts.mono, fontSize: 24, letterSpacing: 4, color: palette.dim }}>
           摆幅 <span style={{ color: boosts ? look.key : palette.ink, fontSize: 36 }}>{Math.round(amp)}°</span>
         </div>
       </Cam>

@@ -86,7 +86,7 @@ export const Pendulum: React.FC<{ deg: number; rider?: boolean; riderGlow?: numb
           <circle r={70} fill="url(#em-bob)" stroke="rgba(255,240,210,0.6)" strokeWidth={2} />
           <circle r={50} fill="none" stroke="rgba(90,68,38,0.6)" strokeWidth={2} />
           {rider && (
-            <g transform="translate(0 -66)">
+            <g transform="translate(0 -66) scale(1.45)">
               <Rider glow={riderGlow} slump={slump} />
             </g>
           )}

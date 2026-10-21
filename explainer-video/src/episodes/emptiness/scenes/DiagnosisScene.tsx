@@ -58,13 +58,13 @@ export const DiagnosisScene: React.FC<SceneProps> = ({ lines, cues, duration }) 
         )}
         {t1 >= 0 && (
           <div style={{ position: "absolute", inset: 0, opacity: card }}>
-            <svg width={1920} height={1080} style={{ position: "absolute", inset: 0, opacity: 0.4 }}>
-              <g transform={`rotate(${-swing(t1, BAR, 40, 0)} 960 0)`}>
-                <line x1={960} y1={0} x2={960} y2={600} stroke={`rgb(${BRASS})`} strokeWidth={5} />
-                <circle cx={960} cy={640} r={48} fill={`rgba(${BRASS},0.7)`} />
+            <svg width={1920} height={1080} style={{ position: "absolute", inset: 0, opacity: 0.28 }}>
+              <g transform={`rotate(${-swing(t1, BAR, 36, 0)} 960 0)`}>
+                <line x1={960} y1={0} x2={960} y2={700} stroke={`rgb(${BRASS})`} strokeWidth={5} />
+                <circle cx={960} cy={740} r={48} fill={`rgba(${BRASS},0.7)`} />
               </g>
-              <text x={420} y={660} fontSize={34} fontWeight={900} fill={`rgba(${PAIN},0.8)`} textAnchor="middle">痛苦</text>
-              <text x={1500} y={660} fontSize={34} fontWeight={900} fill={`rgba(${BORE},0.9)`} textAnchor="middle">无聊</text>
+              <text x={500} y={700} fontSize={34} fontWeight={900} fill={`rgba(${PAIN},0.8)`} textAnchor="middle">痛苦</text>
+              <text x={1420} y={700} fontSize={34} fontWeight={900} fill={`rgba(${BORE},0.9)`} textAnchor="middle">无聊</text>
             </svg>
             <div style={{ position: "absolute", left: 0, right: 0, top: 140, textAlign: "center", fontFamily: fonts.mono, fontSize: 18, letterSpacing: 5, color: palette.dim }}>ARTHUR SCHOPENHAUER ·《作为意志和表象的世界》</div>
             <div style={{ position: "absolute", left: 0, right: 0, top: 200, textAlign: "center", fontSize: 66, fontWeight: 900, letterSpacing: 4 }}>

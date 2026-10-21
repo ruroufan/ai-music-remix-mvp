@@ -40,6 +40,7 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
   const b0 = bobAt(d0);
   const r = (d0 * Math.PI) / 180;
   const from = { x: b0.x + Math.sin(r) * 66, y: b0.y - Math.cos(r) * 66 };
+
   const to = { x: CHAIR - 60 * S, y: FLOOR - 92 * S + 64 };
   const lx = from.x + (to.x - from.x) * leap;
   const ly = from.y + (to.y - from.y) * leap - 180 * Math.sin(leap * Math.PI);
@@ -48,13 +49,13 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
       <Cam frame={frame} duration={duration} push={[1.04, 1]} hits={[J, J + 18]}>
         <div style={{ position: "absolute", inset: 0, opacity: 1 - 0.75 * card }}>
           <div style={{ position: "absolute", inset: 0, transform: `translateX(${-pan}px)` }}>
-            <Pendulum deg={deg} rider={frame < J} amp={50} pain={Math.pow(Math.max(0, -deg / 46), 3)} bore={Math.pow(Math.max(0, deg / 46), 3)} opacity={1 - 0.55 * leap} ends={1 - 0.6 * leap} />
+            <Pendulum deg={deg} rider={frame < J} amp={50} pain={Math.pow(Math.max(0, -deg / 46), 3)} bore={Math.pow(Math.max(0, deg / 46), 3)} opacity={1 - 0.55 * leap} ends={1 - leap} />
             <div style={{ position: "absolute", left: 0, right: -1000, top: FLOOR, height: 2, background: `linear-gradient(90deg, transparent, rgba(${WARM},${0.1 + 0.3 * lamp}) 60%, transparent)` }} />
             <Desk x={DESK} floor={FLOOR} on={lamp} frame={frame} />
             {landed && <Seated x={CHAIR} floor={FLOOR} scale={S} glow={0.4 + 0.5 * lamp} slump={-0.2} />}
             {frame >= J && !landed && (
               <svg width={1920} height={1080} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
-                <g transform={`translate(${lx} ${ly}) rotate(${-d0 * (1 - leap)})`}>
+                <g transform={`translate(${lx} ${ly}) rotate(${-d0 * (1 - leap)}) scale(1.45)`}>
                   <Rider glow={0.9} />
                 </g>
               </svg>
