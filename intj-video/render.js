@@ -72,7 +72,10 @@ if (info.missing.length) {
 if (Object.values(info.fonts).some((v) => !v)) { console.error("a font failed to load — stopping"); process.exit(1); }
 
 const seek = (t) => page.evaluate((s) => window.seekTo(s), t);
-const shoot = () => page.screenshot({ type: "png", clip: { x: 0, y: 0, width: 1920, height: 1080 } });
+// a raw CDP capture is much quicker than page.screenshot() (no extra
+// round-trips, PNG encoded for speed); it's still a lossless PNG
+const cdp = await page.context().newCDPSession(page);
+const shoot = async () => Buffer.from((await cdp.send("Page.captureScreenshot", { format: "png", optimizeForSpeed: true, captureBeyondViewport: false })).data, "base64");
 
 // ── stills ────────────────────────────────────────────────────────────────
 if (STILLS) {
@@ -135,7 +138,7 @@ for (let i = 0; i < frames; i++) {
   await seek(from + i / FPS);
   const buf = await shoot();
   if (!ffmpeg.stdin.write(buf)) await new Promise((r) => ffmpeg.stdin.once("drain", r));
-  if (i % 150 === 0) console.log(`  frame ${i}/${frames}  ${((Date.now() - t0) / 1000).toFixed(0)} s`);
+  if (i % 150 === 0) console.log(`  frame ${i}/${frames}  ${((Date.now() - t0) / 1000).toFixed(0)} s  (${(i / Math.max(1, (Date.now() - t0) / 1000)).toFixed(1)} fps)`);
 }
 ffmpeg.stdin.end();
 await done;
