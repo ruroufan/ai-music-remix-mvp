@@ -22,6 +22,7 @@ export const episode: EpisodeData = {
   // octave up, a cold detuned lead, the clanks doubled. The ending — leaving a
   // blank in the plan — is the piano alone, in E♭.
   moods: {
+    series: { chord: "Cm Ab", energy: 3 },
     hook: { chord: "Cm Ab Eb Bb", energy: 1 },
     title: { chord: "Cm Ab", energy: 2 },
     diagnosis: { chord: "Ab Bb Cm Cm", energy: 2 },

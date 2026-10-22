@@ -4,6 +4,7 @@ import { episode, brand } from "./episode";
 import { timeline } from "./timing";
 import { backlitLookFx } from "../../channels/backlit/look";
 import { TypewriterScene } from "../../channels/backlit/TypewriterScene";
+import { SeriesScene } from "./scenes/SeriesScene";
 import { HookScene } from "./scenes/HookScene";
 import { TitleScene } from "./scenes/TitleScene";
 import { DiagnosisScene } from "./scenes/DiagnosisScene";
@@ -16,6 +17,7 @@ import { ExamineScene } from "./scenes/ExamineScene";
 import { EndingScene } from "./scenes/EndingScene";
 
 const scenes: Record<string, React.FC<SceneProps>> = {
+  series: SeriesScene,
   hook: HookScene,
   title: TitleScene,
   diagnosis: DiagnosisScene,

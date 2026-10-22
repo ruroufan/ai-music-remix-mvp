@@ -7,6 +7,7 @@ import type { SceneSpec } from "../../types.ts";
 import { channel } from "../../channels/backlit/channel.ts";
 
 export const script: SceneSpec[] = [
+  { id: "series", lines: [{ text: "16种MBTI系列之分析家组（NT）INTJ", seconds: 3.5 }] }, // the series card, no subtitle
   {
     id: "hook",
     lines: [
