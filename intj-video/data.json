@@ -1,0 +1,30 @@
+{
+  "title": "INTJ · 正确",
+  "watermark": "你的账号名",
+  "series_tag": ["INTJ", "正确"],
+  "shots": [
+    {"id":0,"type":"hook","dur":4,"lines":["为什么INTJ","说的明明是对的，","别人却不愿意听？"],"bg":["outline:INTJ","rays","reticle","img-invert:blueprint_hand.jpg"]},
+    {"id":1,"type":"title","dur":3.5,"a":"这，是INTJ最深的困境——","b":"正确","sub":"[ INTJ · THE ARCHITECT ]  Nº01"},
+    {"id":2,"type":"card","dur":1.5,"no":"01","text":"一句两千年前的诊断","flank":["socrates_bust.png"]},
+    {"id":3,"type":"quote","dur":5,"a":"我比别人多知道的，只有一件事：","b":"我知道自己无知。","key":"无知","sign":"苏格拉底","en":"SOCRATES","years":"c.470–399 BC","source":"柏拉图《申辩篇》","img":"socrates_bust.png","outline":"SOCRATES"},
+    {"id":4,"type":"line","dur":4.5,"a":"我们通常以为，INTJ的问题是","b":"太冷、太独。","strike":"太冷、太独","img":"window_back.jpg","outline":"INTJ"},
+    {"id":5,"type":"line","dur":5,"a":"可INTJ真正的困境，是","b":"太相信自己已经想清楚了。","key":"想清楚","img":"window_back.jpg","outline":"INTJ","push":true},
+    {"id":6,"type":"card","dur":1.5,"no":"02","text":"你一定经历过","flank":["meeting_room.jpg"]},
+    {"id":7,"type":"line","dur":4.5,"a":"开会时，你早就看到了结局，","b":"却只能看着别人绕远路。","key":"绕远路","img":"meeting_room.jpg"},
+    {"id":8,"type":"line","dur":4.5,"a":"你给朋友的建议句句在理，","b":"对方却越听越沉默。","key":"沉默","img":"two_cups.jpg"},
+    {"id":9,"type":"line","dur":4.5,"a":"你画好了整张蓝图，","b":"最后还是一个人在搭。","key":"一个人","img":"blueprint_hand.jpg","invert":true},
+    {"id":10,"type":"card","dur":1.5,"no":"03","text":"雅典最有智慧的人","flank":["school_of_athens.jpg"]},
+    {"id":11,"type":"line","dur":4.5,"a":"苏格拉底拜访了政客、诗人、工匠，","b":"发现他们都自以为知道。","key":"自以为","img":"school_of_athens.jpg","outline":"ATHENS"},
+    {"id":12,"type":"line","dur":5,"a":"而他唯一的不同，","b":"是承认自己的无知。","key":"承认","img":"socrates_bust.png","reticle":true,"outline":"SOCRATES"},
+    {"id":13,"type":"line","dur":5,"a":"所以他从不宣布答案，只是提问，","b":"让对方自己走到答案面前。","key":"自己","img":"death_of_socrates.jpg"},
+    {"id":14,"type":"card","dur":1.5,"no":"04","text":"那么，为什么别人不愿意听？"},
+    {"id":15,"type":"line","dur":5.5,"a":"人们拒绝的，往往不是你的观点，","b":"而是那句没说出口的：我早就想清楚了。","key":"我早就想清楚了","outline":"INTJ","reticle":true,"decode":true},
+    {"id":16,"type":"card","dur":1.5,"no":"05","text":"可这样活着，有什么不好？"},
+    {"id":17,"type":"line","dur":4.5,"a":"你会越来越确信，","b":"也越来越孤独。","key":"孤独","img":"empty_chairs.jpg"},
+    {"id":18,"type":"line","dur":5,"a":"所有人都在你的推演之外，","b":"而你的推演里，再也进不来新的东西。","key":"新的东西","img":"closed_door.jpg"},
+    {"id":19,"type":"card","dur":1.5,"no":"06","text":"苏格拉底说","flank":["socrates_bust.png"]},
+    {"id":20,"type":"quote","dur":5,"a":"未经审视的人生，","b":"不值得过。","key":"审视","sign":"苏格拉底","en":"SOCRATES","years":"c.470–399 BC","source":"柏拉图《申辩篇》","img":"socrates_bust.png","outline":"SOCRATES"},
+    {"id":21,"type":"line","dur":4.5,"a":"被审视的，","b":"也包括你自己的正确。","key":"正确","strikeTitle":true},
+    {"id":22,"type":"end","dur":8,"a":"当你愿意给世界留一点空白，","b":"承认自己的无知，别人才会走进你的蓝图。","key":"无知","img":"blueprint_hand.jpg","hold":5}
+  ]
+}
