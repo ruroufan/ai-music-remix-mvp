@@ -62,22 +62,45 @@ const segments = (text) => {
   if (cur) out.push(cur);
   return out;
 };
-// hard-wrap one over-long segment into the fewest equal pieces that fit;
-// punctuation never starts a line (it stays with the word before it)
-const hardWrap = (seg, width) => {
-  const chars = [...seg];
+// where a line may break: between words (Intl.Segmenter knows Chinese), and
+// never right before a punctuation mark
+const seg = new Intl.Segmenter("zh", { granularity: "word" });
+const breaks = (text) => {
+  const chars = [...text];
+  const ok = new Set();
+  let i = 0;
+  for (const w of seg.segment(text)) {
+    i += [...w.segment].length;
+    if (i > 0 && i < chars.length && !PUNCT.test(chars[i])) ok.add(i);
+  }
+  return ok;
+};
+// cut `chars` into n lines at the allowed breaks nearest the even split
+const cutAt = (chars, n, ok) => {
+  const cuts = [];
+  for (let k = 1; k < n; k++) {
+    const target = (chars.length * k) / n;
+    let best = -1;
+    for (const b of ok) if (b > (cuts[cuts.length - 1] ?? 0) && (best < 0 || Math.abs(b - target) < Math.abs(best - target))) best = b;
+    if (best < 0) return null;
+    cuts.push(best);
+  }
+  const out = [];
+  let prev = 0;
+  for (const c of [...cuts, chars.length]) { out.push(chars.slice(prev, c).join("")); prev = c; }
+  return out;
+};
+// hard-wrap one over-long segment into the fewest balanced pieces that fit
+const hardWrap = (text, width) => {
+  const chars = [...text];
+  const ok = breaks(text);
   for (let n = 2; n <= chars.length; n++) {
-    const per = Math.ceil(chars.length / n);
-    const out = [];
-    for (let i = 0; i < chars.length; i += per) out.push(chars.slice(i, i + per).join(""));
-    for (let k = 1; k < out.length; k++) {
-      while (out[k] && PUNCT.test(out[k][0])) { out[k - 1] += out[k][0]; out[k] = out[k].slice(1); }
-    }
-    const lines = out.filter(Boolean);
-    if (lines.every((l) => width(l) <= width.max)) return lines;
+    const lines = cutAt(chars, n, ok);
+    if (lines && lines.every((l) => width(l) <= width.max)) return lines;
   }
   return chars;
 };
+
 // Fit `text` into lines no wider than maxW: biggest size from `max` down to
 // MIN_SIZE at which every punctuation segment fits, segments packed greedily;
 // below that, hard-wrap. `forced` = explicit line breaks to respect.
@@ -97,7 +120,7 @@ const fit = (text, fontFor, max, maxW, spacingFor, forced) => {
       if (!ok) break;
       if (cur) lines.push(cur);
     }
-    if (ok) return { size, lines };
+    if (ok) return { size, lines: noOrphans(lines, wOf, maxW) };
   }
   const size = MIN_SIZE;
   const wOf = (s) => measure(s, fontFor(size), spacingFor(size));
@@ -111,6 +134,18 @@ const fit = (text, fontFor, max, maxW, spacingFor, forced) => {
   }
   if (cur) packed.push(cur);
   return { size, lines: packed };
+};
+// no line of one or two characters left dangling: re-cut the last two lines
+// at the word break nearest their middle
+const noOrphans = (lines, wOf, maxW) => {
+  const out = [...lines];
+  for (let k = 1; k < out.length; k++) {
+    if ([...out[k].replace(PUNCT, "")].length > 2) continue;
+    const both = out[k - 1] + out[k];
+    const two = cutAt([...both], 2, breaks(both));
+    if (two && two.every((l) => wOf(l) <= maxW)) { out[k - 1] = two[0]; out[k] = two[1]; }
+  }
+  return out;
 };
 // the second half: break at the comma / colon nearest the middle if long
 const splitB = (b) => {
@@ -129,6 +164,8 @@ const fontA = (s) => `900 ${s}px "Noto Serif SC"`;
 const fontB = (s) => `400 ${s}px "Zhi Mang Xing"`;
 const spaceA = () => 2;
 const spaceB = (s) => s * 0.08;
+// when fitting, leave room for the letters' random size jitter (up to +8 %)
+const spaceBFit = (s) => s * 0.08 + s * 0.08;
 
 // ── the timeline ──────────────────────────────────────────────────────────
 const tl = gsap.timeline({ paused: true });
@@ -377,7 +414,7 @@ const quoteText = (s, root, start, ctx2) => {
   const { flash } = ctx2;
   const aFit = fit(s.a, fontA, A_MAX, REGION_R - TEXT_X, spaceA);
   const bForced = splitB(s.b);
-  const bFit = fit(s.b, fontB, B_MAX, REGION_R - TEXT_X - B_INDENT, spaceB, bForced);
+  const bFit = fit(s.b, fontB, B_MAX, REGION_R - TEXT_X - B_INDENT, spaceBFit, bForced);
   const keyIn = s.key ? (s.b.includes(s.key) ? "b" : s.a.includes(s.key) ? "a" : null) : null;
   let y = TEXT_Y;
   const aLH = aFit.size * 1.38;
@@ -406,7 +443,7 @@ const quoteText = (s, root, start, ctx2) => {
   const chars = [];
   const keyStart = keyIn === "b" ? s.b.indexOf(s.key) : -1;
   let idx = 0;
-  bFit.lines.forEach((line) => {
+  bFit.lines.forEach((line, li) => {
     let x = TEXT_X + B_INDENT;
     for (const c of line) {
       const sz = bFit.size * (0.94 + rnd(s.id, "sz", idx) * 0.14);
@@ -415,6 +452,7 @@ const quoteText = (s, root, start, ctx2) => {
       const rot = (rnd(s.id, "rot", idx) - 0.5) * 8;
       const isKey = keyStart >= 0 && idx >= keyStart && idx < keyStart + s.key.length;
       const span = el("div", `ch${isKey ? " key" : ""}`, root, { left: `${x}px`, top: `${y + dy}px`, fontSize: `${sz}px`, lineHeight: `${bLH}px` }, c);
+      span.dataset.line = li;
       chars.push({ span, x, y: y + dy, w, h: bLH, i: idx, c, isKey, rot });
       x += w + spaceB(bFit.size);
       idx++;
@@ -559,7 +597,7 @@ const hookBg = (root, spec) => {
   if (kind === "outline" || (kind === "img-invert" && !images[arg])) {
     const paper = kind === "outline";
     box.style.background = paper ? INK : BG;
-    el("div", "outline", box, { left: "40px", top: "120px", fontSize: "560px", WebkitTextStroke: `4px ${paper ? BG : INK}`, opacity: paper ? 0.9 : 0.35 }, arg || "INTJ");
+    el("div", "outline", box, { left: "40px", top: "120px", fontSize: "560px", WebkitTextStroke: `4px ${paper ? BG : INK}`, opacity: paper ? 0.9 : 0.35 }, paper ? arg || "INTJ" : "INTJ");
     if (paper) {
       el("div", "abs", box, { left: "-100px", top: "330px", width: "2200px", height: "34px", background: RED, transform: "rotate(-9deg)" });
       el("div", "mono", box, { left: "120px", top: "880px", color: BG, opacity: 0.8 }, "INTJ · 建筑师 · ARCHITECT · ARCHITECTE · АРХИТЕКТОР · 建築家");
