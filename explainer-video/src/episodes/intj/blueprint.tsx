@@ -114,7 +114,7 @@ export const Blueprint: React.FC<{ x: number; y: number; w: number; frame: numbe
         );
       })}
       {blank > 0.4 && (
-        <div style={{ position: "absolute", left: (BLANK.x + BLANK.w / 2) * u - 100, top: (BLANK.y + BLANK.h / 2) * u - 40, width: 200, textAlign: "center", fontSize: 4.4 * u, fontWeight: 900, color: `rgba(${GOLD},${blank})`, textShadow: `0 0 16px rgba(${GOLD},0.9)` }}>
+        <div style={{ position: "absolute", left: (BLANK.x + BLANK.w / 2) * u - 100, top: (BLANK.y + BLANK.h / 2) * u - 40, width: 200, textAlign: "center", fontSize: 4.4 * u, fontWeight: 900, color: `rgba(150,96,20,${blank})` }}>
           留白
         </div>
       )}

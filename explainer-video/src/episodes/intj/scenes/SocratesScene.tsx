@@ -70,7 +70,7 @@ export const SocratesScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
                   <div style={{ position: "absolute", left: x - 100, width: 200, top: FLOOR - 400, textAlign: "center" }}>
                     <div style={{ display: "inline-block", padding: "8px 20px", borderRadius: 18, border: `2px solid rgba(${GOLD},0.7)`, fontSize: 28, fontWeight: 800, color: look.key }}>我知道 ✓</div>
                   </div>
-                  <div style={{ position: "absolute", left: x - 100, width: 200, top: FLOOR + 14, textAlign: "center", fontSize: 30, fontWeight: 900 }}>{v}</div>
+                  <div style={{ position: "absolute", left: x - 100, width: 200, top: FLOOR - 460, textAlign: "center", fontSize: 30, fontWeight: 900 }}>{v}</div>
                   {stamp > 0 && (
                     <div style={{ position: "absolute", left: x - 140, top: FLOOR - 230, width: 280, padding: "8px 0", textAlign: "center", border: `5px solid rgb(${RED})`, borderRadius: 10, fontSize: 32, fontWeight: 900, color: `rgb(${RED})`, background: "rgba(11,15,21,0.6)", transform: `rotate(-10deg) scale(${2 - stamp})`, opacity: stamp }}>其实并不知道</div>
                   )}

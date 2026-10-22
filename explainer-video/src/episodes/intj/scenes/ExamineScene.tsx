@@ -19,11 +19,11 @@ export const ExamineScene: React.FC<SceneProps> = ({ lines, cues, duration }) =>
   const { look } = useEpisode();
   const [, c1] = cues;
   const t = interpolate(frame, [0, c1 + BEAT], [0, 1], { ...clamp, easing: (k) => k * k * (3 - 2 * k) });
-  const lx = 520 + 860 * t, ly = 420 + 80 * Math.sin(t * Math.PI * 2);
+  const lx = 600 + 720 * t, ly = 400 + 70 * Math.sin(t * Math.PI * 2);
   return (
     <ObsFrame duration={duration}>
       <Cam frame={frame} duration={duration} push={[1, 1.05]} hits={[c1 + BEAT]}>
-        <Blueprint x={360} y={150} w={1200} frame={frame} draw={1} checks={1} q={frame >= c1 + BEAT ? 1 : 0} />
+        <Blueprint x={460} y={150} w={1000} frame={frame} draw={1} checks={1} q={frame >= c1 + BEAT ? 1 : 0} />
         <svg width={1920} height={1080} style={{ position: "absolute", inset: 0 }}>
           <circle cx={lx} cy={ly} r={130} fill="rgba(200,230,255,0.08)" stroke={`rgb(${GOLD})`} strokeWidth={6} style={{ filter: `drop-shadow(0 0 14px rgba(${GOLD},0.7))` }} />
           <line x1={lx + 92} y1={ly + 92} x2={lx + 200} y2={ly + 200} stroke={`rgb(${GOLD})`} strokeWidth={16} strokeLinecap="round" />

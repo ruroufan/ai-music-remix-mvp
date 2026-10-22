@@ -31,8 +31,8 @@ export const AnswerScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
   return (
     <ObsFrame duration={duration}>
       <Cam frame={frame} duration={duration} push={[1, 1.08]} focus={{ x: 900, y: 500 }} hits={[c1 + BEAT, c2 + BEAT]}>
-        <Blueprint x={560} y={210} w={460} frame={frame} draw={1} checks={1} label="方案 · v1.0" />
-        {ok > 0 && <div style={{ position: "absolute", left: 600, top: 520, fontSize: 30, fontWeight: 900, color: "#7fe0a0", opacity: ok * (1 - 0.6 * reveal) }}>观点 ✓ 没问题</div>}
+        <Blueprint x={720} y={230} w={420} frame={frame} draw={1} checks={1} label="方案 · v1.0" />
+        {ok > 0 && <div style={{ position: "absolute", left: 760, top: 520, fontSize: 30, fontWeight: 900, color: "#7fe0a0", opacity: ok * (1 - 0.6 * reveal) }}>观点 ✓ 没问题</div>}
         <GlassBox x={HIM} bottom={FLOOR} w={260} h={380} k={0.25 + 0.75 * reveal} text="" />
         <Stander x={HIM} bottom={FLOOR} height={300} lift={1.6} glow={0.8} rgb={BP} />
         {/* the scan line */}
