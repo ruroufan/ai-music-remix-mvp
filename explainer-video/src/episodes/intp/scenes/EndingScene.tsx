@@ -48,8 +48,8 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
           {through > 0 && (
             <div style={{ position: "absolute", inset: 0, opacity: through, background: `radial-gradient(ellipse at 50% 40%, rgba(${GREEN},0.12), transparent 70%)` }}>
               <div style={{ position: "absolute", left: 0, right: 0, top: FLOOR, height: 320, background: `linear-gradient(rgba(${GREEN},0.18), transparent)` }} />
-              <LifeTree x={1100} floor={FLOOR} scale={1.15} frame={frame} glow={1} />
-              <Walker x={500 + 470 * outWalk} bottom={FLOOR} height={300} face="right" walk={outWalk * 30} glow={1} rgb={GREEN} />
+              <LifeTree x={1100} floor={FLOOR} scale={0.95} frame={frame} glow={1} />
+              <Walker x={500 + 500 * outWalk} bottom={FLOOR} height={300} face="right" walk={outWalk * 30} glow={1} rgb={GREEN} />
               {ring >= 0 && ring < 1 && <div style={{ position: "absolute", left: 1000 - 600 * ring, top: FLOOR - 200 - 600 * ring, width: 1200 * ring, height: 1200 * ring, borderRadius: "50%", border: `${8 * (1 - ring)}px solid rgba(${GREEN},${1 - ring})` }} />}
             </div>
           )}

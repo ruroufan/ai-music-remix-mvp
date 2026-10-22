@@ -59,7 +59,7 @@ export const DiagnosisScene: React.FC<SceneProps> = ({ lines, cues, duration }) 
         )}
         {t1 >= 0 && (
           <div style={{ position: "absolute", inset: 0, opacity: card }}>
-            <Reasoning frame={frame} ox={560} oy={800} grow={Math.min(1, t1 / 60)} opacity={0.5} seed="dg" />
+            <Reasoning frame={frame} ox={560} oy={860} grow={Math.min(1, t1 / 60)} opacity={0.35} seed="dg" />
             <LifeTree x={1400} floor={820} scale={0.5} frame={frame} glow={Math.min(1, Math.max(0, (t1 - 3 * BEAT) / 20))} />
             <div style={{ position: "absolute", left: 0, right: 0, top: 140, textAlign: "center", fontFamily: fonts.mono, fontSize: 18, letterSpacing: 5, color: palette.dim }}>GOETHE ·《浮士德》</div>
             <div style={{ position: "absolute", left: 0, right: 0, top: 200, textAlign: "center", fontSize: 66, fontWeight: 900, letterSpacing: 4 }}>
