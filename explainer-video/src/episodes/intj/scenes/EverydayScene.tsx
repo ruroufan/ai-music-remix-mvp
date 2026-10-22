@@ -6,6 +6,7 @@ import { useEpisode } from "../../../EpisodeContext";
 import { Doer } from "../../friction/tangle";
 import { Bokeh, Cam } from "../../glass/immersive";
 import { BP, Blueprint, GOLD, RED } from "../blueprint";
+import { ImpactBack, ImpactFront, keyHits } from "../impact";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { BEAT, type SceneProps } from "../timing";
@@ -46,7 +47,8 @@ export const EverydayScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
   const posts = Math.max(0, Math.min(6, Math.floor((frame - c2 - BEAT) / BEAT) + 1));
   return (
     <ObsFrame duration={duration}>
-      <Cam frame={frame} duration={duration} push={[1, 1.06]} whips={[c1, c2]} hits={[BEAT]}>
+      <ImpactBack lines={lines} cues={cues} duration={duration} />
+      <Cam frame={frame} duration={duration} push={[1, 1.06]} whips={[c1, c2]} hits={[...[BEAT], ...keyHits(lines, cues, duration)]}>
         {seg === 0 && (
           <div style={{ position: "absolute", inset: 0 }}>
             <svg width={1920} height={1080} style={{ position: "absolute", inset: 0 }}>
@@ -114,6 +116,7 @@ export const EverydayScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
       {[0, 1, 2, 3, 4, 5].map((i) => (
         <Sfx key={`p${i}`} name="step" at={c2 + BEAT + i * BEAT} volume={0.25} />
       ))}
+      <ImpactFront lines={lines} cues={cues} duration={duration} />
       <Subtitles lines={lines} cues={cues} duration={duration} />
     </ObsFrame>
   );

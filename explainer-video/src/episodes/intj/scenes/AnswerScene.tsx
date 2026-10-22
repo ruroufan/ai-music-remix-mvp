@@ -5,6 +5,7 @@ import { fonts, palette } from "../../../channels/backlit/look";
 import { Stander } from "../../doubt/circles";
 import { Bokeh, Cam } from "../../glass/immersive";
 import { BP, Blueprint, GlassBox, RED } from "../blueprint";
+import { ImpactBack, ImpactFront, keyHits } from "../impact";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { BEAT, type SceneProps } from "../timing";
@@ -30,7 +31,8 @@ export const AnswerScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
   const says = frame < c1 ? ["嗯……", "再说吧", "……"] : ["有道理", "对", "没错"];
   return (
     <ObsFrame duration={duration}>
-      <Cam frame={frame} duration={duration} push={[1, 1.08]} focus={{ x: 900, y: 500 }} hits={[c1 + BEAT, c2 + BEAT]}>
+      <ImpactBack lines={lines} cues={cues} duration={duration} />
+      <Cam frame={frame} duration={duration} push={[1, 1.08]} focus={{ x: 900, y: 500 }} hits={[...[c1 + BEAT, c2 + BEAT], ...keyHits(lines, cues, duration)]}>
         <Blueprint x={720} y={230} w={420} frame={frame} draw={1} checks={1} label="方案 · v1.0" />
         {ok > 0 && <div style={{ position: "absolute", left: 760, top: 520, fontSize: 30, fontWeight: 900, color: "#7fe0a0", opacity: ok * (1 - 0.6 * reveal) }}>观点 ✓ 没问题</div>}
         <GlassBox x={HIM} bottom={FLOOR} w={260} h={380} k={0.25 + 0.75 * reveal} text="" />
@@ -54,6 +56,7 @@ export const AnswerScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
       <Sfx name="rise" at={c2} volume={0.3} />
       <Sfx name="glitch" at={c2 + BEAT} volume={0.35} />
       <Sfx name="whoosh" at={c2 + 2 * BEAT} volume={0.35} />
+      <ImpactFront lines={lines} cues={cues} duration={duration} />
       <Subtitles lines={lines} cues={cues} duration={duration} />
     </ObsFrame>
   );

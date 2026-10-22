@@ -8,6 +8,7 @@ import { Stander } from "../../doubt/circles";
 import { Walker } from "../../nostalgia/road";
 import { Bokeh, Cam } from "../../glass/immersive";
 import { BLANK, BP, Blueprint, GOLD, GlassBox } from "../blueprint";
+import { ImpactBack, ImpactFront, keyHits } from "../impact";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { useRamp, BEAT, type SceneProps } from "../timing";
@@ -38,7 +39,8 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
   const doorX = PLAN.x + 79 * u, doorY = PLAN.y + 56 * u;
   return (
     <ObsFrame duration={duration}>
-      <Cam frame={frame} duration={duration} push={[1.06, 1]} hits={[0, c1]}>
+      <ImpactBack lines={lines} cues={cues} duration={duration} />
+      <Cam frame={frame} duration={duration} push={[1.06, 1]} hits={[...[0, c1], ...keyHits(lines, cues, duration)]}>
         <div style={{ position: "absolute", inset: 0, opacity: 1 - 0.92 * card }}>
           <Halo x={doorX} y={PLAN.y + 43 * u} r={300} intensity={0.6 * blank} rgb={GOLD} />
           <Blueprint x={PLAN.x} y={PLAN.y} w={PLAN.w} frame={frame} draw={1} checks={1} blank={blank} door={door} />
@@ -68,6 +70,7 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
         <Sfx key={i} name="step" at={c1 + BEAT + i * BEAT} volume={0.3} />
       ))}
       <Sfx name="boom" at={c2} volume={0.35} />
+      <ImpactFront lines={lines} cues={cues} duration={duration} />
       <Subtitles lines={lines} cues={cues} duration={duration} hide={[2]} />
     </ObsFrame>
   );

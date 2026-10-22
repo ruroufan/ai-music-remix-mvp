@@ -6,6 +6,7 @@ import { Stander } from "../../doubt/circles";
 import { Walker } from "../../nostalgia/road";
 import { Bokeh, Cam } from "../../glass/immersive";
 import { BP, Blueprint, RED } from "../blueprint";
+import { ImpactBack, ImpactFront, keyHits } from "../impact";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { BEAT, type SceneProps } from "../timing";
@@ -26,7 +27,8 @@ export const HookScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const listeners = 3 - [0, 1, 2].filter((i) => leave(i) > 10).length;
   return (
     <ObsFrame duration={duration}>
-      <Cam frame={frame} duration={duration} push={[1, 1.08]} focus={{ x: 800, y: 480 }} hits={[8 * BEAT, c1]}>
+      <ImpactBack lines={lines} cues={cues} duration={duration} />
+      <Cam frame={frame} duration={duration} push={[1, 1.08]} focus={{ x: 800, y: 480 }} hits={[...[8 * BEAT, c1], ...keyHits(lines, cues, duration)]}>
         <Blueprint x={170} y={170} w={880} frame={frame} draw={draw} checks={checks} />
         <Stander x={1170} bottom={FLOOR} height={300} lift={1.6} glow={0.8} rgb={BP} />
         {/* he's talking */}
@@ -55,6 +57,7 @@ export const HookScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
       {[0, 1, 2].map((i) => (
         <Sfx key={`w${i}`} name="step" at={c1 + i * 6} volume={0.25} />
       ))}
+      <ImpactFront lines={lines} cues={cues} duration={duration} />
       <Subtitles lines={lines} cues={cues} duration={duration} />
     </ObsFrame>
   );

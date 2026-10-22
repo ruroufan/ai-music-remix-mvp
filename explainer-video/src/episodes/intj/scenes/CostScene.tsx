@@ -5,6 +5,7 @@ import { fonts, palette } from "../../../channels/backlit/look";
 import { Stander } from "../../doubt/circles";
 import { Bokeh, Cam } from "../../glass/immersive";
 import { BP, GlassBox, RED } from "../blueprint";
+import { ImpactBack, ImpactFront, keyHits } from "../impact";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { BEAT, type SceneProps } from "../timing";
@@ -25,7 +26,8 @@ export const CostScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
   const drift = interpolate(frame, [0, c1 + 2 * BEAT], [0, 1], clamp);
   return (
     <ObsFrame duration={duration}>
-      <Cam frame={frame} duration={duration} push={[1, 1.1]} focus={{ x: 960, y: 520 }} hits={NEW.map((_, i) => c1 + BEAT + i * BEAT + 8)}>
+      <ImpactBack lines={lines} cues={cues} duration={duration} />
+      <Cam frame={frame} duration={duration} push={[1, 1.1]} focus={{ x: 960, y: 520 }} hits={[...NEW.map((_, i) => c1 + BEAT + i * BEAT + 8), ...keyHits(lines, cues, duration)]}>
         {PEOPLE.map(([x, s], i) => {
           const dir = x < 960 ? -1 : 1;
           return (
@@ -68,6 +70,7 @@ export const CostScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
       {NEW.map((_, i) => (
         <Sfx key={i} name="glint" at={c1 + BEAT + i * BEAT + 8} volume={0.4} />
       ))}
+      <ImpactFront lines={lines} cues={cues} duration={duration} />
       <Subtitles lines={lines} cues={cues} duration={duration} />
     </ObsFrame>
   );

@@ -6,6 +6,7 @@ import { fonts, palette } from "../../../channels/backlit/look";
 import { useEpisode } from "../../../EpisodeContext";
 import { KineticText } from "../../../components/Kinetic";
 import { Bokeh, Cam } from "../../glass/immersive";
+import { ImpactBack, ImpactFront, keyHits } from "../impact";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { BP, GOLD } from "../blueprint";
@@ -40,7 +41,8 @@ export const DiagnosisScene: React.FC<SceneProps> = ({ lines, cues, duration }) 
   const en = useRamp(cues[1] + 6 * BEAT, 12);
   return (
     <ObsFrame duration={duration}>
-      <Cam frame={frame} duration={duration} push={[1, 1.08]}>
+      <ImpactBack lines={lines} cues={cues} duration={duration} />
+      <Cam frame={frame} duration={duration} push={[1, 1.08]} hits={keyHits(lines, cues, duration)}>
         {card < 1 && (
           <div style={{ position: "absolute", inset: 0, opacity: file * (1 - card) }}>
             <Halo x={620} y={380} r={360} intensity={0.5} />
@@ -81,6 +83,7 @@ export const DiagnosisScene: React.FC<SceneProps> = ({ lines, cues, duration }) 
       ))}
       <Sfx name="stamp" at={cues[1]} volume={0.45} />
       <Sfx name="stamp" at={cues[1] + 3 * BEAT} volume={0.45} />
+      <ImpactFront lines={lines} cues={cues} duration={duration} />
       <Subtitles lines={lines} cues={cues} duration={duration} hide={[1]} />
     </ObsFrame>
   );

@@ -93,7 +93,7 @@ export const Blueprint: React.FC<{ x: number; y: number; w: number; frame: numbe
               </g>
             );
           }
-          return <line key={i} x1={x1 * u} y1={y1 * u} x2={ex * u} y2={ey * u} stroke={`rgb(${BP})`} strokeWidth={0.7 * u} strokeLinecap="square" style={{ filter: `drop-shadow(0 0 4px rgba(${BP},0.6))` }} />;
+          return <line key={i} x1={x1 * u} y1={y1 * u} x2={ex * u} y2={ey * u} stroke={`rgb(${BP})`} strokeWidth={0.85 * u} strokeLinecap="square" style={{ filter: `drop-shadow(0 0 6px rgba(${BP},0.9)) drop-shadow(0 0 18px rgba(${BP},0.5))` }} />;
         })}
       </svg>
       {/* rooms: labels, ticks */}

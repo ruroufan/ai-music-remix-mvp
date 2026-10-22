@@ -5,6 +5,7 @@ import { fonts } from "../../../channels/backlit/look";
 import { useEpisode } from "../../../EpisodeContext";
 import { Bokeh, Cam } from "../../glass/immersive";
 import { BP, Blueprint, GOLD } from "../blueprint";
+import { ImpactBack, ImpactFront, keyHits } from "../impact";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { BEAT, type SceneProps } from "../timing";
@@ -22,7 +23,8 @@ export const ExamineScene: React.FC<SceneProps> = ({ lines, cues, duration }) =>
   const lx = 600 + 720 * t, ly = 400 + 70 * Math.sin(t * Math.PI * 2);
   return (
     <ObsFrame duration={duration}>
-      <Cam frame={frame} duration={duration} push={[1, 1.05]} hits={[c1 + BEAT]}>
+      <ImpactBack lines={lines} cues={cues} duration={duration} />
+      <Cam frame={frame} duration={duration} push={[1, 1.05]} hits={[...[c1 + BEAT], ...keyHits(lines, cues, duration)]}>
         <Blueprint x={460} y={150} w={1000} frame={frame} draw={1} checks={1} q={frame >= c1 + BEAT ? 1 : 0} />
         <svg width={1920} height={1080} style={{ position: "absolute", inset: 0 }}>
           <circle cx={lx} cy={ly} r={130} fill="rgba(200,230,255,0.08)" stroke={`rgb(${GOLD})`} strokeWidth={6} style={{ filter: `drop-shadow(0 0 14px rgba(${GOLD},0.7))` }} />
@@ -34,6 +36,7 @@ export const ExamineScene: React.FC<SceneProps> = ({ lines, cues, duration }) =>
       <Bokeh frame={frame} rgb={GOLD} opacity={0.6} />
       <Sfx name="whoosh" at={0} volume={0.25} />
       <Sfx name="glitch" at={c1 + BEAT} volume={0.35} />
+      <ImpactFront lines={lines} cues={cues} duration={duration} />
       <Subtitles lines={lines} cues={cues} duration={duration} />
     </ObsFrame>
   );

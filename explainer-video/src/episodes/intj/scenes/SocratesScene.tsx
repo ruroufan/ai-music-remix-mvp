@@ -8,6 +8,7 @@ import { Stander } from "../../doubt/circles";
 import { Walker } from "../../nostalgia/road";
 import { Bokeh, Cam } from "../../glass/immersive";
 import { GOLD, RED } from "../blueprint";
+import { ImpactBack, ImpactFront, keyHits } from "../impact";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { BEAT, type SceneProps } from "../timing";
@@ -49,7 +50,8 @@ export const SocratesScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
   const qs = Math.max(0, Math.min(6, Math.floor((frame - c3) / BEAT) + 1));
   return (
     <ObsFrame duration={duration}>
-      <Cam frame={frame} duration={duration} push={[1, 1.06]} whips={[c1, c2, c3]} hits={VISITED.map((_, i) => c1 + (2 + i) * BEAT)}>
+      <ImpactBack lines={lines} cues={cues} duration={duration} />
+      <Cam frame={frame} duration={duration} push={[1, 1.06]} whips={[c1, c2, c3]} hits={[...VISITED.map((_, i) => c1 + (2 + i) * BEAT), ...keyHits(lines, cues, duration)]}>
         {seg === 0 && (
           <div style={{ position: "absolute", inset: 0 }}>
             <Columns opacity={ramp(frame, 0, 12)} />
@@ -121,6 +123,7 @@ export const SocratesScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
       {[0, 1, 2, 3, 4, 5].map((k) => (
         <Sfx key={`q${k}`} name="shutter" at={c3 + k * BEAT} volume={0.12} />
       ))}
+      <ImpactFront lines={lines} cues={cues} duration={duration} />
       <Subtitles lines={lines} cues={cues} duration={duration} />
     </ObsFrame>
   );

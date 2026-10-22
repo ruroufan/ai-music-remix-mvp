@@ -6,6 +6,7 @@ import { fonts, palette } from "../../../channels/backlit/look";
 import { useEpisode } from "../../../EpisodeContext";
 import { BP, GOLD } from "../blueprint";
 import { Bokeh, Cam } from "../../glass/immersive";
+import { ImpactBack, ImpactFront, keyHits } from "../impact";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { useRamp, BEAT, type SceneProps } from "../timing";
@@ -39,7 +40,8 @@ export const MisreadScene: React.FC<SceneProps> = ({ lines, cues, duration }) =>
   const strike = interpolate(frame, [c1 + 4 * BEAT, c1 + 4 * BEAT + 6], [0, 1], clamp);
   return (
     <ObsFrame duration={duration}>
-      <Cam frame={frame} duration={duration} push={[1, 1.08]} hits={[4 * BEAT, c1 + 4 * BEAT, c2 + BEAT + 8]} whips={[c1, c2]}>
+      <ImpactBack lines={lines} cues={cues} duration={duration} />
+      <Cam frame={frame} duration={duration} push={[1, 1.08]} hits={[...[4 * BEAT, c1 + 4 * BEAT, c2 + BEAT + 8], ...keyHits(lines, cues, duration)]} whips={[c1, c2]}>
         {cardOut < 1 && (
           <div style={{ position: "absolute", inset: 0, opacity: card * (1 - cardOut) }}>
             <Halo x={960} y={400} r={420} intensity={0.45} />
@@ -100,6 +102,7 @@ export const MisreadScene: React.FC<SceneProps> = ({ lines, cues, duration }) =>
       {[0, 1, 2].map((i) => (
         <Sfx key={i} name="shatter" at={c2 + 4 * BEAT + i * BEAT} volume={0.15} />
       ))}
+      <ImpactFront lines={lines} cues={cues} duration={duration} />
       <Subtitles lines={lines} cues={cues} duration={duration} />
     </ObsFrame>
   );
