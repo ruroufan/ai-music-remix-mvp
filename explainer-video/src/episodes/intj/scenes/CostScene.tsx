@@ -5,7 +5,7 @@ import { fonts, palette } from "../../../channels/backlit/look";
 import { Stander } from "../../doubt/circles";
 import { Bokeh, Cam } from "../../glass/immersive";
 import { BP, GlassBox, RED } from "../blueprint";
-import { ImpactBack, ImpactFront, keyHits } from "../impact";
+import { ImpactBack, ImpactFront, keyHits } from "../../mbti/impact";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { BEAT, type SceneProps } from "../timing";

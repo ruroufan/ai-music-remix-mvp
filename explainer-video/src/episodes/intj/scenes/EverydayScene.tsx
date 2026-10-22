@@ -6,7 +6,7 @@ import { useEpisode } from "../../../EpisodeContext";
 import { Doer } from "../../friction/tangle";
 import { Bokeh, Cam } from "../../glass/immersive";
 import { BP, Blueprint, GOLD, RED } from "../blueprint";
-import { ImpactBack, ImpactFront, keyHits } from "../impact";
+import { ImpactBack, ImpactFront, keyHits } from "../../mbti/impact";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { BEAT, type SceneProps } from "../timing";

@@ -26,9 +26,11 @@ import { burnout } from "./episodes/burnout";
 import { emptiness } from "./episodes/emptiness";
 import { fomo } from "./episodes/fomo";
 import { intj } from "./episodes/intj";
+import { intp } from "./episodes/intp";
 
 // One composition per episode. Render with `npx remotion render src/index.ts <id>`.
 const episodes: [string, EpisodeDef][] = [
+  ["Intp", intp],
   ["Intj", intj],
   ["Fomo", fomo],
   ["Emptiness", emptiness],

@@ -3,14 +3,14 @@ import { useCurrentFrame, random } from "remotion";
 import { useEpisode, useSceneIndex } from "../../EpisodeContext";
 import { keyLandsAt, parseMarks } from "../../components/Kinetic";
 import type { SceneProps } from "../../types";
-import { BEAT } from "./timing";
 
-// The episode's impact layer: on top of the scenes' own motion, every key
+// The 16种MBTI系列's impact layer: on top of the scenes' own motion, every key
 // phrase hits — a flash, a shockwave, the phrase itself slammed huge into the
 // background — and in the high-energy scenes the frame's edges pulse on the
 // beat.
 
 const GOLD = "255, 199, 122";
+const BEAT = 15; // 120 BPM at 30 fps, as every episode in the series
 
 type Hit = { at: number; end: number; text: string };
 const hitsOf = (lines: SceneProps["lines"], cues: number[], duration: number): Hit[] =>

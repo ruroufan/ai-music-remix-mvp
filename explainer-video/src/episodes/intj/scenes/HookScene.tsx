@@ -6,7 +6,7 @@ import { Stander } from "../../doubt/circles";
 import { Walker } from "../../nostalgia/road";
 import { Bokeh, Cam } from "../../glass/immersive";
 import { BP, Blueprint, RED } from "../blueprint";
-import { ImpactBack, ImpactFront, keyHits } from "../impact";
+import { ImpactBack, ImpactFront, keyHits } from "../../mbti/impact";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { BEAT, type SceneProps } from "../timing";

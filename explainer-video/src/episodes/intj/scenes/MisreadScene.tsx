@@ -6,7 +6,7 @@ import { fonts, palette } from "../../../channels/backlit/look";
 import { useEpisode } from "../../../EpisodeContext";
 import { BP, GOLD } from "../blueprint";
 import { Bokeh, Cam } from "../../glass/immersive";
-import { ImpactBack, ImpactFront, keyHits } from "../impact";
+import { ImpactBack, ImpactFront, keyHits } from "../../mbti/impact";
 import { Subtitles } from "../../../components/Subtitles";
 import { Sfx } from "../../../components/Sfx";
 import { useRamp, BEAT, type SceneProps } from "../timing";
