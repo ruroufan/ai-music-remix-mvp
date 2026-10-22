@@ -17,7 +17,7 @@ export type EpisodeData = {
   title: string;
   bpm: number;
   script: SceneSpec[];
-  music: "ambient" | "drive" | "clockwork" | "lofi" | "cassette" | "cinematic" | "guochao" | "stompclap" | "afrohouse" | "futurebass" | "electroswing" | "phonk" | "dembow" | "acid" | "breakbeat" | "frenchhouse" | "glitchhop";
+  music: "ambient" | "drive" | "clockwork" | "lofi" | "cassette" | "cinematic" | "guochao" | "stompclap" | "afrohouse" | "futurebass" | "electroswing" | "phonk" | "dembow" | "acid" | "breakbeat" | "frenchhouse" | "glitchhop" | "industrial";
   moods: Record<string, Mood>;
   timing?: TimingOptions;
 };

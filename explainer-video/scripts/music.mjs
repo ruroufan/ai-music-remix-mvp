@@ -31,9 +31,10 @@ import { scoreAcid } from "./audio/score-acid.mjs";
 import { scoreBreakbeat } from "./audio/score-breakbeat.mjs";
 import { scoreFrenchhouse } from "./audio/score-frenchhouse.mjs";
 import { scoreGlitchhop } from "./audio/score-glitchhop.mjs";
+import { scoreIndustrial } from "./audio/score-industrial.mjs";
 
 const EPISODES = Object.fromEntries(Object.entries(REGISTRY).map(([id, e]) => [id, e.episode]));
-const SCORES = { ambient: scoreAmbient, drive: scoreDrive, clockwork: scoreClockwork, lofi: scoreLofi, cassette: scoreCassette, cinematic: scoreCinematic, guochao: scoreGuochao, stompclap: scoreStompclap, afrohouse: scoreAfrohouse, futurebass: scoreFuturebass, electroswing: scoreElectroswing, phonk: scorePhonk, dembow: scoreDembow, acid: scoreAcid, breakbeat: scoreBreakbeat, frenchhouse: scoreFrenchhouse, glitchhop: scoreGlitchhop };
+const SCORES = { ambient: scoreAmbient, drive: scoreDrive, clockwork: scoreClockwork, lofi: scoreLofi, cassette: scoreCassette, cinematic: scoreCinematic, guochao: scoreGuochao, stompclap: scoreStompclap, afrohouse: scoreAfrohouse, futurebass: scoreFuturebass, electroswing: scoreElectroswing, phonk: scorePhonk, dembow: scoreDembow, acid: scoreAcid, breakbeat: scoreBreakbeat, frenchhouse: scoreFrenchhouse, glitchhop: scoreGlitchhop, industrial: scoreIndustrial };
 
 const root = new URL("../public/", import.meta.url);
 mkdirSync(new URL("music/", root), { recursive: true });
