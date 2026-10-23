@@ -36,9 +36,10 @@ import { scoreTrance } from "./audio/score-trance.mjs";
 import { scoreArenarock } from "./audio/score-arenarock.mjs";
 import { scoreFunk } from "./audio/score-funk.mjs";
 import { scoreDreampop } from "./audio/score-dreampop.mjs";
+import { scoreBossanova } from "./audio/score-bossanova.mjs";
 
 const EPISODES = Object.fromEntries(Object.entries(REGISTRY).map(([id, e]) => [id, e.episode]));
-const SCORES = { ambient: scoreAmbient, drive: scoreDrive, clockwork: scoreClockwork, lofi: scoreLofi, cassette: scoreCassette, cinematic: scoreCinematic, guochao: scoreGuochao, stompclap: scoreStompclap, afrohouse: scoreAfrohouse, futurebass: scoreFuturebass, electroswing: scoreElectroswing, phonk: scorePhonk, dembow: scoreDembow, acid: scoreAcid, breakbeat: scoreBreakbeat, frenchhouse: scoreFrenchhouse, glitchhop: scoreGlitchhop, industrial: scoreIndustrial, trance: scoreTrance, arenarock: scoreArenarock, funk: scoreFunk, dreampop: scoreDreampop };
+const SCORES = { ambient: scoreAmbient, drive: scoreDrive, clockwork: scoreClockwork, lofi: scoreLofi, cassette: scoreCassette, cinematic: scoreCinematic, guochao: scoreGuochao, stompclap: scoreStompclap, afrohouse: scoreAfrohouse, futurebass: scoreFuturebass, electroswing: scoreElectroswing, phonk: scorePhonk, dembow: scoreDembow, acid: scoreAcid, breakbeat: scoreBreakbeat, frenchhouse: scoreFrenchhouse, glitchhop: scoreGlitchhop, industrial: scoreIndustrial, trance: scoreTrance, arenarock: scoreArenarock, funk: scoreFunk, dreampop: scoreDreampop, bossanova: scoreBossanova };
 
 const root = new URL("../public/", import.meta.url);
 mkdirSync(new URL("music/", root), { recursive: true });
