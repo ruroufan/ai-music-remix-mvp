@@ -219,7 +219,9 @@ for (let i = 0; i < out[0].length; i++) {
   out[1][i] = Math.tanh(out[1][i] * 1.1) * g;
   peak = Math.max(peak, Math.abs(out[0][i]), Math.abs(out[1][i]));
 }
-const gain = 10 ** (-1 / 20) / (peak || 1);
+// peak at −4.6 dBFS: the mix then sits around −14.5 LUFS (a sensible level for
+// short-video platforms) with headroom left for the AAC encoder
+const gain = 10 ** (-4.6 / 20) / (peak || 1);
 const n = Math.round(LEN * SR);
 const wav = Buffer.alloc(44 + n * 4);
 wav.write("RIFF", 0); wav.writeUInt32LE(36 + n * 4, 4); wav.write("WAVE", 8); wav.write("fmt ", 12);
