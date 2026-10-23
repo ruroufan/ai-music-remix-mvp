@@ -26,6 +26,7 @@ import { episode as emptiness, brand as emptinessBrand } from "./emptiness/episo
 import { episode as fomo, brand as fomoBrand } from "./fomo/episode.ts";
 import { episode as intj, brand as intjBrand } from "./intj/episode.ts";
 import { episode as intp, brand as intpBrand } from "./intp/episode.ts";
+import { episode as entj, brand as entjBrand } from "./entj/episode.ts";
 
 export const EPISODES: Record<string, { episode: EpisodeData; brand: Brand }> = {
   pride: { episode: pride, brand: prideBrand },
@@ -52,4 +53,5 @@ export const EPISODES: Record<string, { episode: EpisodeData; brand: Brand }> = 
   fomo: { episode: fomo, brand: fomoBrand },
   intj: { episode: intj, brand: intjBrand },
   intp: { episode: intp, brand: intpBrand },
+  entj: { episode: entj, brand: entjBrand },
 };
