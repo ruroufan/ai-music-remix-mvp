@@ -25,7 +25,7 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
   const lift = interpolate(frame, [2 * BEAT, 4 * BEAT], [0, 1], { ...clamp, easing: (t) => t * t * (3 - 2 * t) });
   const wind = interpolate(frame, [3 * BEAT, 4 * BEAT], [0, 1], clamp) * (1 - 0.4 * interpolate(frame, [c1 + 2 * BEAT, c1 + 6 * BEAT], [0, 1], clamp));
   const sway = Math.sin(frame / 3.2) * 28 * wind + Math.sin(frame / 7) * 8 * wind;
-  const open = 1 + 2.2 * interpolate(frame, [c1, c1 + 5 * BEAT], [0, 1], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 2) });
+  const open = 1 + 3.4 * interpolate(frame, [c1, c1 + 5 * BEAT], [0, 1], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 2) });
   const warm = interpolate(frame, [c1 + BEAT, c1 + 7 * BEAT], [0, 1], clamp);
   const card = useRamp(c2, 12);
   return (
@@ -34,7 +34,7 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
       <Cam frame={frame} duration={duration} push={[1.04, 1]} focus={{ x: 960, y: 600 }} hits={[2 * BEAT, 4 * BEAT, c1, ...keyHits(lines, cues, duration)]}>
         <div style={{ position: "absolute", inset: 0, opacity: 1 - 0.92 * card }}>
           <GreyStreet frame={frame} warm={warm} />
-          <Holder x={880} height={400} lift={lift} sway={sway} open={open} glow={0.6 + 0.4 * warm} />
+          <Holder x={860} height={440} lift={lift} sway={sway} open={open} glow={0.6 + 0.4 * warm} />
           {/* torn petals */}
           {Array.from({ length: 5 }, (_, i) => {
             const at = 4 * BEAT + i * 9;

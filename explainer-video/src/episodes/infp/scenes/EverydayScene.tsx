@@ -65,7 +65,7 @@ export const EverydayScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
             {DREAMS.map((d, i) => {
               const a = (i / DREAMS.length) * 2 * Math.PI - Math.PI / 2;
               const p = ramp(frame, c1 + 3 + i * 4, 8);
-              return <div key={d} style={{ position: "absolute", left: 960 + Math.cos(a) * 640 - 140, top: 520 + Math.sin(a) * 330 - 30, width: 280, textAlign: "center", padding: "12px 0", borderRadius: 14, border: `2px solid rgba(${GLOW},0.7)`, background: `rgba(${GLOW},0.1)`, fontSize: 28, fontWeight: 800, color: `rgb(${GLOW})`, opacity: p, transform: `translateY(${Math.sin(frame / 15 + i) * 6}px)` }}>{d}</div>;
+              return <div key={d} style={{ position: "absolute", left: 960 + Math.cos(a) * 640 - 140, top: 450 + Math.sin(a) * 270 - 30, width: 280, textAlign: "center", padding: "12px 0", borderRadius: 14, border: `2px solid rgba(${GLOW},0.7)`, background: `rgba(${GLOW},0.1)`, fontSize: 28, fontWeight: 800, color: `rgb(${GLOW})`, opacity: p, transform: `translateY(${Math.sin(frame / 15 + i) * 6}px)` }}>{d}</div>;
             })}
             <div style={{ position: "absolute", left: 660, top: 380, width: 600, height: 300, borderRadius: 14, background: "#1a1d23", border: `2px solid rgba(${GREY},0.5)`, opacity: ramp(frame, c1 + 2 * BEAT, 8) }}>
               <div style={{ padding: "18px 24px", fontFamily: fonts.mono, fontSize: 22, color: palette.dim, borderBottom: `1px solid rgba(${GREY},0.3)` }}>新邮件 · 应聘</div>
