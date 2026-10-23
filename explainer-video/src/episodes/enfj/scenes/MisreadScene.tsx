@@ -62,12 +62,13 @@ export const MisreadScene: React.FC<SceneProps> = ({ lines, cues, duration }) =>
         {frame >= c2 && (
           <div style={{ position: "absolute", inset: 0, opacity: line }}>
             <div style={{ position: "absolute", left: 0, right: 0, top: 200, textAlign: "center", fontFamily: fonts.mono, fontSize: 22, letterSpacing: 6, color: palette.dim }}>KANT · 这句话的中间</div>
-            <div style={{ position: "absolute", left: 0, right: 0, top: 380, display: "flex", justifyContent: "center", fontSize: 54, fontWeight: 900, whiteSpace: "nowrap" }}>
-              {PARTS.map((p, i) => (
-                <span key={p} style={{ color: i === 1 ? `rgb(${WARM})` : palette.ink, opacity: i === 1 ? 1 : 1 - 0.8 * dim, textShadow: i === 1 ? `0 0 ${24 * dim}px rgba(${WARM},0.9)` : undefined, transform: i === 1 ? `scale(${1 + 0.15 * box})` : undefined, display: "inline-block", margin: i === 1 ? "0 14px" : 0 }}>{p}</span>
+            <div style={{ position: "absolute", left: 0, right: 0, top: 360, display: "flex", justifyContent: "center", fontSize: 54, fontWeight: 900, whiteSpace: "nowrap" }}>
+              {PARTS.slice(0, 3).map((p, i) => (
+                <span key={p} style={{ color: i === 1 ? `rgb(${WARM})` : palette.ink, opacity: i === 1 ? 1 : 1 - 0.8 * dim, textShadow: i === 1 ? `0 0 ${24 * dim}px rgba(${WARM},0.9)` : undefined, transform: i === 1 ? `scale(${1 + 0.15 * box})` : undefined, display: "inline-block", width: i === 1 ? 324 : undefined, margin: i === 1 ? "0 14px" : 0 }}>{p}</span>
               ))}
             </div>
-            <FocusBox x={694} y={414} w={400} h={120} progress={box} label="盲点 · BLIND SPOT" />
+            <div style={{ position: "absolute", left: 0, right: 0, top: 460, textAlign: "center", fontSize: 54, fontWeight: 900, color: palette.ink, opacity: 1 - 0.8 * dim }}>{PARTS[3]}</div>
+            <FocusBox x={906} y={394} w={460} h={120} progress={box} label="盲点 · BLIND SPOT" />
           </div>
         )}
       </Cam>
