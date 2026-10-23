@@ -80,9 +80,13 @@ const shoot = async () => Buffer.from((await cdp.send("Page.captureScreenshot", 
 // ── stills ────────────────────────────────────────────────────────────────
 if (STILLS) {
   await mkdir(join(OUT, "stills"), { recursive: true });
+  // PROMPT's still times are counted from the hook; the series card before it shifts them
+  const offset = info.shots.find((x) => x.type === "hook").start;
   const marks = [
-    { t: 2.0, name: "t02.0" },
-    { t: 5.5, name: "t05.5" },
+    { t: offset + 2.0, name: "t02.0" },
+    { t: offset + 5.5, name: "t05.5" },
+    { t: 1.0, name: "series_+1.0" },
+    { t: 2.6, name: "series_+2.6" },
   ];
   for (const id of [3, 7, 15, 20, 22]) {
     const s = info.shots.find((x) => x.id === id);

@@ -3,6 +3,7 @@
   "watermark": "你的账号名",
   "series_tag": ["INTJ", "正确"],
   "shots": [
+    {"id":"series","type":"series","dur":4,"a":"16种MBTI系列","b":"之 · 分析家组（NT）","code":"INTJ","role":"建筑师 · THE ARCHITECT","sub":"[ 16 TYPES · MBTI SERIES ]"},
     {"id":0,"type":"hook","dur":4,"lines":["为什么INTJ","说的明明是对的，","别人却不愿意听？"],"bg":["outline:INTJ","rays","reticle","img-invert:blueprint_hand.jpg"]},
     {"id":1,"type":"title","dur":3.5,"a":"这，是INTJ最深的困境——","b":"正确","sub":"[ INTJ · THE ARCHITECT ]  Nº01"},
     {"id":2,"type":"card","dur":1.5,"no":"01","text":"一句两千年前的诊断","flank":["socrates_bust.png"]},

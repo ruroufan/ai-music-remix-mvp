@@ -250,7 +250,7 @@ const main = async () => {
     tl.set(root, { visibility: "visible" }, start);
     tl.set(root, { visibility: "hidden" }, end);
     // the series tag: on cards and text shots, not on the hook or title
-    if (s.type !== "hook" && s.type !== "title") {
+    if (s.type !== "hook" && s.type !== "title" && s.type !== "series") {
       tl.set(tag, { autoAlpha: 1 }, start);
     } else {
       tl.set(tag, { autoAlpha: 0 }, start);
@@ -483,6 +483,27 @@ const quoteText = (s, root, start, ctx2) => {
 
 // ── shot types ────────────────────────────────────────────────────────────
 const BUILD = {
+  // the series card: 16种MBTI系列 / 之 · 分析家组（NT）/ INTJ
+  series(s, root, start, end) {
+    const o = el("div", "outline", root, { left: "-40px", top: "330px" }, "MBTI · NT");
+    tl.fromTo(o, { opacity: 0, x: 0 }, { opacity: 0.08, x: -160, duration: end - start, ease: "none" }, start);
+    // rings that go out when the code lands
+    const CY = 690;
+    const rings = [0, 1, 2, 3].map((i) => el("div", "abs", root, { left: `${960 - 300}px`, top: `${CY - 300}px`, width: "600px", height: "600px", borderRadius: "50%", border: `${i % 2 ? 2 : 6}px solid ${i % 2 ? "rgba(242,242,242,0.35)" : RED}`, opacity: 0 }));
+    const sub = el("div", "mono", root, { left: 0, width: `${W}px`, textAlign: "center", top: "150px" }, s.sub);
+    const a = el("div", "", root, { position: "absolute", left: 0, width: `${W}px`, textAlign: "center", top: "200px", fontWeight: 900, fontSize: "112px", letterSpacing: "8px", paddingLeft: "8px", lineHeight: 1.2, textShadow: `7px 7px 0 ${RED}` }, s.a);
+    const block = el("div", "", root, { position: "absolute", left: `${960 - 330}px`, top: "375px", width: "660px", height: "104px", background: RED, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "62px", letterSpacing: "6px", color: INK, boxShadow: "0 14px 40px rgba(0,0,0,0.6)" }, s.b);
+    const code = el("div", "", root, { position: "absolute", left: 0, width: `${W}px`, textAlign: "center", top: `${CY - 170}px`, fontFamily: "var(--display)", fontSize: "330px", lineHeight: "330px", letterSpacing: "18px", paddingLeft: "18px", color: INK, textShadow: "0 12px 40px rgba(0,0,0,0.7)" }, s.code);
+    const role = el("div", "mono", root, { left: 0, width: `${W}px`, textAlign: "center", top: "880px", fontSize: "22px", color: "rgba(242,242,242,0.8)" }, s.role);
+    tl.fromTo(sub, { opacity: 0 }, { opacity: 1, duration: 0.3 }, start + 0.05);
+    tl.fromTo(a, { opacity: 0, scale: 1.4, y: -10 }, { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "power3.out" }, start + 0.1);
+    tl.fromTo(block, { opacity: 0, scale: 1.3, rotation: -3 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.4, ease: "back.out(2)" }, start + 1.0);
+    tl.fromTo(code, { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, duration: 0.3, ease: "power4.out" }, start + 2.0);
+    rings.forEach((r, i) => tl.fromTo(r, { opacity: 0.95, scale: 0.4 + i * 0.12 }, { opacity: 0, scale: 1.7 + i * 0.25, duration: 1.4, ease: "power2.out", immediateRender: false }, start + 2.0 + i * 0.08));
+    tl.fromTo(role, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4 }, start + 2.4);
+    redFlash(null, start + 2.0);
+  },
+
   hook(s, root, start, end) {
     // backgrounds, cut every 0.4 s
     const bgs = s.bg.map((b) => hookBg(root, b));
