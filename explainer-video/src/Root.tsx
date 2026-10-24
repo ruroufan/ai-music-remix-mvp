@@ -32,9 +32,11 @@ import { entp } from "./episodes/entp";
 import { infj } from "./episodes/infj";
 import { infp } from "./episodes/infp";
 import { enfj } from "./episodes/enfj";
+import { enfp } from "./episodes/enfp";
 
 // One composition per episode. Render with `npx remotion render src/index.ts <id>`.
 const episodes: [string, EpisodeDef][] = [
+  ["Enfp", enfp],
   ["Enfj", enfj],
   ["Infp", infp],
   ["Infj", infj],
