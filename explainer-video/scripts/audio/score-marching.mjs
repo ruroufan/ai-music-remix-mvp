@@ -79,7 +79,7 @@ export const scoreMarching = (ep, tl, fps) => {
       return;
     }
     if (energy >= 1) {
-      [0, 2].forEach((at) => addMono(drums, t + at * BEAT_S, 0.5, bass(hz(root + 12), 1)));
+      [0, 2].forEach((at) => addMono(drums, t + at * BEAT_S, 0.5, bass(hz(root + 12), 0.6)));
       [1, 3].forEach((at) => addMono(drums, t + at * BEAT_S, 0.2, snare(energy === 1 ? 0.45 : 0.6)));
       [[0, 0], [1, 7], [2, 0], [3, 7]].forEach(([at, off]) => addMono(low, t + at * BEAT_S, BEAT_S * 0.8, tuba(hz(root + off), BEAT_S * 0.8, 0.8)));
     }
@@ -101,8 +101,8 @@ export const scoreMarching = (ep, tl, fps) => {
   const out = buffer(len);
   mix(out, drums, 0.9);
   mix(out, cym, 0.5);
-  mix(out, low, 0.7);
-  mix(out, br, 0.75);
+  mix(out, low, 0.32);
+  mix(out, br, 0.9);
   mix(out, tp, 0.85);
   mix(out, gl, 0.8);
   mix(out, pic, 0.7);
