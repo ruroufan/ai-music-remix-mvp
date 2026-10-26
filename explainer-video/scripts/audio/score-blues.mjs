@@ -83,7 +83,7 @@ export const scoreBlues = (ep, tl, fps) => {
       return;
     }
     // guitar: alternating thumb bass + a slid double-stop on 2 and the "and" of 3
-    [0, 1, 2, 3].forEach((beat) => addMono(gtr, t + beat * BEAT_S, 0.8, pluck(hz(root - 12 + (beat % 2 ? 7 : 0)), 0.45), 0.55, 0.45));
+    [0, 1, 2, 3].forEach((beat) => addMono(gtr, t + beat * BEAT_S, 0.8, pluck(hz(root - 12 + (beat % 2 ? 7 : 0)), 0.22), 0.55, 0.45));
     addMono(gtr, t + BEAT_S, 1.2, pluck(hz(tones[1]), 0.35, 2), 0.4, 0.6);
     addMono(gtr, t + BEAT_S + 0.01, 1.2, pluck(hz(tones[2]), 0.3, 2), 0.4, 0.6);
     addMono(gtr, t + (2 + SW) * BEAT_S, 1, pluck(hz(blue[b % 2 ? 2 : 4]), 0.3, 1), 0.6, 0.4);
@@ -122,8 +122,8 @@ export const scoreBlues = (ep, tl, fps) => {
   const out = buffer(len);
   mix(out, gtr, 1.1);
   mix(out, drums, 0.85);
-  mix(out, bass, 0.55);
-  mix(out, hp_, 0.8);
+  mix(out, bass, 0.35);
+  mix(out, hp_, 1.0);
   mix(out, ld, 0.7);
   mix(out, pad, 1);
   for (let i = 0; i < out[0].length; i++) {
