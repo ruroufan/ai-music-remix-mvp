@@ -113,9 +113,9 @@ export const scoreTriphop = (ep, tl, fps) => {
   echo(drums, BEAT_S * 0.5 * 1000, 0.08);
 
   const out = buffer(len);
-  mix(out, drums, 0.9);
+  mix(out, drums, 0.7);
   mix(out, perc, 0.6);
-  mix(out, bass, 0.8);
+  mix(out, bass, 0.45);
   mix(out, keys, 1.05);
   mix(out, str, 0.55);
   mix(out, ld, 0.8);
@@ -123,8 +123,8 @@ export const scoreTriphop = (ep, tl, fps) => {
   mix(out, fx, 0.45);
   mix(out, vinyl, 1);
   for (let i = 0; i < out[0].length; i++) {
-    out[0][i] = Math.tanh(out[0][i] * 1.1);
-    out[1][i] = Math.tanh(out[1][i] * 1.1);
+    out[0][i] = Math.tanh(out[0][i] * 0.9);
+    out[1][i] = Math.tanh(out[1][i] * 0.9);
   }
   fadeTail(out, songEnd);
   normalize(out, -1);
