@@ -2,10 +2,11 @@
 
 画面全部用代码绘制（SVG/CSS 剪影、光、粒子、文字动画），字幕和动作卡在音乐拍子上，背景音乐和音效也由代码合成，没有任何第三方素材。
 
-现在有三十四期（其中“16种MBTI系列”十二期）：
+现在有三十五期（其中“16种MBTI系列”十三期）：
 
 | 合成 ID | 期 | 风格 | 节奏 | 时长 |
 |---|---|---|---|---|
+| `Istp` | **背光观察室 · 16种MBTI系列 No.13《ISTP · 沉默》**（探险家组 SP；休谟《人性论》理性是激情的奴隶） | 系列开场卡 + 冲击层；核心意象：人物坐在工作台前，熟练地拆装一台机器；胸口有一个小小的发光零件在闪烁，他看了一眼，把它推到一边；最后他拿起那个零件，递给了对面的人 | 120 BPM “blues”配乐（瓶颈滑棒吉他 + 三连音 shuffle 鼓刷/鼓槌 + 行走贝斯 + 口琴，高潮加推弦过载主音吉他），E 小调 → G 大调 | ~2:10 |
 | `Esfj` | **背光观察室 · 16种MBTI系列 No.12《ESFJ · 被喜欢》**（守护者组 SJ；亚当·斯密《道德情操论》公正的旁观者） | 系列开场卡 + 冲击层；核心意象：人物站在一圈观众中间，每个观众举着打分牌，分数不停变化；镜头推进到人物胸口，那里坐着一个小小的身影，它安静地点了点头，周围的打分牌一块块淡去 | 120 BPM “disco”配乐（四踩底鼓 + 八度跳跃贝斯 + 反拍开镲 + 拍手 + 切音吉他 + 弦乐组滑奏与短奏，高潮加铃声主旋律），A 小调 → C 大调 | ~2:05 |
 | `Estj` | **背光观察室 · 16种MBTI系列 No.11《ESTJ · 标准》**（守护者组 SJ；密尔《论自由》） | 系列开场卡 + 冲击层；核心意象：人物手持一把尺子，把一排小树修剪成一模一样的形状；他放下尺子，小树各自朝不同方向长出了枝叶 | 120 BPM “marching”配乐（军乐队鼓阵：小军鼓 rudiment + 大鼓 + 镲 + 大号 + 铜管众赞歌，高潮加钟琴和短笛），G 小调 → 降 B 大调 | ~2:05 |
 | `Isfj` | **背光观察室 · 16种MBTI系列 No.10《ISFJ · 忍》**（守护者组 SJ；尼采《论道德的谱系》怨恨） | 系列开场卡 + 冲击层；核心意象：人物每说一次“没关系”，就把一块小石头放进胸口的玻璃瓶里，瓶子越来越满，出现裂纹；最后他把瓶子打开，把石头一块块拿了出来 | 120 BPM “triphop”配乐（尘土味半速碎拍 + 次低音 + 磁带颤动的 Rhodes + 黑胶底噪，高潮是滑音正弦主旋律和弦乐短奏），D 小调 → F 大调 | ~2:05 |
@@ -47,7 +48,8 @@
 cd explainer-video
 npm install
 npm run studio          # 浏览器里预览所有期
-npm run render          # 《ESFJ · 被喜欢》→ out/esfj.mp4
+npm run render          # 《ISTP · 沉默》→ out/istp.mp4
+npm run render:esfj     # 《ESFJ · 被喜欢》
 npm run render:estj     # 《ESTJ · 标准》
 npm run render:isfj     # 《ISFJ · 忍》
 npm run render:istj     # 《ISTJ · 有用》
@@ -101,6 +103,7 @@ src/
   episodes/
     registry.ts          所有期的数据登记表（配乐、配音、字体预加载都从这里读）
     mbti/                16种MBTI系列共用：series.tsx（开场“16种MBTI系列之××组 × 代码”卡）、impact.tsx（重点词闪光 + 冲击波 + 背景巨字 + 节拍边缘光）
+    istp/                人格 No.13《ISTP · 沉默》（bench.tsx：工作台、会拆开的机器和齿轮、胸口闪烁的发光零件、火花）
     esfj/                人格 No.12《ESFJ · 被喜欢》（ring.tsx：一圈举打分牌的观众、胸口的窗、心里的小小旁观者）
     estj/                人格 No.11《ESTJ · 标准》（ruler.tsx：尺子、被修剪成方块又自由生长的小树、拿尺子的人、落叶）
     isfj/                人格 No.10《ISFJ · 忍》（jar.tsx：胸口的玻璃瓶、石头、裂纹、碎裂、对话气泡）
@@ -145,6 +148,7 @@ src/
 scripts/
   music.mjs              生成 public/music/<期>.wav 和 public/sfx/*.wav
   audio/score-drive.mjs  “drive”配乐（No.02–No.07）：鼓组 + 锯齿低音 + 方波琶音
+  audio/score-blues.mjs “blues”配乐（《ISTP · 沉默》）：滑棒吉他 + 三连音 shuffle（鼓刷→鼓槌、ride）+ 行走贝斯 + 口琴 + 过载主音吉他推弦
   audio/score-disco.mjs “disco”配乐（《ESFJ · 被喜欢》）：四踩底鼓 + 八度贝斯 + 反拍开镲 + 拍手 + 切音吉他 + 弦乐组 + 电钢 + 铃声主旋律
   audio/score-marching.mjs “marching”配乐（《ESTJ · 标准》）：军乐鼓阵（小军鼓 rudiment、大鼓、镲）+ 大号 + 铜管众赞歌 + 小号旋律 + 钟琴 + 短笛
   audio/score-triphop.mjs “triphop”配乐（《ISFJ · 忍》）：半速碎拍（饱和）+ 次低音 + 磁带颤动 Rhodes + 黑胶底噪 + 滑音正弦主旋律 + 弦乐
