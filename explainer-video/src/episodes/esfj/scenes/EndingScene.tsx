@@ -38,7 +38,7 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
           <Centre window={0.4 + 0.6 * push} nod={nod} glow={0.4 + 0.5 * fade(SEATS.length - 1)} />
         </div>
         <div style={{ position: "absolute", left: 0, right: 0, top: 150, textAlign: "center", fontSize: 40, fontWeight: 900, letterSpacing: 10, color: "rgba(232,238,242,0.6)", opacity: frame < c1 ? interpolate(frame, [BEAT, 2 * BEAT], [0, 1], clamp) : 0 }}>会来 · 也会走</div>
-        <div style={{ position: "absolute", left: 0, right: 0, top: 150, textAlign: "center", fontSize: 56, fontWeight: 900, letterSpacing: 14, color: `rgb(${WARM})`, textShadow: `0 0 24px rgba(${CALM},0.7)`, opacity: interpolate(frame, [nodAt + 20, nodAt + 34], [0, 1], clamp) * (1 - card) }}>自己值得</div>
+        <div style={{ position: "absolute", left: 140, top: 420, fontSize: 64, fontWeight: 900, letterSpacing: 14, color: `rgb(${WARM})`, textShadow: `0 0 24px rgba(${CALM},0.7)`, opacity: interpolate(frame, [nodAt + 20, nodAt + 34], [0, 1], clamp) * (1 - card) }}>自己值得</div>
       </Cam>
       <Bokeh frame={frame} rgb={CALM} opacity={(0.3 + 0.5 * push) * (1 - card)} />
       {card > 0 && <EndCard opacity={card} signoffAt={c2 + BEAT} />}
