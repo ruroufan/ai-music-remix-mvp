@@ -35,6 +35,7 @@ import { episode as enfp, brand as enfpBrand } from "./enfp/episode.ts";
 import { episode as istj, brand as istjBrand } from "./istj/episode.ts";
 import { episode as isfj, brand as isfjBrand } from "./isfj/episode.ts";
 import { episode as estj, brand as estjBrand } from "./estj/episode.ts";
+import { episode as esfj, brand as esfjBrand } from "./esfj/episode.ts";
 
 export const EPISODES: Record<string, { episode: EpisodeData; brand: Brand }> = {
   pride: { episode: pride, brand: prideBrand },
@@ -70,4 +71,5 @@ export const EPISODES: Record<string, { episode: EpisodeData; brand: Brand }> = 
   istj: { episode: istj, brand: istjBrand },
   isfj: { episode: isfj, brand: isfjBrand },
   estj: { episode: estj, brand: estjBrand },
+  esfj: { episode: esfj, brand: esfjBrand },
 };
