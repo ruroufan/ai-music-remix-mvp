@@ -31,7 +31,7 @@ export const ZhuangziScene: React.FC<SceneProps> = ({ lines, cues, duration }) =
   const seg = frame < c1 ? 0 : frame < c2 ? 1 : frame < c3 ? 2 : 3;
   const walk = interpolate(frame, [0, c1], [-120, 2000], clamp);
   const chop = (i: number) => interpolate(frame, [c2 + 6 + i * 10, c2 + 18 + i * 10], [0, 1], { ...clamp, easing: (t) => t * t });
-  const grow = interpolate(frame, [c3, c3 + 4 * BEAT], [0.75, 1.3], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 2) });
+  const grow = interpolate(frame, [c3, c3 + 4 * BEAT], [0.72, 1.0], { ...clamp, easing: (t) => 1 - Math.pow(1 - t, 2) });
   const herd = interpolate(frame, [c3 + BEAT, c3 + 7 * BEAT], [0, 1], clamp);
   return (
     <ObsFrame duration={duration}>

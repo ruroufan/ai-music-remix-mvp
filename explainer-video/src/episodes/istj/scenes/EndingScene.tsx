@@ -35,7 +35,7 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
       <Cam frame={frame} duration={duration} push={[1.05, 1]} focus={{ x: 1100, y: 600 }} hits={[2 * BEAT, 5 * BEAT, c1, ...keyHits(lines, cues, duration)]}>
         <div style={{ position: "absolute", inset: 0, opacity: 1 - 0.92 * card }}>
           <div style={{ position: "absolute", left: 0, right: 0, top: GROUND, bottom: 0, background: "#151a14" }} />
-          <OldTree x={1300} size={1.15} shade={0.4 + 0.6 * back} frame={frame} glow={0.25 + 0.5 * back} />
+          <OldTree x={1300} size={0.98} shade={0.4 + 0.6 * back} frame={frame} glow={0.25 + 0.5 * back} />
           {/* sunlight through the leaves */}
           {back > 0 &&
             Array.from({ length: 14 }, (_, i) => (

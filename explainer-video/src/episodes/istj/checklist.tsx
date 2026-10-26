@@ -84,7 +84,7 @@ export const OldTree: React.FC<{ x: number; y?: number; size?: number; shade?: n
 // him, sitting on the ground against something, as a seated silhouette
 export const Rest: React.FC<{ x: number; floor?: number; color: number; fade?: number }> = ({ x, floor = GROUND, color, fade = 0 }) => (
   <div style={{ position: "absolute", inset: 0, opacity: 1 - 0.85 * fade }}>
-    <Seated x={x} floor={floor} scale={1.3} glow={0.2 + 0.7 * color} />
+    <Seated x={x} floor={floor} scale={1.7} glow={0.2 + 0.8 * color} />
   </div>
 );
 
