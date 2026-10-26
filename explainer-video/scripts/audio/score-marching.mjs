@@ -73,7 +73,7 @@ export const scoreMarching = (ep, tl, fps) => {
       return;
     }
     // chorale: always (held voicing)
-    tones.forEach((m, j) => addMono(br, t, BAR_S, brass(hz(m), BAR_S, energy === 0 ? 0.45 : 0.25, energy === 0 ? 0.3 : 0.5), 0.4 + 0.1 * j, 0.6 - 0.1 * j));
+    tones.forEach((m, j) => addMono(br, t, BAR_S, brass(hz(m), BAR_S, energy === 0 ? 0.45 : 0.13, energy === 0 ? 0.3 : 0.4), 0.4 + 0.1 * j, 0.6 - 0.1 * j));
     if (bar.build) {
       for (let i = 0; i < 32; i++) addMono(drums, t + i * (BAR_S / 32), 0.08, snare(0.12 + 0.7 * (i / 32) ** 2), 0.5, 0.5);
       return;
@@ -102,7 +102,7 @@ export const scoreMarching = (ep, tl, fps) => {
   mix(out, drums, 0.9);
   mix(out, cym, 0.5);
   mix(out, low, 0.7);
-  mix(out, br, 0.9);
+  mix(out, br, 0.75);
   mix(out, tp, 0.85);
   mix(out, gl, 0.8);
   mix(out, pic, 0.7);
