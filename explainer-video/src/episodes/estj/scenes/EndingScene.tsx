@@ -31,10 +31,10 @@ export const EndingScene: React.FC<SceneProps> = ({ lines, cues, duration }) => 
         <div style={{ position: "absolute", inset: 0, opacity: 1 - 0.92 * card }}>
           <div style={{ position: "absolute", left: 0, right: 0, top: GROUND, bottom: 0, background: "#14120f" }} />
           {SAPS.map((sx, i) => (
-            <Sapling key={i} x={sx + 60} seed={i + 20} trim={1 - free(i)} wild={free(i)} scale={1 + 0.6 * free(i)} hue={1} />
+            <Sapling key={i} x={sx + 60} seed={i + 20} trim={1 - free(i)} wild={free(i)} scale={1 + 0.3 * free(i)} hue={1} />
           ))}
           <Measurer x={X} ruler={frame < BEAT} rot={-10} glow={0.5 + 0.4 * free(0)} />
-          {frame >= BEAT && <Ruler x={X + 80 + 40 * down} y={GROUND - 200 + 190 * down} len={260} rot={-10 + 100 * down} />}
+          {frame >= BEAT && <Ruler x={X + 80 + 40 * down} y={GROUND - 200 + 186 * down} len={260} rot={-10 + 10 * down} />}
           <div style={{ position: "absolute", left: 0, right: 0, top: 120, textAlign: "center", fontSize: 52, fontWeight: 900, letterSpacing: 12, color: `rgb(${GOLD})`, textShadow: `0 0 24px rgba(${GOLD},0.6)`, opacity: interpolate(frame, [c1 + 4 * BEAT, c1 + 4 * BEAT + 10], [0, 1], clamp) * (1 - card) }}>彼此的自由</div>
         </div>
       </Cam>
