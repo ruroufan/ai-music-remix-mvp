@@ -2,10 +2,11 @@
 
 画面全部用代码绘制（SVG/CSS 剪影、光、粒子、文字动画），字幕和动作卡在音乐拍子上，背景音乐和音效也由代码合成，没有任何第三方素材。
 
-现在有三十二期（其中“16种MBTI系列”十期）：
+现在有三十三期（其中“16种MBTI系列”十一期）：
 
 | 合成 ID | 期 | 风格 | 节奏 | 时长 |
 |---|---|---|---|---|
+| `Estj` | **背光观察室 · 16种MBTI系列 No.11《ESTJ · 标准》**（守护者组 SJ；密尔《论自由》） | 系列开场卡 + 冲击层；核心意象：人物手持一把尺子，把一排小树修剪成一模一样的形状；他放下尺子，小树各自朝不同方向长出了枝叶 | 120 BPM “marching”配乐（军乐队鼓阵：小军鼓 rudiment + 大鼓 + 镲 + 大号 + 铜管众赞歌，高潮加钟琴和短笛），G 小调 → 降 B 大调 | ~2:05 |
 | `Isfj` | **背光观察室 · 16种MBTI系列 No.10《ISFJ · 忍》**（守护者组 SJ；尼采《论道德的谱系》怨恨） | 系列开场卡 + 冲击层；核心意象：人物每说一次“没关系”，就把一块小石头放进胸口的玻璃瓶里，瓶子越来越满，出现裂纹；最后他把瓶子打开，把石头一块块拿了出来 | 120 BPM “triphop”配乐（尘土味半速碎拍 + 次低音 + 磁带颤动的 Rhodes + 黑胶底噪，高潮是滑音正弦主旋律和弦乐短奏），D 小调 → F 大调 | ~2:05 |
 | `Istj` | **背光观察室 · 16种MBTI系列 No.09《ISTJ · 有用》**（守护者组 SJ；《庄子 · 人间世》无用之用） | 系列开场卡 + 冲击层；核心意象：人物手里一张长长的清单，每划掉一项，他就变得更透明一点；最后他放下清单，坐在一棵巨大的老树下，树荫里，他的颜色慢慢回来了 | 120 BPM “minimalism”配乐（马林巴交错固定音型 + 颤音钢片琴 + 八分音符钢琴脉冲 + 低音单簧管，高潮是相位错开的第二马林巴和管风琴），F 小调 → 降 A 大调 | ~2:05 |
 | `Enfp` | **背光观察室 · 16种MBTI系列 No.08《ENFP · 新鲜感》**（外交家组 NF；克尔凯郭尔《非此即彼》审美阶段与伦理阶段） | 系列开场卡 + 冲击层；核心意象：人物在一片田野里奔跑，每跑到一块地就撒下一把种子，马上又跑向下一块，身后的地都只冒出了嫩芽；最后他停在一块地里，镜头快进，这块地长出了一棵大树 | 120 BPM “chiptune”配乐（脉冲波琶音 + 三角波贝斯 + 噪声通道鼓 + 方波主旋律带颤音），B 小调 → D 大调 | ~2:00 |
@@ -45,7 +46,8 @@
 cd explainer-video
 npm install
 npm run studio          # 浏览器里预览所有期
-npm run render          # 《ISFJ · 忍》→ out/isfj.mp4
+npm run render          # 《ESTJ · 标准》→ out/estj.mp4
+npm run render:isfj     # 《ISFJ · 忍》
 npm run render:istj     # 《ISTJ · 有用》
 npm run render:enfp     # 《ENFP · 新鲜感》
 npm run render:enfj     # 《ENFJ · 付出》
@@ -97,6 +99,7 @@ src/
   episodes/
     registry.ts          所有期的数据登记表（配乐、配音、字体预加载都从这里读）
     mbti/                16种MBTI系列共用：series.tsx（开场“16种MBTI系列之××组 × 代码”卡）、impact.tsx（重点词闪光 + 冲击波 + 背景巨字 + 节拍边缘光）
+    estj/                人格 No.11《ESTJ · 标准》（ruler.tsx：尺子、被修剪成方块又自由生长的小树、拿尺子的人、落叶）
     isfj/                人格 No.10《ISFJ · 忍》（jar.tsx：胸口的玻璃瓶、石头、裂纹、碎裂、对话气泡）
     istj/                人格 No.09《ISTJ · 有用》（checklist.tsx：长清单、会变透明的人、老树、树荫、牛群）
     enfp/                人格 No.08《ENFP · 新鲜感》（field.tsx：田野、一块块地、嫩芽、撒种、奔跑的人、会长大的树）
@@ -139,6 +142,7 @@ src/
 scripts/
   music.mjs              生成 public/music/<期>.wav 和 public/sfx/*.wav
   audio/score-drive.mjs  “drive”配乐（No.02–No.07）：鼓组 + 锯齿低音 + 方波琶音
+  audio/score-marching.mjs “marching”配乐（《ESTJ · 标准》）：军乐鼓阵（小军鼓 rudiment、大鼓、镲）+ 大号 + 铜管众赞歌 + 小号旋律 + 钟琴 + 短笛
   audio/score-triphop.mjs “triphop”配乐（《ISFJ · 忍》）：半速碎拍（饱和）+ 次低音 + 磁带颤动 Rhodes + 黑胶底噪 + 滑音正弦主旋律 + 弦乐
   audio/score-minimalism.mjs “minimalism”配乐（《ISTJ · 有用》）：马林巴固定音型 + 颤音钢片琴 + 钢琴八分脉冲 + 低音单簧管 + 相位错开的第二马林巴 + 管风琴
   audio/score-chiptune.mjs “chiptune”配乐（《ENFP · 新鲜感》）：脉冲波（占空比变化）琶音 + 三角波贝斯 + 噪声通道鼓 + 方波主旋律（颤音）+ 上扫/下坠音效
