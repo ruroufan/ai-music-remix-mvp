@@ -32,7 +32,7 @@ export const HookScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
         <Rift open={open} frame={frame} />
         <Other glow={0.5 - 0.2 * go.prints} />
         <Him x={go.x} face={go.face} walk={go.walk} glow={0.6} />
-        <FocusBox x={A_X - 140} y={FLOOR - 360} w={280} h={400} progress={box} label="离开 · 一声不响" color={`rgb(${ROSE})`} />
+        <FocusBox x={A_X} y={FLOOR - 160} w={280} h={400} progress={box} label="离开 · 一声不响" color={`rgb(${ROSE})`} />
       </Cam>
       <Bokeh frame={frame} rgb={frame < crack ? ROSE : RIFT} opacity={0.3} />
       <Sfx name="glitch" at={crack - 2} volume={0.25} />

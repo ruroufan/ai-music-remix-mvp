@@ -9,8 +9,9 @@
     "studio": "remotion studio src/index.ts",
     "music": "node scripts/music.mjs",
     "voiceover": "node scripts/voiceover.mjs",
-    "prerender": "node scripts/music.mjs isfp",
-    "render": "remotion render src/index.ts Isfp out/isfp.mp4",
+    "prerender": "node scripts/music.mjs estp",
+    "render": "remotion render src/index.ts Estp out/estp.mp4",
+    "render:isfp": "node scripts/music.mjs isfp && remotion render src/index.ts Isfp out/isfp.mp4",
     "render:istp": "node scripts/music.mjs istp && remotion render src/index.ts Istp out/istp.mp4",
     "render:esfj": "node scripts/music.mjs esfj && remotion render src/index.ts Esfj out/esfj.mp4",
     "render:estj": "node scripts/music.mjs estj && remotion render src/index.ts Estj out/estj.mp4",
@@ -46,7 +47,7 @@
     "render:inferiority": "node scripts/music.mjs inferiority && remotion render src/index.ts Inferiority out/inferiority.mp4",
     "render:pleasing": "node scripts/music.mjs pleasing && remotion render src/index.ts Pleasing out/pleasing.mp4",
     "render:pride": "node scripts/music.mjs pride && remotion render src/index.ts Pride out/pride.mp4",
-    "still": "remotion still src/index.ts Isfp out/still.png --frame=300",
+    "still": "remotion still src/index.ts Estp out/still.png --frame=300",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
