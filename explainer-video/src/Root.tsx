@@ -38,9 +38,11 @@ import { isfj } from "./episodes/isfj";
 import { estj } from "./episodes/estj";
 import { esfj } from "./episodes/esfj";
 import { istp } from "./episodes/istp";
+import { isfp } from "./episodes/isfp";
 
 // One composition per episode. Render with `npx remotion render src/index.ts <id>`.
 const episodes: [string, EpisodeDef][] = [
+  ["Isfp", isfp],
   ["Istp", istp],
   ["Esfj", esfj],
   ["Estj", estj],
