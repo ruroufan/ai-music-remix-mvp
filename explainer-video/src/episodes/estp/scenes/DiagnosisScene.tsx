@@ -76,7 +76,7 @@ export const DiagnosisScene: React.FC<SceneProps> = ({ lines, cues, duration }) 
             <div style={{ position: "absolute", left: 0, right: 0, top: 230, textAlign: "center", fontSize: 64, fontWeight: 900, letterSpacing: 4 }}>
               <KineticText text="人类所有的不幸，都源于一件事：" t={t1} look={look} beat={BEAT} seed="q1" />
             </div>
-            <div style={{ position: "absolute", left: 0, right: 0, top: 360, textAlign: "center", fontSize: 88, fontWeight: 900, letterSpacing: 4 }}>
+            <div style={{ position: "absolute", left: 0, right: 0, top: 360, textAlign: "center", fontSize: 76, fontWeight: 900, letterSpacing: 4 }}>
               <KineticText text="【【不能安静地待在一个房间里】】。" t={t1 - 3 * BEAT} look={look} beat={BEAT} seed="q2" />
             </div>
             <div style={{ position: "absolute", left: 0, right: 0, top: 500, textAlign: "center", fontFamily: fonts.mono, fontSize: 19, letterSpacing: 3, color: palette.dim, opacity: en }}>“ALL OF HUMANITY’S PROBLEMS STEM FROM MAN’S INABILITY TO SIT QUIETLY IN A ROOM ALONE.”</div>

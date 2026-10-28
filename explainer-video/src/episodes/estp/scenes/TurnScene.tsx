@@ -33,7 +33,7 @@ export const TurnScene: React.FC<SceneProps> = ({ duration, lines, cues }) => {
   const tau = Math.min(Math.max(0, frame - brake), T);
   const dist = V * Math.max(0, Math.min(frame, brake) - c1) + V * (tau - (tau * tau) / (2 * T));
   const stopped = frame >= brake + T;
-  const goal = 2200 - 0.55 * dist;
+  const goal = 2300 - 0.27 * dist;
   const sx = interpolate(frame, [brake, brake + 3 * BEAT], [250, GX], { ...clamp, easing: (k) => k * k * (3 - 2 * k) });
   const reveal = interpolate(frame, [brake + 3 * BEAT, brake + 5 * BEAT], [0, 1], { ...clamp, easing: (k) => k * k * (3 - 2 * k) });
   const skid = interpolate(frame, [brake, brake + T], [0, 1], clamp);
