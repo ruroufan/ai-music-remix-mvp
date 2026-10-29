@@ -6,7 +6,7 @@
 
 ### 风格1：背光观察室 · 动态插画版（Remotion，`explainer-video/`）
 
-范例：`src/episodes/intj/`《INTJ · 正确》、`src/episodes/intp/`《INTP · 想太多》、`src/episodes/entj/`《ENTJ · 赢》、`src/episodes/entp/`《ENTP · 抬杠》、`src/episodes/infj/`《INFJ · 不被懂》、`src/episodes/infp/`《INFP · 理想》、`src/episodes/enfj/`《ENFJ · 付出》、`src/episodes/enfp/`《ENFP · 新鲜感》、`src/episodes/istj/`《ISTJ · 有用》、`src/episodes/isfj/`《ISFJ · 忍》、`src/episodes/estj/`《ESTJ · 标准》、`src/episodes/esfj/`《ESFJ · 被喜欢》、`src/episodes/istp/`《ISTP · 沉默》、`src/episodes/isfp/`《ISFP · 回避》、`src/episodes/estp/`《ESTP · 停不下来》。
+范例：`src/episodes/intj/`《INTJ · 正确》、`src/episodes/intp/`《INTP · 想太多》、`src/episodes/entj/`《ENTJ · 赢》、`src/episodes/entp/`《ENTP · 抬杠》、`src/episodes/infj/`《INFJ · 不被懂》、`src/episodes/infp/`《INFP · 理想》、`src/episodes/enfj/`《ENFJ · 付出》、`src/episodes/enfp/`《ENFP · 新鲜感》、`src/episodes/istj/`《ISTJ · 有用》、`src/episodes/isfj/`《ISFJ · 忍》、`src/episodes/estj/`《ESTJ · 标准》、`src/episodes/esfj/`《ESFJ · 被喜欢》、`src/episodes/istp/`《ISTP · 沉默》、`src/episodes/isfp/`《ISFP · 回避》、`src/episodes/estp/`《ESTP · 停不下来》、`src/episodes/esfp/`《ESFP · 热闹》。
 
 - **结构**：每期一个文件夹 `src/episodes/<代码小写>/`，包含 `script.ts`、`episode.ts`、`timing.ts`、`index.ts`、`scenes/`，再加一个画面核心组件（例如 blueprint.tsx、study.tsx）。
   - 注册四处：`src/episodes/registry.ts`、`src/Root.tsx`、`src/types.ts` 里的 music 联合类型、`scripts/music.mjs` 里的 SCORES。
@@ -16,7 +16,7 @@
 - **文案处理**：重点词用 `【【】】` 标出，次重点用 `【】`。没有旁白，只有字幕和音乐。
 - **结尾**：必须以频道结束语收尾（`channel.signoff` 作为最后一行，配 EndCard）。
 - **画面**：文案里给了「画面」就照做；没给时，自己设计一个贯穿全片的核心意象。
-- **配乐**：每期换一种新风格，写成 `scripts/audio/score-<风格>.mjs`。已用过：drive、ambient、clockwork、lofi、cassette、cinematic、guochao、stompclap、afrohouse、futurebass、electroswing、phonk、dembow、acid、breakbeat、frenchhouse、glitchhop、industrial、trance、arenarock、funk、dreampop、bossanova、gospel、chiptune、minimalism、triphop、marching、disco、blues、folk、surf。
+- **配乐**：每期换一种新风格，写成 `scripts/audio/score-<风格>.mjs`。已用过：drive、ambient、clockwork、lofi、cassette、cinematic、guochao、stompclap、afrohouse、futurebass、electroswing、phonk、dembow、acid、breakbeat、frenchhouse、glitchhop、industrial、trance、arenarock、funk、dreampop、bossanova、gospel、chiptune、minimalism、triphop、marching、disco、blues、folk、surf、samba。
 - **流程**：
   1. 跑 `npx tsc --noEmit --noUnusedLocals`。
   2. 渲染半分辨率草稿，做联系表逐镜检查。
