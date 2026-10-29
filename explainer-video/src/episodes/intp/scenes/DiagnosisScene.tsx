@@ -1,0 +1,86 @@
+import React from "react";
+import { useCurrentFrame, interpolate } from "remotion";
+import { ObsFrame } from "../../../channels/backlit/ObsFrame";
+import { Halo } from "../../../channels/backlit/parts";
+import { fonts, palette } from "../../../channels/backlit/look";
+import { useEpisode } from "../../../EpisodeContext";
+import { KineticText } from "../../../components/Kinetic";
+import { Bokeh, Cam } from "../../glass/immersive";
+import { ImpactBack, ImpactFront, keyHits } from "../../mbti/impact";
+import { Subtitles } from "../../../components/Subtitles";
+import { Sfx } from "../../../components/Sfx";
+import { LifeTree, Reasoning } from "../study";
+import { useRamp, BEAT, type SceneProps } from "../timing";
+
+const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+const FACTS = ["JOHANN WOLFGANG VON GOETHE", "歌德", "1749 — 1832 · 德国作家、思想家", "FAUST · 1808 ·《浮士德》"];
+
+const Portrait: React.FC = () => (
+  <svg width={300} height={360} viewBox="0 0 250 300" style={{ position: "absolute", left: 470, top: 200, overflow: "visible" }}>
+    <rect x={0} y={0} width={250} height={300} rx={12} fill="rgba(14,20,28,0.9)" stroke={`rgba(${palette.halo},0.55)`} strokeWidth={2} />
+    <g fill="#030405" stroke={`rgba(${palette.halo},0.85)`} strokeWidth={1.8}>
+      <path d="M30 300 Q40 226 104 214 Q168 222 190 300 Z" />
+      <path d="M84 236 L80 210 Q104 226 132 210 L128 236 Z" fill="rgba(232,238,242,0.55)" />
+      <path d="M92 222 L90 192 L122 192 L124 222 Z" />
+      <path d="M80 86 Q110 58 146 74 Q160 92 158 116 L170 136 L158 142 Q162 156 154 166 Q150 184 126 186 L100 194 Q68 190 64 146 Q60 104 80 86 Z" />
+      <path d="M70 108 Q62 70 100 56 Q140 46 160 78 Q150 66 120 64 Q90 66 80 84 Q74 96 70 108 Z" fill="rgba(232,238,242,0.45)" />
+    </g>
+  </svg>
+);
+
+// 0 · a dossier: Goethe, Faust.
+// 1 · the line as a card; under it, two halves: on the left grey branching
+//     reasoning, on the right a small tree glowing green.
+export const DiagnosisScene: React.FC<SceneProps> = ({ lines, cues, duration }) => {
+  const frame = useCurrentFrame();
+  const { look } = useEpisode();
+  const file = useRamp(0, 10);
+  const card = useRamp(cues[1], 8);
+  const t1 = frame - cues[1];
+  const en = useRamp(cues[1] + 6 * BEAT, 12);
+  return (
+    <ObsFrame duration={duration}>
+      <ImpactBack lines={lines} cues={cues} duration={duration} />
+      <Cam frame={frame} duration={duration} push={[1, 1.08]} hits={keyHits(lines, cues, duration)}>
+        {card < 1 && (
+          <div style={{ position: "absolute", inset: 0, opacity: file * (1 - card) }}>
+            <Halo x={620} y={380} r={360} intensity={0.5} />
+            <Portrait />
+            {FACTS.map((f, i) => {
+              const p = interpolate(frame, [(i + 1) * BEAT * 0.75, (i + 1) * BEAT * 0.75 + 8], [0, 1], clamp);
+              const name = i === 1;
+              return (
+                <div key={f} style={{ position: "absolute", left: 860, top: [230, 276, 380, 440][i], opacity: p, transform: `translateX(${(1 - p) * 30}px)`, fontFamily: name ? undefined : fonts.mono, fontSize: name ? 72 : i === 3 ? 19 : 22, fontWeight: name ? 900 : 400, letterSpacing: name ? 8 : 4, color: i === 3 ? `rgb(${palette.halo})` : name ? palette.ink : palette.dim, padding: i === 3 ? "8px 16px" : 0, border: i === 3 ? `1px solid rgba(${palette.halo},0.6)` : undefined, whiteSpace: "nowrap" }}>
+                  {f}
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {t1 >= 0 && (
+          <div style={{ position: "absolute", inset: 0, opacity: card }}>
+            <Reasoning frame={frame} ox={560} oy={860} grow={Math.min(1, t1 / 60)} opacity={0.35} seed="dg" />
+            <LifeTree x={1400} floor={820} scale={0.5} frame={frame} glow={Math.min(1, Math.max(0, (t1 - 3 * BEAT) / 20))} />
+            <div style={{ position: "absolute", left: 0, right: 0, top: 140, textAlign: "center", fontFamily: fonts.mono, fontSize: 18, letterSpacing: 5, color: palette.dim }}>GOETHE ·《浮士德》</div>
+            <div style={{ position: "absolute", left: 0, right: 0, top: 200, textAlign: "center", fontSize: 66, fontWeight: 900, letterSpacing: 4 }}>
+              <KineticText text="理论是【灰色】的，" t={t1} look={look} beat={BEAT} seed="q1" />
+            </div>
+            <div style={{ position: "absolute", left: 0, right: 0, top: 330, textAlign: "center", fontSize: 58, fontWeight: 900, letterSpacing: 4 }}>
+              <KineticText text="而生命之树【【常青】】。" t={t1 - 3 * BEAT} look={look} beat={BEAT} seed="q2" />
+            </div>
+            <div style={{ position: "absolute", left: 0, right: 0, top: 450, textAlign: "center", fontFamily: fonts.mono, fontSize: 19, letterSpacing: 3, color: palette.dim, opacity: en }}>“GREY, DEAR FRIEND, IS ALL THEORY, AND GREEN THE GOLDEN TREE OF LIFE.”</div>
+          </div>
+        )}
+      </Cam>
+      <Bokeh frame={frame} n={7} />
+      <Sfx name="whoosh" at={0} volume={0.3} />
+      {FACTS.map((_, i) => (
+        <Sfx key={i} name="shutter" at={Math.round((i + 1) * BEAT * 0.75)} volume={0.14} />
+      ))}
+      <Sfx name="stamp" at={cues[1]} volume={0.45} />
+      <Sfx name="stamp" at={cues[1] + 3 * BEAT} volume={0.45} />
+      <ImpactFront lines={lines} cues={cues} duration={duration} />
+      <Subtitles lines={lines} cues={cues} duration={duration} hide={[1]} />
+    </ObsFrame>
+  );
+};
