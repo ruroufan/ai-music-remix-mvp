@@ -139,14 +139,6 @@ export function drawBox(ctx, { open = 0, rope: rp = 1, seal = 1, lid = true, k =
       if (!vis(f.n)) continue;
       poly(ctx, f.pts, f.col, INK, 3);
       if (f.g) grain(ctx, f.pts, f.g, 'x', f.front ? 4 : 12, .3);
-      if (f.front && seal > 0 && open > .002) {
-        // 符纸上半随盖沿
-        const a = f.pts[0], b = f.pts[1], d = f.pts[3];
-        const u = (ofX + lw) / (2 * lw); const ox = lerp(a[0], b[0], u), oy = lerp(a[1], b[1], u);
-        const hh = Math.hypot(d[0] - a[0], d[1] - a[1]) / T;
-        ctx.save(); ctx.translate(ox, oy); ctx.rotate(Math.atan2(d[1] - a[1], d[0] - a[0]) + Math.PI / 2); ctx.scale(1, hh);
-        ctx.translate(0, -(T - 6)); ofuda(ctx, ofW, ofH, { part: 'top', tearY: T - 4, k }); ctx.restore();
-      }
     }
     // 封绳（盖闭合时）
     if (rp > 0 && open < .01) {

@@ -14,7 +14,7 @@ function drawShot(buf, shot, T) {
   const sc = SCENES[shot.scene];
   if (!sc) { g.fillStyle = '#400'; g.fillRect(0, 0, W, H); htext(g, shot.scene + '?', W / 2, H / 2, 60); return; }
   g.save();
-  sc(g, { t: T - shot.start, dur: shot.end - shot.start, T, p: shot.p || {}, m: (name, d = 1e9) => (TL.marks[name] ?? d) - shot.start, TL, shot });
+  sc(g, { t: T - shot.start, dur: shot.end - shot.start, T, p: shot.p || {}, m: (name, d = 1e9) => (name in TL.marks) ? TL.marks[name] - shot.start : d, TL, shot });
   g.restore();
 }
 
@@ -48,7 +48,7 @@ function post(g, T, frame) {
   g.save();
   g.globalCompositeOperation = 'multiply'; g.globalAlpha = .62; g.drawImage(paperTex(), 0, 0);
   g.globalCompositeOperation = 'screen'; g.globalAlpha = .05; g.drawImage(paperTex(), 0, 0);
-  g.globalCompositeOperation = 'overlay'; g.globalAlpha = .11; g.imageSmoothingEnabled = true;
+  g.globalCompositeOperation = 'overlay'; g.globalAlpha = .085; g.imageSmoothingEnabled = true;
   const gi = Math.floor(frame / 2) % 6; g.drawImage(grainTex(gi), 0, 0, W, H);
   g.globalCompositeOperation = 'multiply'; g.globalAlpha = 1; g.drawImage(vignetteTex(), 0, 0);
   g.restore();

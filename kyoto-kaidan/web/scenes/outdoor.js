@@ -213,7 +213,7 @@ export function reflection(ctx, s) {
     for (let i = 0; i < 9; i++) { const x = ((i * 180 - t * 16) % 1440 + 1440) % 1440 - 180; gg.fillRect(x - 12, 0, 24, oy + 6); }
   }, { tint: 'rgba(10,22,52,.42)' });
   // 条带扭曲（水波），在“却长着角”处渐静
-  const amp = lerp(30, 6, rev), z = lerp(1.0, 1.36, io(u)), hx = ox + 96 * S, hy = oy + 652 * S;
+  const amp = lerp(30, 6, rev), z = lerp(1.0, 1.36, io(u)), hx = ox + 104 * S, hy = oy + 626 * S;
   camera(ctx, { cx: lerp(540, hx - 30, io(u)), cy: lerp(1000, hy - 110, io(u)), z }, () => {
     const st = 5;
     for (let y = 0; y < H; y += st) {
@@ -267,49 +267,79 @@ export function lift(ctx, s) {
     ctx.fillStyle = '#04050a'; ctx.fillRect(-100, by, 1300, 600);
     at(ctx, 700, by + 6, .7, 0, () => riders(ctx, { sil: true, rider: false, ph: 2, walk: 1.4 }));
     const oy = lerp(1650, 640, a), oxx = 640 + Math.sin(t * 2) * 20;
-    at(ctx, oxx, oy, 1.05, -.12, () => { oniFlight(ctx, { t, col: '#040406' }); at(ctx, -198, 372, .92, 0, () => tsunaFall(ctx, { t })); });
+    at(ctx, oxx, oy, 1.05, -.12, () => { oniFlight(ctx, { t, col: '#040406' }); at(ctx, -198, 372, .9, 0, () => tsunaFall(ctx, { t })); });
   });
   darkness(ctx, 540, 860, 600, 1400, .7);
 }
 
 // ---------- S11 拔刀一挥（纸底墨影）----------
 export function slash(ctx, s) {
-  const { t, dur } = s, u = t / dur;
-  if (t < .1) { ctx.fillStyle = '#030305'; ctx.fillRect(0, 0, W, H); const a = t / .1; ctx.strokeStyle = '#fff'; ctx.lineWidth = 14; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(140, 1500); ctx.lineTo(lerp(140, 980, a), lerp(1500, 420, a)); ctx.stroke(); return; }
-  const tt = t - .1, slow = 1 - Math.exp(-tt * 3);
+  const { t, dur } = s;
+  if (t < .1) { ctx.fillStyle = '#030305'; ctx.fillRect(0, 0, W, H); const a = t / .1; ctx.strokeStyle = '#fff'; ctx.lineWidth = 16; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(1000, 1500); ctx.lineTo(lerp(1000, 120, a), lerp(1500, 380, a)); ctx.stroke(); return; }
+  const tt = t - .1, slow = 1 - Math.exp(-tt * 2.6), INKC = '#0b0908';
   ctx.fillStyle = '#d8caa6'; ctx.fillRect(0, 0, W, H); wash(ctx, 5, .5, 'multiply');
-  camera(ctx, { cx: 540, cy: 960, z: lerp(1.12, 1.0, eout(tt / dur)), r: -.03 }, () => {
-    // 刀光：一笔墨弧
-    ctx.save(); ctx.strokeStyle = '#0a0808'; ctx.lineCap = 'round';
-    for (let i = 0; i < 44; i++) { const a0 = lerp(2.5, 5.0, i / 44), w = 34 * Math.sin(i / 44 * Math.PI) + 3; ctx.lineWidth = w; ctx.beginPath(); ctx.arc(480, 1180, 560, a0, a0 + .07); ctx.stroke(); }
+  camera(ctx, { cx: 540, cy: 960, z: lerp(1.14, 1.0, eout(tt / dur)), r: -.02 }, () => {
+    // 刀光：一笔飞白的墨弧，自右下扫向左上
+    const r = rng(52); ctx.save(); ctx.lineCap = 'butt';
+    const cx = 760, cy = 1560, R = 900, a0 = 3.38, a1 = 4.9, grow = clamp(tt / .12);
+    for (let i = 0; i < 90; i++) {
+      const u = i / 90, a = lerp(a1, a0, u); if (u > grow) break;
+      const w = 90 * Math.pow(Math.sin(Math.min(1, u * 1.15) * Math.PI), .7) + 4;
+      for (let k = 0; k < 7; k++) { const off = (k / 6 - .5) * w, dry = u > .55 && r() < (u - .5) * 1.1; if (dry) continue; ctx.strokeStyle = `rgba(11,9,8,${.82 + r() * .18})`; ctx.lineWidth = w / 6 + 1.5; ctx.beginPath(); ctx.arc(cx, cy, R + off, a - .02, a + .012, false); ctx.stroke(); }
+    }
     ctx.restore();
-    // 鬼向右上退开，断臂分离
-    at(ctx, 700 + slow * 60, 560 - slow * 50, .92, -.3 - slow * .1, () => oniFlight(ctx, { t: tt * .4, arm: false, col: '#0a0808' }));
-    at(ctx, 470 - slow * 20, 900 + slow * 90, .62, 1.9 + slow * .8, () => { ctx.fillStyle = '#0a0808'; ctx.save(); ctx.filter = 'brightness(0)'; drawArm(ctx, { wrap: 0 }); ctx.restore(); });
-    at(ctx, 330 - slow * 30, 1180 + slow * 40, 1.0, -.1, () => tsunaFall(ctx, { t: tt * .3, sword: 1, col: '#0a0808' }));
-    // 朱色飞沫
-    const r = rng(44);
-    for (let i = 0; i < 70; i++) { const a = -1.2 + r() * 1.6, d = (60 + r() * 520) * (.35 + .65 * slow), x = 560 + Math.cos(a) * d, y = 800 + Math.sin(a) * d * .9 + slow * slow * 60 * r(), sz = (3 + r() * 20) * (r() < .15 ? 2 : 1); ctx.fillStyle = `rgba(${150 + r() * 30},${26 + r() * 14},20,${.8 + r() * .2})`; ctx.beginPath(); ctx.ellipse(x, y, sz, sz * (.5 + r() * .5), a, 0, TAU); ctx.fill(); }
-    ctx.fillStyle = 'rgba(160,30,22,.92)'; ctx.beginPath(); ctx.ellipse(560, 800, 70 * slow + 20, 46 * slow + 14, -.5, 0, TAU); ctx.fill();
+    // 鬼向右上退开
+    at(ctx, 770 + slow * 70, 470 - slow * 60, .9, -.28 - slow * .08, () => oniFlight(ctx, { t: tt * .4, arm: false, col: INKC }));
+    // 断臂旋转着飞出
+    at(ctx, 520 - slow * 40, 760 + slow * 130, .7, 2.2 + slow * 1.1, () => { ctx.save(); ctx.filter = 'brightness(0)'; drawArm(ctx, { wrap: 0 }); ctx.restore(); });
+    // 纲：自左下挥刀向上
+    at(ctx, 300 - slow * 20, 1150 + slow * 40, 1.0, -.16, () => tsunaFall(ctx, { t: tt * .3, sword: 1, col: INKC }));
+    // 朱：自断口沿刀势向左上泼出
+    const ox = 640, oy = 640;
+    ctx.fillStyle = 'rgba(158,30,22,.94)';
+    ctx.beginPath(); ctx.ellipse(ox, oy, 46 + slow * 40, 26 + slow * 18, -.7, 0, TAU); ctx.fill();
+    for (let i = 0; i < 46; i++) {
+      const a = -2.5 + (r() - .5) * 1.5, d = (40 + Math.pow(r(), 1.6) * 620) * (.25 + .75 * slow), sz = (2 + Math.pow(r(), 2.2) * 26);
+      const x = ox + Math.cos(a) * d, y = oy + Math.sin(a) * d + slow * slow * 70 * r();
+      ctx.fillStyle = `rgba(${150 + r() * 24},${24 + r() * 14},18,${.85 + r() * .15})`;
+      ctx.beginPath(); ctx.ellipse(x, y, sz * (1.4 + r() * 1.6), sz * .55, a, 0, TAU); ctx.fill();
+      if (r() < .3) { ctx.beginPath(); ctx.ellipse(x - Math.cos(a) * sz * 2.4, y - Math.sin(a) * sz * 2.4, sz * 1.6, sz * .22, a, 0, TAU); ctx.fill(); }
+    }
   });
 }
 
-// ---------- S12 断臂落在桥上 ----------
+// ---------- S12 断臂落在桥板上（近景）----------
 export function arm_fall(ctx, s) {
-  const { t, dur } = s, hit = s.m('armHit', 1.1), u = t / dur;
-  const f = clamp(t / hit), fy = f < 1 ? lerp(-500, 1196, f * f) : 1196 - Math.abs(Math.sin((t - hit) * 9)) * 26 * Math.exp(-(t - hit) * 5);
-  const rot = f < 1 ? lerp(-3.4, -.18, f) : -.18 + Math.exp(-(t - hit) * 6) * .2 * Math.sin((t - hit) * 20);
-  const jolt = t > hit ? Math.exp(-(t - hit) * 8) : 0;
-  camera(ctx, { cx: 500, cy: 1060 - jolt * 10, z: lerp(2.0, 2.18, u) }, () => {
-    worldBG(ctx, t, { mx: 300, my: 760, mr: 120 });
-    fog(ctx, t, { y: 1250, h: 160, n: 7, a: .1, seed: 4, color: [150, 170, 210] });
-    bridge(ctx, t, () => {
-      layer(ctx, g => { at(g, 760, deckY(760) + 2, FIG, 0, () => riders(g, { rider: false, ph: 2 + Math.sin(t * 6) * .3, walk: .5, k: .85 })); }, { tint: NIGHT });
-      layer(ctx, g => at(g, 470, fy, .4, rot, () => drawArm(g, { wrap: 0, curl: t > hit ? .5 + .5 * Math.sin((t - hit) * 4) * Math.exp(-(t - hit) * 1.2) : 0 })), { tint: 'rgba(14,24,54,.18)' });
-      if (t > hit) { const d = t - hit; for (let i = 0; i < 6; i++) { ctx.fillStyle = `rgba(150,160,180,${.22 * Math.exp(-d * 2.2)})`; ctx.beginPath(); ctx.ellipse(470 + (i - 2.5) * 30 * (1 + d), 1200 - d * 12, 26 + d * 40, 12 + d * 12, 0, 0, TAU); ctx.fill(); } }
-    });
+  const { t, dur } = s, hit = s.m('armHit', 1.0), u = t / dur, d = t - hit;
+  const f = clamp(t / hit), jolt = d > 0 ? Math.exp(-d * 8) : 0;
+  camera(ctx, { cx: 540 + n1(t * 40, 3) * jolt * 8, cy: 1000 + jolt * 12, z: lerp(1.0, 1.12, io(u)), r: .03 }, () => {
+    // 桥板：横向木板，月色冷光
+    ctx.fillStyle = '#141820'; ctx.fillRect(-300, -300, 1700, 2600);
+    const r = rng(15);
+    for (let y = -260, i = 0; y < 2300; y += 150, i++) {
+      const c = 26 + r() * 12; ctx.fillStyle = css([c, c + 4, c + 14]); ctx.fillRect(-300, y, 1700, 144);
+      ctx.strokeStyle = 'rgba(4,6,10,.5)'; ctx.lineWidth = 2;
+      for (let k = 0; k < 6; k++) { const yy = y + 14 + r() * 116; ctx.beginPath(); ctx.moveTo(-300, yy); ctx.bezierCurveTo(200, yy + (r() - .5) * 20, 800, yy + (r() - .5) * 20, 1400, yy + (r() - .5) * 14); ctx.stroke(); }
+      ctx.fillStyle = '#05070b'; ctx.fillRect(-300, y + 144, 1700, 6);
+      ctx.fillStyle = 'rgba(150,170,210,.07)'; ctx.fillRect(-300, y, 1700, 4);
+      for (const x of [60 + (i % 2) * 380, 760 + (i % 2) * 200]) { ctx.fillStyle = '#080a0e'; ctx.beginPath(); ctx.arc(x, y + 30, 6, 0, TAU); ctx.arc(x, y + 114, 6, 0, TAU); ctx.fill(); }
+    }
+    // 栏杆脚与其投影（上方）
+    for (const x of [-60, 300, 660, 1020]) { ctx.fillStyle = '#07080c'; ctx.fillRect(x, -300, 70, 640); ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fill(P(`M ${x} 340 L ${x + 70} 340 L ${x + 250} 760 L ${x + 170} 760 Z`)); }
+    ctx.fillStyle = '#07080c'; ctx.fillRect(-300, 210, 1700, 60); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(-300, 560, 1700, 50);
+    // 影子先到
+    const ax = 540, ay = 1090;
+    ctx.fillStyle = `rgba(0,0,0,${.15 + .4 * f})`; ctx.beginPath(); ctx.ellipse(ax + 30, ay + 40, lerp(520, 300, f), lerp(180, 74, f), -.1, 0, TAU); ctx.fill();
+    const y = f < 1 ? lerp(-900, ay, f * f) : ay - Math.abs(Math.sin(d * 10)) * 40 * Math.exp(-d * 5);
+    const rot = f < 1 ? lerp(-2.6, -.14, f) : -.14 + Math.exp(-d * 6) * .16 * Math.sin(d * 22);
+    const sc = f < 1 ? lerp(1.9, 1.32, f) : 1.32;
+    layer(ctx, g => at(g, ax, y, sc, rot, () => drawArm(g, { wrap: 0, curl: d > 0 ? .25 + .55 * Math.abs(Math.sin(d * 3.2)) * Math.exp(-d * .9) : 0 })), { tint: 'rgba(14,24,60,.3)' });
+    // 断口的血迹
+    if (d > 0) { ctx.fillStyle = 'rgba(96,18,14,.8)'; const g2 = eout(d / .5); ctx.beginPath(); ctx.ellipse(ax + 320, ay + 30, 60 * g2, 34 * g2, .2, 0, TAU); ctx.fill(); for (const [dx, dy, rr] of [[400, -30, 12], [430, 60, 8], [370, 90, 10], [460, 10, 6]]) { ctx.beginPath(); ctx.arc(ax + dx, ay + dy, rr * g2, 0, TAU); ctx.fill(); } }
+    if (d > 0) for (let i = 0; i < 4; i++) { const px = ax + (i - 1.5) * 190 * (1 + d * .5), py = ay + 60 - d * 24, pr = 150 + d * 160; ctx.save(); ctx.translate(px, py); ctx.scale(1, .42); ctx.fillStyle = rg(ctx, 0, 0, 0, pr, [[0, `rgba(170,180,200,${.2 * Math.exp(-d * 1.8)})`], [1, 'rgba(170,180,200,0)']]); ctx.fillRect(-pr, -pr, pr * 2, pr * 2); ctx.restore(); }
+    glow(ctx, 300, 700, 900, [150, 170, 220], .14);
   });
-  darkness(ctx, 540, 1000, 520, 1350, .8);
+  darkness(ctx, 540, 1000, 500, 1350, .86);
 }
 
 // ---------- S13 鬼遁入夜色 ----------

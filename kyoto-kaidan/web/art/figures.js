@@ -20,7 +20,7 @@ export function riders(ctx, { ph = 0, k = 1, walk = 1, woman = false, o = 0, loo
     ctx.restore(); return;
   }
   // 女子坐在身后
-  if (woman) at(ctx, 96, -652, .4, 0, () => womanBust(ctx, { o, k, sway: Math.sin(ph) * .6 }));
+  if (woman) at(ctx, 104, -626, .4, 0, () => womanBust(ctx, { o, k, sway: Math.sin(ph) * .6 }));
   // 躯干
   const torso = P('M -58 -604 C -76 -560 -76 -500 -62 -452 L 60 -440 C 70 -500 62 -570 36 -606 Z');
   ctx.fillStyle = sh(PAL.tsunaRobe, k * .92); ctx.fill(torso); stroke(ctx, torso, INK, 3);
@@ -98,19 +98,28 @@ export function oniFlight(ctx, { t = 0, arm = true, col = '#040405', grab = 1 } 
 }
 export function tsunaFall(ctx, { t = 0, col = '#040405', sword = 0 } = {}) {
   // 原点=被掐住的颈部。身体悬垂，手按刀柄；sword>0 时刀已出鞘上挥
-  ctx.save(); ctx.fillStyle = col;
+  ctx.save(); ctx.fillStyle = col; ctx.lineJoin = 'miter';
   const s = Math.sin(t * 2.4) * .06;
-  ctx.rotate(.12 + s);
-  // 头（乌帽子）
-  ctx.fill(P('M -34 -12 C -50 -40 -40 -84 -6 -92 C 20 -96 44 -76 44 -44 C 44 -20 30 -4 10 0 Z M -30 -70 C -24 -110 0 -150 30 -176 C 44 -184 56 -170 54 -150 C 50 -120 44 -96 40 -70 Z'));
-  // 躯干与宽袖
-  ctx.fill(P('M -30 -6 C -80 30 -110 110 -100 210 C -60 250 40 250 90 210 C 100 110 80 30 30 -6 Z'));
-  ctx.fill(P(`M 60 30 C 130 50 ${190 + s * 200} 120 ${200 + s * 200} 190 C 160 200 120 170 80 130 Z`));
-  ctx.fill(P('M -70 40 C -130 80 -170 150 -160 220 C -130 220 -100 180 -70 130 Z'));
-  // 袴与腿
-  ctx.fill(P(`M -98 200 C -130 320 ${-150 + s * 300} 430 ${-160 + s * 400} 520 L ${-100 + s * 400} 530 C -70 440 -30 350 0 260 C 20 350 ${50 - s * 300} 440 ${70 - s * 400} 540 L ${130 - s * 400} 530 C 120 420 110 300 90 200 Z`));
-  // 刀
-  if (sword <= 0) ctx.fill(P('M -70 190 L 150 280 L 146 292 L -74 204 Z'));
-  else { ctx.save(); ctx.translate(100, 60); ctx.rotate(lerp(1.2, -1.9, sword)); ctx.fill(P('M -8 0 L 260 -8 L 300 0 L 260 8 Z M -30 -6 L 0 -6 L 0 6 L -30 6 Z')); ctx.restore(); }
+  ctx.rotate(.14 + s);
+  // 头与折乌帽子
+  ctx.fill(P('M -30 -8 C -46 -30 -42 -70 -14 -84 C 12 -92 38 -76 40 -48 C 42 -26 30 -8 12 0 Z'));
+  ctx.fill(P('M -34 -62 C -20 -84 6 -96 36 -88 C 44 -120 52 -160 50 -196 C 48 -214 34 -220 24 -208 C 2 -180 -22 -120 -34 -62 Z'));
+  // 躯干：宽肩收腰
+  ctx.fill(P('M -24 -8 L -96 26 L -70 120 L -56 214 L 60 214 L 72 120 L 96 26 L 26 -8 Z'));
+  // 直垂的大袖（风中张开）
+  ctx.fill(P(`M -92 22 C -150 60 ${-210 + s * 300} 130 ${-236 + s * 300} 214 L ${-150 + s * 200} 236 C -120 190 -90 150 -66 116 Z`));
+  if (sword <= 0) ctx.fill(P(`M 92 22 C 150 56 ${196 + s * 300} 120 ${214 + s * 300} 200 L ${136 + s * 200} 226 C 112 180 88 148 68 116 Z`));
+  // 袴：两条阔腿被风吹向一侧
+  ctx.fill(P(`M -58 206 C -86 300 ${-120 + s * 400} 400 ${-150 + s * 500} 500 L ${-66 + s * 500} 524 C -44 440 -20 350 0 280 C 14 350 ${30 - s * 300} 440 ${44 - s * 400} 536 L ${128 - s * 400} 520 C 110 410 84 300 62 206 Z`));
+  ctx.fill(P(`M ${-156 + s * 500} 496 L ${-60 + s * 500} 520 L ${-66 + s * 500} 548 L ${-176 + s * 500} 532 Z M ${40 - s * 400} 530 L ${132 - s * 400} 516 L ${150 - s * 400} 544 L ${44 - s * 400} 560 Z`));
+  if (sword <= 0) ctx.fill(P('M -84 176 L 150 268 L 144 282 L -90 190 Z M -84 176 L -126 158 L -130 172 L -90 190 Z'));
+  else {
+    // 挥刀：右臂连袖向上甩出，刀身细长
+    ctx.save(); ctx.translate(70, 20); ctx.rotate(lerp(1.0, -1.05, sword));
+    ctx.fill(P('M -10 -30 C 60 -70 150 -60 200 -24 L 196 14 C 150 20 70 40 -10 40 Z'));
+    ctx.fill(P('M 186 -16 L 470 -34 L 520 -22 L 470 -8 L 186 6 Z M 196 -30 L 208 -30 L 208 22 L 196 22 Z'));
+    ctx.restore();
+    ctx.fill(P('M -84 176 L 110 252 L 104 266 L -90 190 Z'));
+  }
   ctx.restore();
 }

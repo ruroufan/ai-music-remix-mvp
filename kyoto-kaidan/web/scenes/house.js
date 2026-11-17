@@ -200,10 +200,10 @@ export function roof(ctx, s) {
         const x = 560 + Math.cos(a) * (R * .6 + v * (1 - Math.exp(-life * 2.4)) * .5), y = 800 + Math.sin(a) * (R * .6 + v * (1 - Math.exp(-life * 2.4)) * .4) + 900 * life * life * (.4 + r() * .6);
         const sc = 1 + life * (.3 + r());
         ctx.save(); ctx.translate(x, y); ctx.rotate(a + spin * life); ctx.scale(sc, sc);
-        ctx.fillStyle = css([40 + r() * 60, 28 + r() * 36, 18 + r() * 16]); ctx.fillRect(-w / 2, -h / 2, w, h); ctx.strokeStyle = '#050302'; ctx.lineWidth = 2; ctx.strokeRect(-w / 2, -h / 2, w, h); ctx.restore();
+        const wc = 34 + r() * 44; ctx.fillStyle = css([wc, wc * .74, wc * .52]); ctx.fillRect(-w / 2, -h / 2, w, h); ctx.fillStyle = 'rgba(150,170,215,.22)'; ctx.fillRect(-w / 2, -h / 2, w, 3); ctx.strokeStyle = '#050302'; ctx.lineWidth = 2; ctx.strokeRect(-w / 2, -h / 2, w, h); ctx.restore();
       }
       // 尘
-      for (let i = 0; i < 14; i++) { const a = r() * TAU, d = R * (.7 + r() * .6) + tb * 120; ctx.fillStyle = `rgba(150,140,130,${.22 * Math.exp(-tb * 1.3)})`; ctx.beginPath(); ctx.arc(560 + Math.cos(a) * d, 800 + Math.sin(a) * d + tb * 160, 80 + tb * 130 + r() * 60, 0, TAU); ctx.fill(); }
+      for (let i = 0; i < 12; i++) { const a = r() * TAU, d = R * (.7 + r() * .6) + tb * 120, px = 560 + Math.cos(a) * d, py = 800 + Math.sin(a) * d + tb * 160, pr = 150 + tb * 190 + r() * 90; ctx.fillStyle = rg(ctx, px, py, 0, pr, [[0, `rgba(150,140,130,${.2 * Math.exp(-tb * 1.2)})`], [1, 'rgba(150,140,130,0)']]); ctx.fillRect(px - pr, py - pr, pr * 2, pr * 2); }
       if (tb < .16) { ctx.fillStyle = `rgba(240,236,220,${1 - tb / .16})`; ctx.fillRect(-300, -300, 1700, 2600); }
     }
   });

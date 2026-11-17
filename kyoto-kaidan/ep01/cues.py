@@ -53,7 +53,7 @@ def build(m, S):
     sl = M['slash']
     m.add('sfx', S.shing(2), sl - .08, .62); m.add('sfx', S.whoosh(.34, 9), sl - .1, .8); m.add('sfx', S.taiko(54, 1, 9), sl + .08, .95); m.add('sfx', S.boom(2.6, 44, 8), sl + .08, .55)
     m.add('sfx', S.splat(2), sl + .2, .35)
-    ah = st('S12') + 1.1
+    ah = st('S12') + 1.0
     m.add('sfx', S.whoosh(.5, 11, (150, 500), (500, 1800)), ah - .5, .22); m.add('sfx', S.reverb(S.thud(3, 70, 1), S.IR_ROOM, .25), ah, .85)
     m.add('sfx', S.howl(3.4, 480, 150, 5), st('S13') + .15, .17, pan=-.4)
     phrase(M['L14'] + 1.6, [(0, D4, 1), (1.3, A3, .8)], .34)

@@ -39,7 +39,7 @@ if (opt('stills') || opt('scene')) {
   if (opt('keep')) console.log(tmp); else fs.rmSync(tmp, { recursive: true });
 } else {
   const from = +(opt('from') || 0), to = +(opt('to') || tl.frames); const t0 = Date.now();
-  await ff(['-f', 'image2pipe', '-c:v', 'mjpeg', '-framerate', String(tl.fps), '-i', '-', '-c:v', 'libx264', '-preset', 'slow', '-crf', opt('crf') || '17',
+  await ff(['-f', 'image2pipe', '-c:v', 'mjpeg', '-framerate', String(tl.fps), '-i', '-', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', opt('crf') || '14',
     '-pix_fmt', 'yuv420p', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-colorspace', 'bt709', '-movflags', '+faststart', opt('out')], async (stdin) => {
     for (let f = from; f < to; f++) {
       const b64 = await page.evaluate(f => window.frameJPEG(f, .96), f);
